@@ -328,6 +328,8 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
 #jelszoModal input{width:100%;font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--keret);border-radius:8px}
 #jelszoHiba{color:var(--kritikus);font-size:12.5px;margin-top:8px;min-height:16px}
 #szinkronJelzo{font-size:11px;color:#9BE3B4}
+#onlineJelzo{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#C9CEE4;cursor:help}
+#onlineJelzo .pont{width:8px;height:8px;border-radius:50%;background:#37B36A;box-shadow:0 0 0 3px rgba(55,179,106,.22);flex:none}
 #szinkronJelzo.ment{color:var(--se-arany)}
 #szinkronJelzo.hiba{color:#FFADAD}
 </style>
@@ -376,6 +378,8 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <div id="fiokKezelo" style="display:none">
       <h3 style="margin-top:22px">Fiókok kezelése <span class="sugo-jel" data-tip="Csak a szuperadmin látja. A szerep és az aktív jelző azonnal mentődik. Új fiókot a háttérrendszeren keresztül lehet létrehozni.">?</span></h3>
       <div id="fiokLista"></div>
+      <h3 style="margin-top:22px">Belépési napló <span class="sugo-jel" data-tip="Ki és mikor lépett be a felületre. Csak a szuperadmin látja.">?</span></h3>
+      <div id="belepesNaplo"></div>
       <h3 style="margin-top:22px">Teljes mentés <span class="sugo-jel" data-tip="A rendszer összes élő adata egy JSON fájlban: rendelések, készlet, fotók, üzenetek, előzmények, fiókadatok. Visszaállítás a háttérrendszerből (scripts/backup_supabase.py).">?</span></h3>
       <div class="exportsav" style="margin-top:8px">
         <button class="gomb masodlagos" id="teljesMentes">Teljes mentés letöltése (JSON)</button>
@@ -415,6 +419,7 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <div class="huser" id="huser">
       <span><b id="huserNev"></b> <span class="hszerep" id="huserSzerep"></span></span>
       <span id="szinkronJelzo"></span>
+      <span id="onlineJelzo" data-tip=""></span>
       <button id="harang" title="Értesítések"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="szam" id="harangSzam"></span></button>
       <button id="fiokom">Fiókom</button>
       <button id="kijelentkezes">Kijelentkezés</button>
@@ -429,6 +434,7 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <button data-nezet="cikkek">Cikktörzs</button>
     <button data-nezet="arak">Árfigyelő</button>
     <button data-nezet="uzenofal">Üzenőfal</button>
+    <button data-nezet="javaslatok">Javaslatok</button>
     <button data-nezet="elozmenyek">Előzmények</button>
     <button data-nezet="sugo">Súgó</button>
   </div></nav>
@@ -437,7 +443,7 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
 <main>
 
 <section id="rendeles" class="nezet">
-  <h2>Rendelésleadás <span class="sugo-jel" data-tip="Keresd meg a cikket és tedd az igénylistára, a kész listát pedig add le a naplóba vagy exportáld. A kereső mindenre keres (név, cikkszám, kategória, szinonimák is), ékezet nélkül is érti. Minden változás automatikusan mentődik, mindenki ugyanazt látja.">?</span></h2>
+  <h2>Rendelésleadás <span class="sugo-jel" data-tip="Keresd meg a cikket és tedd az igénylistára, a kész listát pedig add le a naplóba vagy exportáld. A kereső mindenre keres (név, cikkszám, kategória, szinonimák is), ékezet nélkül is érti. Ahol ismert a kiszerelés, a mennyiség mellett az átváltás is látszik (darab és rendelési egység). Minden változás automatikusan mentődik.">?</span></h2>
   <div class="fejmezok">
     <input type="text" id="igenylo" placeholder="Igénylő neve" style="min-width:200px">
     <button class="gomb masodlagos" id="munkafajlMentes">Munkafájl mentése</button>
@@ -488,6 +494,17 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
       <button class="gomb" id="falKuld">Küldés</button>
     </div>
     <div id="falLista"></div>
+  </div>
+</section>
+
+<section id="javaslatok" class="nezet">
+  <h2>Javaslatok <span class="sugo-jel" data-tip="Ide írjatok mindent, ami kérés: új funkció, javítás, kényelmetlenség, ötlet. Mindenki látja, a fejlesztésnél innen dolgozunk.">?</span></h2>
+  <div class="kartya">
+    <div class="uzenet-iro">
+      <textarea id="javaslatSzoveg" placeholder="Írd le a kérést, ötletet vagy hibát... (pl. jó lenne ha..., nem kényelmes hogy..., hibát látok itt...)"></textarea>
+      <button class="gomb" id="javaslatKuld">Küldés</button>
+    </div>
+    <div id="javaslatLista"></div>
   </div>
 </section>
 
@@ -587,7 +604,7 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v1.4</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -861,6 +878,41 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
             m.klinikai_nev, m.gyarto, m.gyartoi_cikkszam, m.kiszereles, m.megjegyzes];
   };
   const nevE = c => modE(c.kod).klinikai_nev || c.klinikai_nev || c.nev || c.kod;
+  // kiszerelés-értelmező: a "1200/doboz", "200/karton", "25 db/dob" alakú
+  // kiszerelésekből kinyeri, hány darab van egy rendelési egységben,
+  // hogy a klinikai darabszám és a rendelési egység megfeleltethető legyen
+  function kiszerelesE(kod){
+    const m = modE(kod);
+    const szoveg = m.kiszereles || ((ADAT.termekek[kod]||[])[0] || {}).kiszereles || "";
+    const t = String(szoveg).match(/(\d+(?:[.,]\d+)?)\s*(?:db|lap|pár)?\s*\/\s*([a-záéíóöőúüűA-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű .]{2,})/i);
+    if (!t) return null;
+    const elemszam = parseFloat(t[1].replace(",", "."));
+    if (!(elemszam >= 2)) return null;
+    return { elemszam, egysegNev: t[2].trim().replace(/\.+$/, "").toLowerCase() };
+  }
+  // átváltási felirat: darabból rendelési egység és fordítva, hogy "egy nyelvet beszéljünk"
+  function atvaltas(kod, menny, egyseg){
+    if (!kod || !(menny > 0)) return "";
+    const k = kiszerelesE(kod);
+    if (!k) return "";
+    const e = norm(egyseg || "");
+    if (e.length >= 3 && norm(k.egysegNev).slice(0, 4) === e.slice(0, 4)){
+      return `= ${num(menny * k.elemszam)} db (${num(k.elemszam)} db/${esc(k.egysegNev)})`;
+    }
+    const csomag = menny / k.elemszam;
+    const szep = Number.isInteger(csomag) ? num(csomag)
+      : csomag.toLocaleString("hu-HU", { maximumFractionDigits: 2 });
+    return `= ${szep} ${esc(k.egysegNev)} (${num(k.elemszam)} db/${esc(k.egysegNev)})`;
+  }
+  // összes darabszám az exportokhoz: rendelési egységben megadott mennyiségnél átszámol
+  function osszDarab(kod, menny, egyseg){
+    if (!kod || !(menny > 0)) return "";
+    const k = kiszerelesE(kod);
+    const e = norm(egyseg || "");
+    if (k && e.length >= 3 && norm(k.egysegNev).slice(0, 4) === e.slice(0, 4)) return menny * k.elemszam;
+    if (!e || /^(db|darab)/.test(e)) return menny;
+    return "";
+  }
   // érvényes KEF állapot: kézi adatlap-állítás felülírja a forrásadatot
   const kefE = kod => {
     const m = modE(kod);
@@ -1102,7 +1154,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       MUNKA.tetelek.map(t => `<tr class="kosar-tetel" data-id="${t.id}">
         <td>${t.kod ? `<span class="cikknev-link" data-adatlap="${esc(t.kod)}">${esc(t.nev)}</span><br><span class="mini" style="font-size:11px;color:var(--tinta3)">${esc(t.kod)}</span>`
                     : `<input type="text" data-mezo="nev" value="${esc(t.nev)}" placeholder="Írd le pontosan, mi kell (gyártó, méret...)">`}</td>
-        <td class="num"><input type="number" min="0" step="1" data-mezo="menny" value="${t.menny}"></td>
+        <td class="num"><input type="number" min="0" step="1" data-mezo="menny" value="${t.menny}">${t.kod && atvaltas(t.kod, t.menny, t.egyseg) ? `<br><span class="mini" style="font-size:11px;color:var(--tinta3);white-space:nowrap">${atvaltas(t.kod, t.menny, t.egyseg)}</span>` : ""}</td>
         <td><input type="text" data-mezo="egyseg" value="${esc(t.egyseg)}" style="width:56px"></td>
         <td><input type="text" data-mezo="megj" value="${esc(t.megj)}" placeholder="pl. kiszerelés, sürgősség oka"></td>
         <td style="text-align:center"><input type="checkbox" data-mezo="surgos" ${t.surgos ? "checked" : ""}></td>
@@ -1130,6 +1182,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         else if (inp.dataset.mezo === "menny") t.menny = +inp.value || 0;
         else t[inp.dataset.mezo] = inp.value;
         jelolPiszkos();
+        if (inp.dataset.mezo === "menny" || inp.dataset.mezo === "egyseg") kosarRender();
       });
       tr.querySelector('[data-akcio="torol"]').onclick = () => {
         MUNKA.tetelek = MUNKA.tetelek.filter(x => x.id != t.id); jelolPiszkos(); kosarRender();
@@ -1196,7 +1249,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   }
   function gazdasagiExport(tetelek, datum){
     // a gazdasági folyamatot követve három lap: normál beszerzés, KEF, belső raktár
-    const FEJ = ["Sorszám","SAP cikkszám","Megnevezés","Mennyiség","Egység","Utolsó ismert fajlagos ár (Ft)","Becsült nettó érték (Ft)","Sürgős","Megjegyzés","Fotó csatolva"];
+    const FEJ = ["Sorszám","SAP cikkszám","Megnevezés","Mennyiség","Egység","Összes darab (kiszerelés szerint)","Utolsó ismert fajlagos ár (Ft)","Becsült nettó érték (Ft)","Sürgős","Megjegyzés","Fotó csatolva"];
     const csoportok = { beszerzes: [], kef: [], raktar: [] };
     tetelek.forEach(t => {
       const c = t.kod ? CIKK[t.kod] : null;
@@ -1206,6 +1259,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     const lapSorok = par => {
       const sorok = [FEJ.slice()];
       par.forEach(([t,c], i) => sorok.push([i+1, t.kod || "NINCS SAP KÓD", t.nev, t.menny, t.egyseg,
+        osszDarab(t.kod, t.menny, t.egyseg),
         (t.kod ? arE(t.kod) : null) ?? "", (t.kod && arE(t.kod)) ? Math.round(arE(t.kod) * t.menny) : "",
         t.surgos ? "SÜRGŐS" : "", [c?.kef_gyanu && !c?.kef_tetel ? "KEF gyanú, ellenőrizendő" : "", c?.kp_megjegyzes || "", t.megj].filter(Boolean).join(" · "),
         (t.kod ? (CIKK_KEPEK[t.kod]||[]).length : t.kepek.length) ? "van (a rendszerben)" : ""]));
@@ -1240,7 +1294,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
 
   // ---------- Timcsi-formátumú export (a javított tábla oszlopai) ----------
   function timcsiLapok(tetelek){
-    const FEJ = ["SAP","Terméknév","Cikkszám","Forgalmazó","Kiszerelés","Igényelt rendelési egység","Nettó egységár (utolsó ismert)","Bruttó össz (becsült, 27% ÁFA)"];
+    const FEJ = ["SAP","Terméknév","Cikkszám","Forgalmazó","Kiszerelés","Igényelt mennyiség","Egység","Összes darab (kiszerelés szerint)","Nettó egységár (utolsó ismert)","Bruttó össz (becsült, 27% ÁFA)"];
     const sor = t => {
       const c = t.kod ? CIKK[t.kod] : null;
       const p = t.kod ? (ADAT.termekek[t.kod]||[])[0] : null;
@@ -1250,7 +1304,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         m.gyartoi_cikkszam || (p?.cikkszam && p.cikkszam !== "-" ? p.cikkszam : ""),
         m.gyarto || p?.forgalmazo || (c?.kp ? "Központi raktár" : ""),
         m.kiszereles || p?.kiszereles || "",
-        t.menny, ar ?? "", ar ? Math.round(ar * t.menny * 1.27 * 100) / 100 : ""];
+        t.menny, t.egyseg || "", osszDarab(t.kod, t.menny, t.egyseg),
+        ar ?? "", ar ? Math.round(ar * t.menny * 1.27 * 100) / 100 : ""];
     };
     const kef = tetelek.filter(t => t.kod && kefE(t.kod));
     const nemKef = tetelek.filter(t => !(t.kod && kefE(t.kod)));
@@ -1323,7 +1378,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
           <table><thead><tr><th>Cikk</th><th class="num">Menny.</th><th>Egys.</th><th>Tétel állapota (mikró)</th><th style="min-width:160px">Követési megjegyzés</th></tr></thead><tbody>
           ${r.tetelek.map((t,i) => `<tr>
             <td>${t.kod ? cikkThumb(t.kod, 26) + " " : ""}${t.kod ? `<span class="cikknev-link" data-adatlap="${esc(t.kod)}">${esc(t.nev)}</span>` : esc(t.nev)}${t.kod ? `<br><span class="minikat">${esc(t.kod)}</span>` : ""}</td>
-            <td class="num">${num(t.menny)}</td><td>${esc(t.egyseg)||""}</td>
+            <td class="num">${num(t.menny)}${t.kod && atvaltas(t.kod, t.menny, t.egyseg) ? `<br><span class="minikat" style="white-space:nowrap">${atvaltas(t.kod, t.menny, t.egyseg)}</span>` : ""}</td><td>${esc(t.egyseg)||""}</td>
             <td><select class="mikro-select" data-tetel="${i}">${MIKRO.map(m => `<option ${m===t.allapot?"selected":""}>${m}</option>`).join("")}</select></td>
             <td><input type="text" data-kovetes="${i}" value="${esc(t.kovetes)}" placeholder="pl. 2 karton hiányzik, számla eltér..."></td>
           </tr>`).join("")}
@@ -1452,11 +1507,26 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     if (!cel) return;
     const cimzettSel = document.getElementById("falCimzett");
     if (cimzettSel && !cimzettSel.options.length) cimzettSel.innerHTML = cimzettOpciok();
-    const uzik = (window.UZENETEK || []).filter(u => u.rendeles_id == null).slice().reverse();
+    const uzik = (window.UZENETEK || []).filter(u => u.rendeles_id == null && u.tipus !== "javaslat").slice().reverse();
     cel.innerHTML = uzik.length ? uzik.map(uzenetHtml).join("")
       : `<div class="kosar-ures">Még nincs üzenet a falon.</div>`;
     if (document.getElementById("uzenofal").classList.contains("aktiv")) olvasottra(uzik);
   }
+  // javaslatok (kérések, ötletek, hibák)
+  function javaslatRender(){
+    const cel = document.getElementById("javaslatLista");
+    if (!cel) return;
+    const uzik = (window.UZENETEK || []).filter(u => u.tipus === "javaslat").slice().reverse();
+    cel.innerHTML = uzik.length ? uzik.map(uzenetHtml).join("")
+      : `<div class="kosar-ures">Még nincs javaslat. Bármilyen kérés, ötlet vagy hibajelzés ide jöhet.</div>`;
+  }
+  document.getElementById("javaslatKuld").onclick = () => {
+    const mezo = document.getElementById("javaslatSzoveg");
+    const sz = mezo.value.trim();
+    if (!sz || !window.uzenetKuld) return;
+    mezo.value = "";
+    window.uzenetKuld(sz, null, null, "javaslat");
+  };
   document.getElementById("falKuld").onclick = () => {
     const mezo = document.getElementById("falSzoveg");
     const cimzettSel = document.getElementById("falCimzett");
@@ -1475,6 +1545,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   });
   window.uzenetFrissult = () => {
     falRender();
+    javaslatRender();
     MUNKA.leadott.forEach(r => { if (naploNyitva.has(r.id)) chatRender(r.id); });
     ertesitesRender();
   };
@@ -1492,9 +1563,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     const db = nekem.length + ujak.length;
     document.getElementById("harangSzam").textContent = db > 9 ? "9+" : db;
     harang.classList.toggle("van", db > 0);
-    const elem = u => `<button class="elem" data-ugras="${u.rendeles_id ?? ""}">
+    const elem = u => `<button class="elem" data-ugras="${u.rendeles_id ?? ""}" data-tipus="${esc(u.tipus||"")}">
       <b>${esc(u.szerzo)}</b>${u.cimzett ? `<span class="cimzett-chip">→ ${esc(u.cimzett)}</span>` : ""}
-      <span class="mikor">· ${idoStr(u.letrehozva)} · ${u.rendeles_id ? "rendelés" : "üzenőfal"}</span><br>
+      <span class="mikor">· ${idoStr(u.letrehozva)} · ${u.rendeles_id ? "rendelés" : (u.tipus === "javaslat" ? "javaslat" : "üzenőfal")}</span><br>
       ${esc(String(u.szoveg).slice(0, 90))}${String(u.szoveg).length > 90 ? "..." : ""}</button>`;
     ertesitesPanel.innerHTML =
       (nekem.length ? `<div class="cim">Neked címzett</div>` + nekem.map(elem).join("") : "") +
@@ -1506,6 +1577,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         naploNyitva.add(+b.dataset.ugras);
         document.querySelector('nav button[data-nezet="naplo"]').click();
         naploRender();
+      } else if (b.dataset.tipus === "javaslat"){
+        document.querySelector('nav button[data-nezet="javaslatok"]').click();
+        javaslatRender();
       } else {
         document.querySelector('nav button[data-nezet="uzenofal"]').click();
         falRender();
@@ -1960,6 +2034,23 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   <div class="kartya">
     <h3>Honnan jönnek az adatok?</h3>
     <p>A cikktörzs és az utolsó ismert árak háttéradatból épülnek és a háttérrendszeren keresztül frissülnek, minden más (rendelések, készlet, eltérések, árak alkalmazása) itt a felületen, a ti munkátokból keletkezik. Az Eltérések fül a rendelésnaplóban jelölt eltéréseket gyűjti, a követés a mostantól leadott rendelésekre épül.</p>
+  </div>
+  <div class="kartya">
+    <h3>Kiszerelés és darabszám – egy nyelvet beszélünk</h3>
+    <p>Ahol ismert a kiszerelés (pl. 1200 db/doboz), ott az igénylista és a rendelésnapló a beírt mennyiség mellett automatikusan mutatja az átváltást is: darabszámból a rendelési egységet és fordítva. Az exportokban külön "Összes darab" oszlop van, így a klinikai darabigény és a gazdasági rendelési egység nem csúszhat el egymástól. A kiszerelést a cikk adatlapján bárki pontosíthatja, az átváltás onnantól aszerint számol.</p>
+  </div>
+  <div class="kartya">
+    <h3>Javaslatok</h3>
+    <p>A Javaslatok fülre írjatok mindent, ami kérés: új funkció, javítás, kényelmetlenség, ötlet, hibajelzés. Mindenki látja, és a fejlesztés innen dolgozik.</p>
+  </div>
+  <div class="kartya">
+    <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v1.4</b> · kiszerelés-átváltás (darab és rendelési egység megfeleltetése), Hol van? mező a készletnél, Javaslatok fül, online jelzés a fejlécben, belépési napló, verziónapló</p>
+    <p style="margin-bottom:6px"><b>v1.3</b> · megjelenési javítások, PRÓBA mintaadatok, mobilra és érintőképernyőre optimalizálás</p>
+    <p style="margin-bottom:6px"><b>v1.2</b> · harang-értesítések, címezhető üzenetek, teljes fiókkezelő, jelszószabályok és elfelejtett jelszó, teljes mentés, új menüsorrend</p>
+    <p style="margin-bottom:6px"><b>v1.1</b> · letisztult felület ?-súgókkal, minden követés tiszta lappal indul, okosabb kereső (szinonimák), tevékenységnapló, üzenőfal és rendelésenkénti beszélgetés</p>
+    <p style="margin-bottom:6px"><b>v1.0</b> · belépés fiókokkal, közös szerveres tárolás automatikus mentéssel, valós idejű frissülés mindenkinél</p>
+    <p style="margin-bottom:0"><b>v0.1–v0.9</b> · a prototípus felépítése: cikktörzs, rendelésleadás exportokkal, rendelésnapló követéssel, készletvezetés riasztással, árfigyelő, fotók, súgó</p>
   </div>`;
 
   // ---------- szerveres szinkron csatolópontjai ----------
@@ -1982,7 +2073,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   // induló nézetek (a készlet- és naplófüggő áttekintés csak innentől frissülhet)
   attKesz = true;
   if (!localStorage.getItem("raktar_lattam")) localStorage.setItem("raktar_lattam", Date.now());
-  attekintesRender(); arfigyeloRender(); falRender(); elozmenyRender(); ertesitesRender();
+  attekintesRender(); arfigyeloRender(); falRender(); javaslatRender(); elozmenyRender(); ertesitesRender();
 })();
 };
 </script>
@@ -2087,12 +2178,27 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       .subscribe();
   }
 
+  // ---------- jelenlét: ki van most belépve ----------
+  function jelenletIndit(){
+    const el = document.getElementById("onlineJelzo");
+    const he = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+    const csatorna = supa.channel("online-jelenlet", { config: { presence: { key: window.PROFIL_ID } } });
+    csatorna.on("presence", { event: "sync" }, () => {
+      const nevek = [...new Set(Object.values(csatorna.presenceState()).flat().map(x => x.nev).filter(Boolean))];
+      el.innerHTML = `<span class="pont"></span>${nevek.length} online`;
+      el.dataset.tip = "<b>Most belépve:</b><br>" + nevek.map(he).join("<br>");
+    }).subscribe(async allapot => {
+      if (allapot === "SUBSCRIBED") await csatorna.track({ nev: PROFIL.nev });
+    });
+  }
+
   // ---------- üzenetek és tevékenységnapló írása ----------
-  window.uzenetKuld = async (szoveg, rendelesId, cimzettId) => {
+  window.uzenetKuld = async (szoveg, rendelesId, cimzettId, tipus) => {
     const cimzett = cimzettId ? (window.FIOKOK || []).find(f => f.id === cimzettId) : null;
     const { data, error } = await supa.from("uzenet")
       .insert({ szoveg, rendeles_id: rendelesId, szerzo: PROFIL.nev, szerzo_id: window.PROFIL_ID,
-                cimzett_id: cimzettId || null, cimzett: cimzett ? cimzett.nev : null })
+                cimzett_id: cimzettId || null, cimzett: cimzett ? cimzett.nev : null,
+                tipus: tipus || "uzenet" })
       .select().single();
     if (error){ console.error("Üzenet hiba:", error); alert("Nem sikerült elküldeni az üzenetet."); return; }
     if (!window.UZENETEK.some(u => u.id === data.id)) window.UZENETEK.push(data);
@@ -2173,6 +2279,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       document.getElementById("huserSzerep").textContent = SZEREP_NEV[profil.szerep] || profil.szerep;
       window.appStart(kat.ertek, MENTETT, profil);
       realtimeIndit();
+      jelenletIndit();
+      supa.from("belepes_naplo").insert({ felhasznalo: profil.nev, felhasznalo_id: user.id })
+        .then(({ error: e }) => { if (e) console.error("Belépésnapló hiba:", e); });
       jelzoAllit("kesz");
       document.getElementById("belepes").classList.add("rejtve");
       document.body.classList.remove("varakozik");
@@ -2203,8 +2312,21 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       fiokModal.querySelector(".panel").classList.add("szeles");
       document.getElementById("fiokKezelo").style.display = "block";
       fiokListaTolt();
+      belepesNaploTolt();
     }
   };
+  async function belepesNaploTolt(){
+    const cel = document.getElementById("belepesNaplo");
+    cel.innerHTML = "Betöltés...";
+    const { data: sorok, error } = await supa.from("belepes_naplo")
+      .select("idopont, felhasznalo").order("idopont", { ascending: false }).limit(50);
+    if (error){ cel.textContent = "Nem sikerült betölteni."; return; }
+    const he = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;");
+    cel.innerHTML = sorok.length
+      ? `<table><thead><tr><th>Mikor</th><th>Ki</th></tr></thead><tbody>` +
+        sorok.map(s => `<tr><td style="white-space:nowrap">${new Date(s.idopont).toLocaleDateString("hu-HU")} ${new Date(s.idopont).toLocaleTimeString("hu-HU", {hour:"2-digit",minute:"2-digit"})}</td><td>${he(s.felhasznalo)}</td></tr>`).join("") + `</tbody></table>`
+      : `<div class="minikat">Még nincs bejegyzés.</div>`;
+  }
   document.getElementById("fiokBezar").onclick = () => fiokModal.classList.remove("nyitva");
   fiokModal.onclick = ev => { if (ev.target === fiokModal) fiokModal.classList.remove("nyitva"); };
   document.getElementById("fiokMent").onclick = async () => {
