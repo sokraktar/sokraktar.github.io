@@ -95,7 +95,7 @@ tr.reszlet th{border-bottom:1px solid var(--keret);cursor:default}
 .megj{font-size:12.5px;color:var(--tinta2);background:#F6F5EF;border-left:3px solid var(--se-arany-sotet);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
 .tobb{margin:12px auto;display:block;font:inherit;font-size:13px;font-weight:600;color:var(--se-kek);background:#fff;border:1px solid var(--keret);border-radius:8px;padding:8px 18px;cursor:pointer}
 .tobb:hover{background:#F6F5EF}
-#tooltip{position:fixed;pointer-events:none;background:var(--se-kek);color:#fff;font-size:12px;padding:8px 10px;border-radius:8px;opacity:0;transition:opacity .1s;z-index:10;max-width:280px;box-shadow:0 4px 14px rgba(35,47,97,.25)}
+#tooltip{position:fixed;pointer-events:none;background:var(--se-kek);color:#fff;font-size:12px;padding:8px 10px;border-radius:8px;opacity:0;transition:opacity .1s;z-index:120;max-width:340px;box-shadow:0 4px 14px rgba(35,47,97,.25)}
 #tooltip b{color:var(--se-arany)}
 .spark{vertical-align:middle}
 footer{max-width:1200px;margin:0 auto;padding:10px 24px 30px;font-size:12px;color:var(--tinta3)}
@@ -181,6 +181,8 @@ footer{max-width:1200px;margin:0 auto;padding:10px 24px 30px;font-size:12px;colo
 .cikknev-link{cursor:pointer}
 .cikknev-link:hover{text-decoration:underline;text-decoration-color:var(--se-arany-sotet);text-underline-offset:3px}
 .szerk-jel{font-size:10.5px;font-weight:700;color:#0B5C8B;background:#E3EFF8;border:1px solid #A9CFE8;border-radius:20px;padding:1px 7px}
+.sugo-jel{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;border:1.5px solid var(--se-arany-sotet);color:var(--se-arany-sotet);font-size:11px;font-weight:800;cursor:help;vertical-align:2px;margin-left:6px;user-select:none;flex:none}
+.sugo-jel:hover{background:var(--se-arany-sotet);color:#fff}
 /* --- belépés és fejléc felhasználósáv --- */
 #belepes{position:fixed;inset:0;background:var(--se-kek);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;border-top:6px solid var(--se-arany)}
 #belepes.rejtve{display:none}
@@ -215,10 +217,10 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
   <div class="belepes-kartya">
     <svg width="52" height="52" viewBox="0 0 46 46" aria-hidden="true">
       <circle cx="23" cy="23" r="21.5" fill="none" stroke="#232F61" stroke-width="1.6"/>
-      <g stroke="#232F61" stroke-width="1.5" fill="none" stroke-linecap="round">
-        <path d="M15 31c-3-4-3-9 0-13"/><path d="M15 29c-2-.5-3.5-2-4-3.5M15 25c-2-.5-3.5-2-4-3.5M15 21c-1.5-.3-3-1.5-3.5-3"/>
-        <path d="M31 31c3-4 3-9 0-13"/><path d="M31 29c2-.5 3.5-2 4-3.5M31 25c2-.5 3.5-2 4-3.5M31 21c1.5-.3 3-1.5 3.5-3"/>
-        <path d="M23 33V15M23 18l-3-2.5M23 18l3-2.5M23 23l-3.5-3M23 23l3.5-3M23 28l-4-3.5M23 28l4-3.5"/>
+      <g stroke="#232F61" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="13.5" y="17.5" width="19" height="13.5" rx="2.6"/>
+        <path d="M19.5 17.5v-2.2a2.2 2.2 0 0 1 2.2-2.2h2.6a2.2 2.2 0 0 1 2.2 2.2v2.2"/>
+        <path d="M23 21.2v6.1M19.95 24.25h6.1"/>
       </g>
     </svg>
     <h1>Raktárkészlet és rendeléskövetés</h1>
@@ -231,7 +233,6 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
       <button class="gomb" type="submit" id="beGomb">Belépés</button>
       <div id="beHiba"></div>
     </form>
-    <p class="belepes-megj">A belépési adatokat Kornéltól kapjátok. Ha elfelejtetted a jelszavad, szólj neki és kapsz újat.</p>
   </div>
 </div>
 <div id="jelszoModal">
@@ -252,15 +253,15 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
   <div class="hwrap">
     <svg class="hlogo" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
       <circle cx="23" cy="23" r="21.5" fill="none" stroke="#E3D496" stroke-width="1.6"/>
-      <g stroke="#E3D496" stroke-width="1.5" fill="none" stroke-linecap="round">
-        <path d="M15 31c-3-4-3-9 0-13"/><path d="M15 29c-2-.5-3.5-2-4-3.5M15 25c-2-.5-3.5-2-4-3.5M15 21c-1.5-.3-3-1.5-3.5-3"/>
-        <path d="M31 31c3-4 3-9 0-13"/><path d="M31 29c2-.5 3.5-2 4-3.5M31 25c2-.5 3.5-2 4-3.5M31 21c1.5-.3 3-1.5 3.5-3"/>
-        <path d="M23 33V15M23 18l-3-2.5M23 18l3-2.5M23 23l-3.5-3M23 23l3.5-3M23 28l-4-3.5M23 28l4-3.5"/>
+      <g stroke="#E3D496" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="13.5" y="17.5" width="19" height="13.5" rx="2.6"/>
+        <path d="M19.5 17.5v-2.2a2.2 2.2 0 0 1 2.2-2.2h2.6a2.2 2.2 0 0 1 2.2 2.2v2.2"/>
+        <path d="M23 21.2v6.1M19.95 24.25h6.1"/>
       </g>
     </svg>
     <div class="htext">
       <h1>Raktárkészlet és rendeléskövetés</h1>
-      <p>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · SAP megrendelések 2026.01.01. – 2026.08.10. · béta</p>
+      <p>Sürgősségi Orvostani Klinika · Semmelweis Egyetem</p>
     </div>
     <div class="huser" id="huser">
       <span><b id="huserNev"></b> <span class="hszerep" id="huserSzerep"></span></span>
@@ -277,14 +278,14 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <button data-nezet="megrendelesek">SAP megrendelések</button>
     <button data-nezet="cikkek">Cikktörzs</button>
     <button data-nezet="arak">Árfigyelő</button>
-    <button data-nezet="anomaliak">Anomáliák</button>
+    <button data-nezet="anomaliak">Eltérések</button>
     <button data-nezet="sugo">Súgó</button>
   </div></nav>
 </header>
 <main>
 
 <section id="rendeles" class="nezet aktiv">
-  <h2>Rendelésleadás</h2>
+  <h2>Rendelésleadás <span class="sugo-jel" data-tip="Keresd meg a cikket és tedd az igénylistára, a kész listát pedig add le a naplóba vagy exportáld. A kereső mindenre keres (név, cikkszám, kategória, szinonimák is), ékezet nélkül is érti. Minden változás automatikusan mentődik, mindenki ugyanazt látja.">?</span></h2>
   <div class="fejmezok">
     <input type="text" id="igenylo" placeholder="Igénylő neve" style="min-width:200px">
     <button class="gomb masodlagos" id="munkafajlMentes">Munkafájl mentése</button>
@@ -303,24 +304,22 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
       <div style="margin-top:10px"><button class="gomb masodlagos" id="szabadTetel">+ Nincs a listában? Szabad szöveges tétel</button></div>
     </div>
     <div class="kartya" style="margin-bottom:0">
-      <h3 style="margin-top:0">Igénylista <span id="kosarDb" style="color:var(--tinta3);font-weight:600"></span></h3>
+      <h3 style="margin-top:0">Igénylista <span id="kosarDb" style="color:var(--tinta3);font-weight:600"></span> <span class="sugo-jel" data-tip="<b>Lista leadása:</b> időbélyeggel a rendelésnaplóba kerül.<br><b>Rendelési xlsx:</b> a gazdasági iroda táblájának oszlopaival, KEF külön lapon, továbbküldhető.<br><b>Gazdasági (3 lap):</b> Beszerzés, KEF és belső raktár szétválogatva.<br>A fotó a cikkhez rögzül és mindenhol látszik.">?</span></h3>
       <div id="kosar"></div>
       <div class="exportsav">
         <button class="gomb" id="listaLeadas">Lista leadása a naplóba</button>
-        <button class="gomb arany" id="expTimcsi">Export: Timcsi-formátum (xlsx)</button>
+        <button class="gomb arany" id="expTimcsi">Export: rendelési xlsx</button>
         <button class="gomb masodlagos" id="expGazdasagi">Gazdasági xlsx (3 lap)</button>
         <button class="gomb masodlagos" id="expEgyszeru">Egyszerű lista xlsx</button>
         <button class="gomb masodlagos" id="expCsv">CSV</button>
         <button class="gomb masodlagos" id="kosarUrit">Lista ürítése</button>
       </div>
-      <p class="megj" style="margin-bottom:0">A gazdasági export a Timcsi-féle feldolgozáshoz készül (SAP cikkszámmal, utolsó ismert árral, becsült értékkel), az egyszerű lista a klinikai egyeztetéshez. A fotó a cikkhez rögzül: ha egyszer felraktátok, a cikknél marad és a keresőben, a cikktörzsben meg a készletnézetben is látszik. Minden változás automatikusan mentődik a közös rendszerbe, és mindenki ugyanazt látja, aki belép.</p>
     </div>
   </div>
 </section>
 
 <section id="naplo" class="nezet">
-  <h2>Rendelésnapló <span style="font-weight:600;font-size:13px;color:var(--tinta3)">a klinika által leadott rendelési igények, időrendben</span></h2>
-  <div class="megj">Itt jelenik meg minden leadott igénylista időbélyeggel, külön blokkokban. Két szinten követhető a folyamat: a rendelés állapota (makró: összeállítva, leadva, SAP-ban megrendelve, beérkezett...) a blokk fejlécében állítható, az egyes tételek sorsa (mikró: beérkezett, kevesebb jött, más termék jött, sérült...) a blokkot lenyitva tételenként jelölhető megjegyzéssel. Minden változás automatikusan mentődik és mindenkinél megjelenik.</div>
+  <h2>Rendelésnapló <span class="sugo-jel" data-tip="A rendelés állapota a blokk fejlécében állítható, az egyes tételek sorsa (beérkezett, kevesebb jött, sérült...) a blokkot lenyitva jelölhető megjegyzéssel. A jelölt eltérések az Eltérések fülön gyűlnek össze.">?</span></h2>
   <div id="naploLista"></div>
 </section>
 
@@ -330,7 +329,7 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
 </section>
 
 <section id="keszlet" class="nezet">
-  <h2>Készletkövetés <span style="font-weight:600;font-size:13px;color:var(--tinta3)">manuális vezetés, vonalkód nélkül</span></h2>
+  <h2>Készletkövetés <span class="sugo-jel" data-tip="Kézi vezetés: a Készleten mezőbe írd be az aktuális mennyiséget. A napi fogyás az idei rendelésekből becsült érték, felülírható. 14 napnyi készlet alatt figyelmeztetés, 7 nap alatt kritikus jelzés jön, a riasztottak egy gombbal igénylistára tehetők.">?</span></h2>
   <div class="kpik" id="keszletKpik"></div>
   <div class="szurok">
     <input type="search" id="keszletKeres" placeholder="Keresés cikknévre...">
@@ -348,7 +347,6 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
       </tr></thead><tbody></tbody>
     </table>
   </div>
-  <p class="megj">A készletet kézzel vezetjük: a Készleten mezőbe írd be az aktuális mennyiséget (leltár szemlélet), a mező nyilaival pedig gyors bevételezés/kivételezés léptethető. A napi fogyás az idei SAP rendelésekből becsült érték (összes rendelt mennyiség / eltelt napok), kézzel felülírható, ha tudjátok a valós fogyást. Riasztás: 14 napnyi készlet alatt "rendelj hamarosan", 7 nap alatt "kritikus". Az Igénylistára gomb a szokásos rendelési mennyiséggel átteszi a cikket a rendelésleadásba.</p>
 </section>
 
 <section id="attekintes" class="nezet">
@@ -362,31 +360,28 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <h2>Költés megoszlása kategóriánként</h2>
     <div id="katChart"></div>
   </div>
-  <div class="megj">Az adatok forrása az SAP megrendelés-export (Szappanos Eszter, 2026.08.11), kiegészítve Timcsi és Évi 2026-os havi tábláival és a KP11 raktárlistával. Csak a fogyóanyag és belső raktári kör látszik. A megjelenő árak mindig becsültek: az utolsó ismert árat mutatják (SAP rendelésből, gazdasági táblából vagy beolvasott árajánlatból), a számlázott ár ettől eltérhet. Az SAP szerinti beérkeztetés a közvetlen rendeléseknél nem megbízható (lásd Anomáliák), a valós követés a Rendelésnaplóban történik.</div>
 </section>
 
 <section id="megrendelesek" class="nezet">
-  <h2>Megrendelések (444 db)</h2>
+  <h2>Megrendelések (444 db) <span class="sugo-jel" data-tip="Az egyetemi SAP-ból betöltött megrendelések. Egy sorra kattintva a tételek nyílnak le.">?</span></h2>
   <div class="szurok">
     <input type="search" id="megrKeres" placeholder="Keresés bizonylatszámra, cikknévre...">
     <select id="megrKat"><option value="">Minden kategória</option></select>
-    <label class="cb"><input type="checkbox" id="megrNyitott"> csak nyitott tételt tartalmazó</label>
   </div>
   <div class="kartya" style="padding:6px 10px">
     <table id="megrTabla">
       <thead><tr>
         <th data-k="bizl">Bizonylat</th><th data-k="datum">Dátum</th><th data-k="kategoria">Kategória</th>
         <th data-k="szallito">Szállító</th><th class="num" data-k="n_tetel">Tétel</th>
-        <th class="num" data-k="ertek">Nettó érték</th><th data-k="nyitott">Státusz</th>
+        <th class="num" data-k="ertek">Nettó érték</th>
       </tr></thead><tbody></tbody>
     </table>
     <button class="tobb" id="megrTobb">További 100 megjelenítése</button>
   </div>
-  <p class="megj">Egy sorra kattintva a megrendelés tételei nyílnak le. A státusz az SAP "még kiadandó mennyiség" mezőjéből származik, aminek pontos jelentését még tisztázzuk a gazdasági oldallal.</p>
 </section>
 
 <section id="cikkek" class="nezet">
-  <h2>Cikktörzs (706 cikk)</h2>
+  <h2>Cikktörzs (706 cikk) <span class="sugo-jel" data-tip="A cikk nevére kattintva bárki kiegészítheti az adatlapot (klinikai név, gyártó, kiszerelés, fotó). A sárga KEF? címke a K- előtag alapján automatikus gyanújelölés.">?</span></h2>
   <div class="szurok">
     <input type="search" id="cikkKeres" placeholder="Keresés cikknévre vagy cikkszámra...">
     <select id="cikkKat"><option value="">Minden kategória</option></select>
@@ -402,11 +397,10 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     </table>
     <button class="tobb" id="cikkTobb">További 100 megjelenítése</button>
   </div>
-  <p class="megj">A klinikai név, gyártó és kiszerelés oszlopok a közösen kitöltendő cikktörzs xlsx-ből kerülnek majd be. A sárga KEF címke a K- előtag alapján automatikus gyanújelölés.</p>
 </section>
 
 <section id="arak" class="nezet">
-  <h2>Árfigyelő – cikkek változó fajlagos árral (106 cikk)</h2>
+  <h2>Árfigyelő (106 cikk) <span class="sugo-jel" data-tip="Cikkek, amiknek idén változott a fajlagos ára (ár / árazási egység, így a különböző kiszerelések összevethetők). Minden ár becsült, az utolsó ismert árat mutatja, forrással. Az árajánlat-beolvasás xlsx-ből vagy csv-ből párosítja és frissíti az árakat.">?</span></h2>
   <div class="szurok">
     <input type="search" id="arKeres" placeholder="Keresés cikknévre...">
     <select id="arKat"><option value="">Minden kategória</option></select>
@@ -424,24 +418,14 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
       </tr></thead><tbody></tbody>
     </table>
   </div>
-  <p class="megj">Fajlagos nettó ár = SAP nettó ár / árazási egység, így a különböző árazási egységű sorok összevethetők. A gyűjtőkódok (Y és 9 kezdetű, pl. beruházás, szolgáltatás keretsorok) ki vannak szűrve, mert ott az "árváltozás" csak a tételek különbözőségét tükrözné. A változás oszlop a legkorábbi és a legutolsó megrendelt ár viszonya.</p>
 </section>
 
 <section id="anomaliak" class="nezet">
-  <h2>Anomáliák és folyamatkövetés</h2>
-  <div class="kpik" id="anoKpik"></div>
-  <div class="kartya">
-    <h3 style="margin-top:0">Nyitott tételsorok kategóriánként</h3>
-    <div id="nyitottChart"></div>
-  </div>
+  <h2>Eltérések és követés <span class="sugo-jel" data-tip="Ami a rendelésnaplóban eltérésként jelölődik (kevesebb jött, más termék, sérült, áreltérés, nem érkezett), az itt gyűlik össze. A követés a mostantól leadott rendelésekre épül.">?</span></h2>
+  <div class="kpik" id="eltKpik"></div>
   <div class="kartya" style="padding:6px 10px">
-    <h3 style="margin:12px 10px 6px">Törölt jelölésű tételek (SAP L jelölés)</h3>
-    <table id="toroltTabla">
-      <thead><tr><th>Bizonylat</th><th>Dátum</th><th>Cikk</th><th class="num">Mennyiség</th><th class="num">Nettó érték</th></tr></thead>
-      <tbody></tbody>
-    </table>
+    <div id="eltLista"></div>
   </div>
-  <p class="megj">Az SAP szerint a tételsorok többségénél a teljes rendelt mennyiség "még kiadandó". Amíg nem tisztázott, hogy az érkeztetést könyvelik-e az SAP-ben, ezt nem tényleges hiányként, hanem nyitott kérdésként kezeljük. A valódi beérkezés-követés Évi tábláiból és a szállítólevelekből épül majd fel.</p>
 </section>
 
 </main>
@@ -455,7 +439,7 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Raktárkészlet projekt · béta, közös szerveres tárolással · generálva 2026.08.11 · források: SAP export, Timcsi és Évi havi táblái (2026.01–08.), KP11 raktárlista, ITO referencia · belső használatra</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -470,7 +454,7 @@ let kepFrissitok = [];   // nézetfrissítő hookok, ha fotó változik
 function kepValtozott(){ kepFrissitok.forEach(f => f()); if (window.jelolPiszkosH) window.jelolPiszkosH(); }
 function cikkThumb(kod, meret){
   const k = (CIKK_KEPEK[kod]||[])[0];
-  return k ? `<img class="thumb" ${meret?`style="width:${meret}px;height:${meret}px"`:""} src="${k.adat}" data-lbkod="${kod}" data-lbidx="0" title="Kattints a megtekintéshez">` : "";
+  return k ? `<img class="thumb" ${meret?`style="width:${meret}px;height:${meret}px"`:""} src="${esc(k.adat)}" data-lbkod="${esc(kod)}" data-lbidx="0" title="Kattints a megtekintéshez">` : "";
 }
 // lightbox
 (function(){
@@ -505,9 +489,57 @@ const KATSZIN = {"Fogyóanyag":"#008C49","Szolgáltatás":"#008BD2","Eszköz":"#
 const KATSORREND = ["Fogyóanyag","Szolgáltatás","Eszköz","Központi raktár","Egyéb (46)","Egyéb (47)"];
 // univerzális, ékezet-független kereső: minden szónak illeszkednie kell valamelyik mezőre
 const norm = s => String(s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+// HTML escape a felhasználói tartalmakhoz (tárolt XSS ellen)
+const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+// szinonimák és klinikai szleng: ha a beírt szó egy köznapi vagy szakmai
+// alakja valaminek, a katalógusban használt kifejezésekre is keresünk
+const SZINONIMA = [
+  [["branul","branyul","braunul","venas kanul","venakanul"], ["vasofix","braunule","kanul"]],
+  [["szarnyastu","butterfly","pillango"], ["szarnyas tu"]],
+  [["fecsi","injekcio"], ["fecskendo","tu "]],
+  [["infuzios szerelek","infuzioszerelek"], ["szerelek","intrafix","primeline"]],
+  [["pulzoxi","pulzoximeter","szaturacio","szatura"], ["spo2","szenzor"]],
+  [["gezlap","mullap","mull-lap","kotszer"], ["mull","gez","kotszer"]],
+  [["sebtapasz","leukoplast","plaszter"], ["tapasz","ragtapasz"]],
+  [["gumikesztyu","vizsgalokesztyu","nitril","latex"], ["kesztyu"]],
+  [["holyagkateter","vizeletkateter","foley"], ["ballonkateter","tiemann","kateter"]],
+  [["vizeletes zsak","vizeleteszsak","vizeletzsak"], ["vizeletgyujto"]],
+  [["pelus","inkontinencia","inko"], ["pelenka","alatet"]],
+  [["fertotlenito","kezfertotlenito","fercsi"], ["fertotlenit"]],
+  [["ekg matrica","ekg tapasz","matrica"], ["elektroda"]],
+  [["lazmero"], ["homero"]],
+  [["vervetel","verveteli","vacutainer","vercso"], ["vacuette","edta","szerumcso","mintavev","von.kod"]],
+  [["tugyujto","eles hulladek","tu gyujto"], ["badella"]],
+  [["ambu ballon","ballonos lelegeztet","ambuzsak"], ["ambu","lelegeztet"]],
+  [["lumbalis","gerinc tu","spinal"], ["spinaltu","quincke"]],
+  [["cvk","centralis kanul","centralis venas"], ["cvc","certofix"]],
+  [["artkanul","arteria"], ["arterias"]],
+  [["perfuzor"], ["fecskendo 50"]],
+  [["oxigenmaszk","o2 maszk","o2maszk"], ["maszk","oxigen"]],
+  [["orrszonda","o2 szemuveg","oxigenszemuveg"], ["orrkanul"]],
+  [["szivokateter","leszivo","szivocso"], ["szivo"]],
+  [["lma","gegemaszk"], ["laringealis"]],
+  [["intubalas","intubacio","et tubus","endotrachealis"], ["intubacios","tubus"]],
+  [["karszalag","azonosito szalag"], ["betegazonosito","csuklopant"]],
+  [["intraosszealis","csontfuro"], ["ez-io"]],
+  [["szemeteszsak","kukazsak","hulladekzsak"], ["zsak","hulladek"]],
+  [["takaritoszer","tisztitoszer"], ["tisztito","mososzer","fertotlenit"]],
+  [["nyomtatopapir","masolopapir","irodai papir","printer"], ["fenymasol"]],
+  [["vernyomasmero","vernyomas"], ["mandzsetta","nyomasmero"]],
+  [["mellkasi szivas","mellkascsovezes"], ["mellk","szivo"]],
+  [["gyorsteszt","antigen"], ["teszt","troponin"]],
+];
+function tokenIllik(szoveg, t){
+  if (szoveg.includes(t)) return true;
+  for (const [aliasok, celok] of SZINONIMA){
+    if (aliasok.some(a => a === t || (t.length >= 4 && a.startsWith(t)) || (a.length >= 4 && t.startsWith(a)))
+        && celok.some(c => szoveg.includes(c))) return true;
+  }
+  return false;
+}
 function keresIllik(q, mezok){
   const szoveg = norm(mezok.filter(Boolean).join(" "));
-  return norm(q).split(/\s+/).filter(Boolean).every(t => szoveg.includes(t));
+  return norm(q).split(/\s+/).filter(Boolean).every(t => tokenIllik(szoveg, t));
 }
 const ft = n => n==null ? "–" : Math.round(n).toLocaleString("hu-HU") + " Ft";
 const num = n => n==null ? "–" : (+n).toLocaleString("hu-HU");
@@ -537,8 +569,7 @@ document.getElementById("kpik").innerHTML = [
   ["Összes nettó költés", ft(k.osszes_netto), "törölt tételek nélkül"],
   ["Megrendelés", num(k.megrendelesek) + " db", dat(k.dtol) + " – " + dat(k.dig)],
   ["Cikk", num(k.cikkek) + " db", "egyedi SAP cikkszám"],
-  ["Szállító", num(k.szallitok) + " db", "csak SAP szállítószám ismert"],
-  ["Nyitott tételsor", num(k.nyitott_tetelek) + " db", "SAP szerint még kiadandó"]
+  ["Szállító", num(k.szallitok) + " db", "csak SAP szállítószám ismert"]
 ].map(x => `<div class="kpi"><div class="cim">${x[0]}</div><div class="ertek">${x[1]}</div><div class="alcim">${x[2]}</div></div>`).join("");
 
 // ---------- havi stacked oszlopdiagram ----------
@@ -634,42 +665,34 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   const kats = [...new Set(ADAT.megrendelesek.map(r => r.kategoria))].sort();
   const sel = document.getElementById("megrKat");
   kats.forEach(kt => sel.insertAdjacentHTML("beforeend", `<option>${kt}</option>`));
-  const keres = document.getElementById("megrKeres"), nyit = document.getElementById("megrNyitott");
+  const keres = document.getElementById("megrKeres");
   function szurt(){
     const q = keres.value.trim();
     return ADAT.megrendelesek.filter(r => {
       if (sel.value && r.kategoria !== sel.value) return false;
-      if (nyit.checked && !r.nyitott) return false;
       if (!q) return true;
       if (keresIllik(q, [r.bizl, r.szallito, r.kategoria, r.fajta, r.datum])) return true;
       return (ADAT.tetelek[r.bizl]||[]).some(t => keresIllik(q, [t[0]]));
     });
   }
-  function statusz(r){
-    if (r.torolt === r.n_tetel) return `<span class="cimke torolt">törölt</span>`;
-    if (!r.nyitott) return `<span class="cimke kesz">SAP: kiadva</span>`;
-    if (r.nyitott === r.n_tetel - r.torolt) return `<span class="cimke nyitott">nyitott</span>`;
-    return `<span class="cimke nyitott">részben nyitott</span>`;
-  }
   const motor = tablaMotor({
     tabla: document.getElementById("megrTabla"), tobb: document.getElementById("megrTobb"),
     alapK: "datum", adat: szurt,
-    sor: r => `<tr class="fo" data-bizl="${r.bizl}"><td>${r.bizl}</td><td>${dat(r.datum)}</td><td>${katJel(r.kategoria)}</td>
-      <td>${r.szallito||"–"}</td><td class="num">${r.n_tetel}</td><td class="num">${ft(r.ertek)}</td><td>${statusz(r)}</td></tr>`,
+    sor: r => `<tr class="fo" data-bizl="${esc(r.bizl)}"><td>${esc(r.bizl)}</td><td>${dat(r.datum)}</td><td>${katJel(r.kategoria)}</td>
+      <td>${esc(r.szallito)||"–"}</td><td class="num">${r.n_tetel}</td><td class="num">${ft(r.ertek)}</td></tr>`,
     utana: tbody => tbody.querySelectorAll("tr.fo").forEach(tr => tr.onclick = () => {
       const nyitva = tr.nextElementSibling?.classList.contains("reszlet");
       tbody.querySelectorAll("tr.reszlet").forEach(x => x.remove());
       if (nyitva) return;
       const ts = ADAT.tetelek[tr.dataset.bizl] || [];
-      tr.insertAdjacentHTML("afterend", `<tr class="reszlet"><td colspan="7"><table>
-        <tr><th>Cikk</th><th class="num">Mennyiség</th><th>Egység</th><th class="num">Fajlagos ár</th><th class="num">Nettó érték</th><th>Állapot</th></tr>
-        ${ts.map(t => `<tr><td>${t[0]||"–"}</td><td class="num">${num(t[1])}</td><td>${t[2]||""}</td>
-          <td class="num">${ft(t[3])}</td><td class="num">${ft(t[4])}</td>
-          <td>${t[6] ? '<span class="cimke torolt">törölt</span>' : (t[5] > 0 ? `<span class="cimke nyitott">nyitott: ${num(t[5])}</span>` : '<span class="cimke kesz">kiadva</span>')}</td></tr>`).join("")}
+      tr.insertAdjacentHTML("afterend", `<tr class="reszlet"><td colspan="6"><table>
+        <tr><th>Cikk</th><th class="num">Mennyiség</th><th>Egység</th><th class="num">Fajlagos ár</th><th class="num">Nettó érték</th></tr>
+        ${ts.map(t => `<tr><td>${esc(t[0])||"–"}</td><td class="num">${num(t[1])}</td><td>${esc(t[2])||""}</td>
+          <td class="num">${ft(t[3])}</td><td class="num">${ft(t[4])}</td></tr>`).join("")}
       </table></td></tr>`);
     })
   });
-  [keres, sel, nyit].forEach(e => e.oninput = () => motor.frissit());
+  [keres, sel].forEach(e => e.oninput = () => motor.frissit());
 })();
 
 // ---------- Cikktörzs nézet ----------
@@ -743,46 +766,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   [keres, sel].forEach(e => e.oninput = () => motor.frissit());
 })();
 
-// ---------- Anomáliák ----------
-(function(){
-  const nyitottak = ADAT.megrendelesek.filter(r => r.nyitott > 0);
-  const nyitottErtek = nyitottak.reduce((s,r) => s + (r.ertek||0), 0);
-  document.getElementById("anoKpik").innerHTML = [
-    ["Nyitott tételsor", num(k.nyitott_tetelek) + " db", "SAP szerint még kiadandó"],
-    ["Érintett megrendelés", num(nyitottak.length) + " db", "legalább egy nyitott tétellel"],
-    ["Érintett nettó érték", ft(nyitottErtek), "nyitott tételt tartalmazó rendelések"],
-    ["Törölt tétel", num(k.torolt_tetelek) + " db", "SAP L jelöléssel"]
-  ].map(x => `<div class="kpi"><div class="cim">${x[0]}</div><div class="ertek">${x[1]}</div><div class="alcim">${x[2]}</div></div>`).join("");
-
-  // nyitott sávdiagram kategóriánként
-  const cs = {};
-  ADAT.megrendelesek.forEach(r => {
-    if (!cs[r.kategoria]) cs[r.kategoria] = {ny:0, ossz:0};
-    cs[r.kategoria].ny += r.nyitott; cs[r.kategoria].ossz += r.n_tetel - r.torolt;
-  });
-  const sor = KATSORREND.filter(kt => cs[kt]).map(kt => [kt, cs[kt].ny, cs[kt].ossz]);
-  const max = Math.max(...sor.map(x => x[2]));
-  const W = 1100, rh = 34, P = {l:150,r:170};
-  let s = `<svg viewBox="0 0 ${W} ${sor.length*rh+6}" style="width:100%;height:auto" font-family="Montserrat,'Trebuchet MS',sans-serif">`;
-  sor.forEach((x,i) => {
-    const y = i*rh+4, wOssz = (W-P.l-P.r)*x[2]/max, wNy = (W-P.l-P.r)*x[1]/max;
-    s += `<text x="${P.l-10}" y="${y+17}" text-anchor="end" font-size="12.5" fill="#232F61">${x[0]}</text>`;
-    s += `<rect x="${P.l}" y="${y}" width="${Math.max(wOssz,2)}" height="24" rx="4" fill="#E7E5DC" data-tip="<b>${x[0]}</b><br>összes tételsor: ${num(x[2])}"/>`;
-    s += `<rect x="${P.l}" y="${y}" width="${Math.max(wNy,2)}" height="24" rx="4" fill="#9A6A00" data-tip="<b>${x[0]}</b><br>nyitott: ${num(x[1])} / ${num(x[2])}"/>`;
-    s += `<text x="${P.l+wOssz+8}" y="${y+17}" font-size="12" fill="#5A6178">${num(x[1])} / ${num(x[2])} nyitott</text>`;
-  });
-  s += "</svg>";
-  document.getElementById("nyitottChart").innerHTML = s;
-
-  // törölt tételek
-  const tb = document.querySelector("#toroltTabla tbody");
-  const sorok = [];
-  ADAT.megrendelesek.forEach(r => (ADAT.tetelek[r.bizl]||[]).forEach(t => {
-    if (t[6]) sorok.push(`<tr><td>${r.bizl}</td><td>${dat(r.datum)}</td><td>${t[0]||"–"}</td>
-      <td class="num">${num(t[1])} ${t[2]||""}</td><td class="num">${ft(t[4])}</td></tr>`);
-  }));
-  tb.innerHTML = sorok.join("");
-})();
+// Az Eltérések nézetet a rendelésnapló tölti (elteresRender, lásd lent):
+// a követés a mostantól leadott rendelésekre épül, a korábbi SAP-os
+// státuszokat nem követjük.
 
 // ================= RENDELÉSLEADÁS ÉS KÉSZLET =================
 (function(){
@@ -877,7 +863,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     const q = rendKeres.value.trim();
     const illik = c => !q || keresIllik(q, [c.nev, c.klinikai_nev, c.kod, c.kategoria, c.egyseg,
       (c.kef_tetel || c.kef_gyanu) ? "kef" : "", c.kp ? "belső raktár kp11" : "", c.kp_ref, c.kp_megjegyzes,
-      ...termekMezok(c.kod)]);
+      csoport(c), ...termekMezok(c.kod)]);
     let lista = ADAT.cikkek.filter(c => (c.ossz_ertek || ADAT.termekek[c.kod] || c.kp) && illik(c));
     const rejtett = 0;
     const cim = document.getElementById("listaCim"), valto = document.getElementById("tallozasValto");
@@ -890,9 +876,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       lista = lista.filter(c => gyakorisag(c) > 0).sort((a,b) => gyakorisag(b) - gyakorisag(a)).slice(0, GYAKORI_DB);
       cim.textContent = "Leggyakrabban rendelt tételeitek";
       valto.textContent = "Tallózás: összes cikk";
-      labjegyzet = lista.length
-        ? `<div class="kosar-ures" style="padding:10px">A lista a 2026-os havi rendeléseitek alapján indul, és amit itt tesztek igénylistára, az idővel feljebb kerül. A teljes választék a tallózással vagy a keresővel érhető el.</div>`
-        : `<div class="kosar-ures" style="padding:26px 14px">Ez a lista még üres: ahogy elkezdtek rendelni, itt gyűlnek majd a leggyakrabban kért tételeitek.<br><br>Addig használd a <b>keresőt</b> fent, vagy a <b>tallózást</b> a jobb felső sarokban.</div>`;
+      labjegyzet = lista.length ? ""
+        : `<div class="kosar-ures" style="padding:26px 14px">Ez a lista még üres, használd a keresőt vagy a tallózást.</div>`;
     } else {
       // csoportosított tallózás: a csoportok használat szerint, azon belül ABC
       const suly = new Map(), darab = new Map();
@@ -928,10 +913,10 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       return csoportFejlec(c) + `
       <div class="talalat">
         ${cikkThumb(c.kod) || `<span class="pont" style="background:${KATSZIN[c.kategoria]||"#8B90A0"};flex:none"></span>`}
-        <span class="nev"><span class="cikknev-link" data-adatlap="${c.kod}" title="Adatlap megnyitása">${nevE(c)}</span>${kefBadge(c)}<br>
-          ${nevE(c) !== c.nev && c.nev ? `<span class="minikat">SAP: ${c.nev}</span><br>` : ""}
-          ${(forg || kisz || cksz) ? `<span class="minikat">${[forg, kisz ? "kiszerelés: " + kisz : "", cksz ? "cikkszám: " + cksz : ""].filter(Boolean).join(" · ")}${ts.length > 1 ? ` · +${ts.length-1} további változat` : ""}</span><br>` : ""}
-          ${c.kp && (c.kp_megjegyzes || c.kp_ref) ? `<span class="minikat">${[c.kp_ref ? "ref: " + c.kp_ref : "", c.kp_megjegyzes].filter(Boolean).join(" · ")}</span><br>` : ""}
+        <span class="nev"><span class="cikknev-link" data-adatlap="${esc(c.kod)}" title="Adatlap megnyitása">${esc(nevE(c))}</span>${kefBadge(c)}<br>
+          ${nevE(c) !== c.nev && c.nev ? `<span class="minikat">SAP: ${esc(c.nev)}</span><br>` : ""}
+          ${(forg || kisz || cksz) ? `<span class="minikat">${esc([forg, kisz ? "kiszerelés: " + kisz : "", cksz ? "cikkszám: " + cksz : ""].filter(Boolean).join(" · "))}${ts.length > 1 ? ` · +${ts.length-1} további változat` : ""}</span><br>` : ""}
+          ${c.kp && (c.kp_megjegyzes || c.kp_ref) ? `<span class="minikat">${esc([c.kp_ref ? "ref: " + c.kp_ref : "", c.kp_megjegyzes].filter(Boolean).join(" · "))}</span><br>` : ""}
           <span class="ar">${c.kod}${arE(c.kod) != null ? ` · utolsó ismert ár: ${ft(arE(c.kod))}${c.egyseg ? " / " + c.egyseg : ""}${arJelzes(c.kod)}` : " · nincs ismert ár"}${c.n_rendeles ? ` · ${num(c.n_rendeles)} rendelés idén` : ""}</span>
           <span class="minikat"> · ${c.kategoria||""}</span><br>
           <button class="kepgomb" data-fotokod="${c.kod}">${(CIKK_KEPEK[c.kod]||[]).length ? "további fotó" : "+ fotó a cikkhez"}</button></span>
@@ -975,14 +960,14 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     const t0 = (ADAT.termekek[kod]||[])[0] || {};
     const mezo = (cimke, id, ertek, alap, placeholder) => `
       <div class="adatlap-mezo"><label>${cimke}</label>
-        <input type="text" id="${id}" value="${(ertek||"").replaceAll('"','&quot;')}" placeholder="${placeholder||""}">
-        ${alap ? `<div class="alap">eddig ismert: ${alap}</div>` : ""}</div>`;
+        <input type="text" id="${id}" value="${esc(ertek)}" placeholder="${placeholder||""}">
+        ${alap ? `<div class="alap">eddig ismert: ${esc(alap)}</div>` : ""}</div>`;
     adatlapPanel.innerHTML = `
-      <h3>${nevE(c)}</h3>
-      <div class="alcim">SAP: ${c.nev || "nincs SAP név"} · kód: ${kod} · ${c.kategoria||""}
-        ${m.mikor ? ` · utoljára kiegészítette: ${m.ki||"?"} (${m.mikor.slice(0,10)})` : ""}</div>
+      <h3>${esc(nevE(c))} <span class="sugo-jel" data-tip="Amit itt beírsz, az mindenkinél felülírja a megjelenített adatot. Az eredeti forrásadat megmarad alatta (eddig ismert sor), és a Kiegészítések törlése gombbal visszaállítható.">?</span></h3>
+      <div class="alcim">SAP: ${esc(c.nev) || "nincs SAP név"} · kód: ${esc(kod)} · ${esc(c.kategoria)||""}
+        ${m.mikor ? ` · utoljára kiegészítette: ${esc(m.ki)||"?"} (${m.mikor.slice(0,10)})` : ""}</div>
       <div class="adatlap-mezo"><label>Fotók</label>
-        ${(CIKK_KEPEK[kod]||[]).map((k,i) => `<img class="thumb" src="${k.adat}" data-lbkod="${kod}" data-lbidx="${i}" style="width:56px;height:56px">`).join(" ")}
+        ${(CIKK_KEPEK[kod]||[]).map((k,i) => `<img class="thumb" src="${esc(k.adat)}" data-lbkod="${esc(kod)}" data-lbidx="${i}" style="width:56px;height:56px">`).join(" ")}
         <button class="gomb masodlagos" id="alFoto" style="font-size:12px">+ fotó</button></div>
       ${mezo("Klinikai név (ahogy ti hívjátok)", "alKlinikai", m.klinikai_nev, c.klinikai_nev, "pl. zöld branül")}
       ${mezo("Gyártó / forgalmazó", "alGyarto", m.gyarto, t0.forgalmazo, "pl. B.Braun Trading Kft")}
@@ -995,8 +980,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
           <option value="nem" ${m.kef === "nem" ? "selected" : ""}>nem KEF-es</option>
         </select></div>
       <div class="adatlap-mezo"><label>Megjegyzés (bármi, ami segít: minimum rendelés, mire figyeljünk...)</label>
-        <textarea id="alMegj">${m.megjegyzes || ""}</textarea>
-        ${c.kp_megjegyzes ? `<div class="alap">belső raktár: ${c.kp_megjegyzes}</div>` : ""}</div>
+        <textarea id="alMegj">${esc(m.megjegyzes)}</textarea>
+        ${c.kp_megjegyzes ? `<div class="alap">belső raktár: ${esc(c.kp_megjegyzes)}</div>` : ""}</div>
       ${mezo("Módosító neve", "alKi", m.ki || igenyloNev(), "", "ki írta be")}
       <div class="exportsav">
         <button class="gomb" id="alMent">Mentés</button>
@@ -1053,19 +1038,19 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   };
   function kosarRender(){
     document.getElementById("kosarDb").textContent = MUNKA.tetelek.length ? `(${MUNKA.tetelek.length} tétel)` : "";
-    if (!MUNKA.tetelek.length){ kosar.innerHTML = `<div class="kosar-ures">Az igénylista üres. Keress rá egy cikkre balra és add hozzá, vagy vegyél fel szabad szöveges tételt.</div>`; return; }
+    if (!MUNKA.tetelek.length){ kosar.innerHTML = `<div class="kosar-ures">Az igénylista üres.</div>`; return; }
     kosar.innerHTML = `<table><thead><tr><th style="min-width:180px">Cikk</th><th class="num">Menny.</th><th>Egys.</th><th style="min-width:140px">Megjegyzés</th><th>Sürgős</th><th>Fotó</th><th></th></tr></thead><tbody>` +
       MUNKA.tetelek.map(t => `<tr class="kosar-tetel" data-id="${t.id}">
-        <td>${t.kod ? `<span class="cikknev-link" data-adatlap="${t.kod}">${t.nev}</span><br><span class="mini" style="font-size:11px;color:var(--tinta3)">${t.kod}</span>`
-                    : `<input type="text" data-mezo="nev" value="${t.nev.replaceAll('"','&quot;')}" placeholder="Írd le pontosan, mi kell (gyártó, méret...)">`}</td>
+        <td>${t.kod ? `<span class="cikknev-link" data-adatlap="${esc(t.kod)}">${esc(t.nev)}</span><br><span class="mini" style="font-size:11px;color:var(--tinta3)">${esc(t.kod)}</span>`
+                    : `<input type="text" data-mezo="nev" value="${esc(t.nev)}" placeholder="Írd le pontosan, mi kell (gyártó, méret...)">`}</td>
         <td class="num"><input type="number" min="0" step="1" data-mezo="menny" value="${t.menny}"></td>
-        <td><input type="text" data-mezo="egyseg" value="${t.egyseg}" style="width:56px"></td>
-        <td><input type="text" data-mezo="megj" value="${(t.megj||"").replaceAll('"','&quot;')}" placeholder="pl. kiszerelés, sürgősség oka"></td>
+        <td><input type="text" data-mezo="egyseg" value="${esc(t.egyseg)}" style="width:56px"></td>
+        <td><input type="text" data-mezo="megj" value="${esc(t.megj)}" placeholder="pl. kiszerelés, sürgősség oka"></td>
         <td style="text-align:center"><input type="checkbox" data-mezo="surgos" ${t.surgos ? "checked" : ""}></td>
         <td>${t.kod
-            ? `${(CIKK_KEPEK[t.kod]||[]).map((k,i) => `<img class="thumb" src="${k.adat}" title="${k.nev}" data-lbkod="${t.kod}" data-lbidx="${i}">`).join(" ")}
+            ? `${(CIKK_KEPEK[t.kod]||[]).map((k,i) => `<img class="thumb" src="${esc(k.adat)}" title="${esc(k.nev)}" data-lbkod="${esc(t.kod)}" data-lbidx="${i}">`).join(" ")}
                <button class="kepgomb" data-akcio="cikkkep">+ fotó</button>`
-            : `${t.kepek.map((k,i) => `<img class="thumb" src="${k.adat}" title="${k.nev}" data-kep="${i}">`).join(" ")}
+            : `${t.kepek.map((k,i) => `<img class="thumb" src="${esc(k.adat)}" title="${esc(k.nev)}" data-kep="${i}">`).join(" ")}
                <button class="kepgomb" data-akcio="kep">+ fotó</button>
                <input type="file" accept="image/*" multiple style="display:none">`}</td>
         <td><button class="torol" data-akcio="torol" title="Tétel törlése">✕</button></td>
@@ -1218,7 +1203,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   }
   document.getElementById("expTimcsi").onclick = () => {
     if (!ellenoriz()) return;
-    xlsxLetolt(`megrendeles_timcsi_${ma()}`, timcsiLapok(MUNKA.tetelek));
+    xlsxLetolt(`megrendeles_${ma()}`, timcsiLapok(MUNKA.tetelek));
   };
 
   // ---------- lista leadása a naplóba ----------
@@ -1252,7 +1237,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   }
   function naploRender(){
     if (!MUNKA.leadott.length){
-      naploLista.innerHTML = `<div class="kartya"><div class="kosar-ures">Még nincs leadott rendelés. A Rendelésleadás fülön összeállított lista a "Lista leadása a naplóba" gombbal kerül ide, időbélyeggel.</div></div>`;
+      naploLista.innerHTML = `<div class="kartya"><div class="kosar-ures">Még nincs leadott rendelés.</div></div>`;
+      elteresRender();
       return;
     }
     naploLista.innerHTML = MUNKA.leadott.map(r => {
@@ -1262,10 +1248,10 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         <div class="naplo-fej">
           <span class="ido">${idoStr(r.mikor)}</span>
           <span class="makro-cimke ${MAKRO_OSZTALY[r.statusz]||""}">${r.statusz}</span>
-          <span style="color:var(--tinta2);font-size:12.5px">${r.igenylo || "névtelen"} · ${r.tetelek.length} tétel · kb. ${ft(ossz)}${gond ? ` · <b style="color:var(--kritikus)">${gond} tétel eltéréssel</b>` : ""}</span>
+          <span style="color:var(--tinta2);font-size:12.5px">${esc(r.igenylo) || "névtelen"} · ${r.tetelek.length} tétel · kb. ${ft(ossz)}${gond ? ` · <b style="color:var(--kritikus)">${gond} tétel eltéréssel</b>` : ""}</span>
           <span style="flex:1"></span>
           <select data-akcio="makro" title="Rendelés állapota (makró követés)">${MAKRO.map(m => `<option ${m===r.statusz?"selected":""}>${m}</option>`).join("")}</select>
-          <button class="gomb masodlagos" data-akcio="exptimcsi" style="font-size:12px">Timcsi xlsx</button>
+          <button class="gomb masodlagos" data-akcio="exptimcsi" style="font-size:12px">Rendelési xlsx</button>
           <button class="gomb masodlagos" data-akcio="expgazd" style="font-size:12px">Gazdasági xlsx</button>
           <button class="gomb masodlagos" data-akcio="expkovetes" style="font-size:12px">Követés xlsx</button>
           <button class="torol" data-akcio="torol" title="Blokk törlése">✕</button>
@@ -1273,13 +1259,13 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         <div class="naplo-test">
           <table><thead><tr><th>Cikk</th><th class="num">Menny.</th><th>Egys.</th><th>Tétel állapota (mikró)</th><th style="min-width:160px">Követési megjegyzés</th></tr></thead><tbody>
           ${r.tetelek.map((t,i) => `<tr>
-            <td>${t.kod ? cikkThumb(t.kod, 26) + " " : ""}${t.kod ? `<span class="cikknev-link" data-adatlap="${t.kod}">${t.nev}</span>` : t.nev}${t.kod ? `<br><span class="minikat">${t.kod}</span>` : ""}</td>
-            <td class="num">${num(t.menny)}</td><td>${t.egyseg||""}</td>
+            <td>${t.kod ? cikkThumb(t.kod, 26) + " " : ""}${t.kod ? `<span class="cikknev-link" data-adatlap="${esc(t.kod)}">${esc(t.nev)}</span>` : esc(t.nev)}${t.kod ? `<br><span class="minikat">${esc(t.kod)}</span>` : ""}</td>
+            <td class="num">${num(t.menny)}</td><td>${esc(t.egyseg)||""}</td>
             <td><select class="mikro-select" data-tetel="${i}">${MIKRO.map(m => `<option ${m===t.allapot?"selected":""}>${m}</option>`).join("")}</select></td>
-            <td><input type="text" data-kovetes="${i}" value="${(t.kovetes||"").replaceAll('"','&quot;')}" placeholder="pl. 2 karton hiányzik, számla eltér..."></td>
+            <td><input type="text" data-kovetes="${i}" value="${esc(t.kovetes)}" placeholder="pl. 2 karton hiányzik, számla eltér..."></td>
           </tr>`).join("")}
           </tbody></table>
-          <div style="margin-top:8px"><input type="text" data-akcio="blokkmegj" value="${(r.megjegyzes||"").replaceAll('"','&quot;')}" placeholder="Megjegyzés a teljes rendeléshez" style="width:100%;font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--keret);border-radius:7px"></div>
+          <div style="margin-top:8px"><input type="text" data-akcio="blokkmegj" value="${esc(r.megjegyzes)}" placeholder="Megjegyzés a teljes rendeléshez" style="width:100%;font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--keret);border-radius:7px"></div>
         </div>
       </div>`;
     }).join("");
@@ -1297,7 +1283,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         }
       };
       blokk.querySelector('[data-akcio="exptimcsi"]').onclick = () =>
-        xlsxLetolt(`megrendeles_timcsi_${r.mikor.slice(0,10)}`, timcsiLapok(r.tetelek));
+        xlsxLetolt(`megrendeles_${r.mikor.slice(0,10)}`, timcsiLapok(r.tetelek));
       blokk.querySelector('[data-akcio="expgazd"]').onclick = () => gazdasagiExport(r.tetelek, r.mikor.slice(0,10));
       blokk.querySelector('[data-akcio="expkovetes"]').onclick = () => {
         const sorok = [["Cikk","SAP kód","Mennyiség","Egység","Tétel állapota","Követési megjegyzés"]];
@@ -1316,8 +1302,40 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       });
       blokk.querySelector('[data-akcio="blokkmegj"]').onchange = ev => { r.megjegyzes = ev.target.value; jelolPiszkos(); };
     });
+    elteresRender();
   }
   naploRender();
+
+  // ---------- eltérések és követés (a naplóból, felmenő rendszerben) ----------
+  function elteresRender(){
+    const kpiDiv = document.getElementById("eltKpik"), lista = document.getElementById("eltLista");
+    if (!kpiDiv || !lista) return;
+    const sorok = [];
+    MUNKA.leadott.forEach(r => r.tetelek.forEach(t => {
+      if (!["függőben","beérkezett"].includes(t.allapot || "függőben")) sorok.push({r, t});
+    }));
+    const folyamatban = MUNKA.leadott.filter(r => !["beérkezett","lezárva"].includes(r.statusz)).length;
+    kpiDiv.innerHTML = [
+      ["Eltéréssel jelölt tétel", sorok.length + " db", "a rendelésnaplóból"],
+      ["Érintett rendelés", new Set(sorok.map(x => x.r.id)).size + " db", "legalább egy eltéréssel"],
+      ["Folyamatban lévő rendelés", folyamatban + " db", "még nincs lezárva"],
+      ["Leadott rendelés", MUNKA.leadott.length + " db", "összesen a naplóban"]
+    ].map(x => `<div class="kpi"><div class="cim">${x[0]}</div><div class="ertek">${x[1]}</div><div class="alcim">${x[2]}</div></div>`).join("");
+    if (!sorok.length){
+      lista.innerHTML = `<div class="kosar-ures">Még nincs eltérés. Ami a rendelésnaplóban eltérésként jelölődik (kevesebb jött, más termék, sérült, áreltérés, nem érkezett), az itt gyűlik össze.</div>`;
+      return;
+    }
+    const sulyos = a => ["sérült / hibás","nem érkezett"].includes(a);
+    lista.innerHTML = `<table><thead><tr><th>Leadva</th><th>Igénylő</th><th>Cikk</th><th class="num">Menny.</th><th>Tétel állapota</th><th>Követési megjegyzés</th><th>Rendelés állapota</th></tr></thead><tbody>` +
+      sorok.map(({r, t}) => `<tr>
+        <td>${idoStr(r.mikor)}</td><td>${esc(r.igenylo) || "–"}</td>
+        <td>${t.kod ? `<span class="cikknev-link" data-adatlap="${esc(t.kod)}">${esc(t.nev)}</span>` : esc(t.nev)}</td>
+        <td class="num">${num(t.menny)} ${esc(t.egyseg)||""}</td>
+        <td><span class="cimke ${sulyos(t.allapot) ? "torolt" : "nyitott"}">${esc(t.allapot)}</span></td>
+        <td>${esc(t.kovetes) || ""}</td>
+        <td><span class="makro-cimke ${MAKRO_OSZTALY[r.statusz]||""}">${esc(r.statusz)}</span></td>
+      </tr>`).join("") + `</tbody></table>`;
+  }
 
   // ---------- árajánlat beolvasása (xlsx/csv) ----------
   const ajanlatGomb = document.getElementById("ajanlatGomb");
@@ -1394,19 +1412,18 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     }
     const talalt = tetelek.filter(t => t.kod).length;
     ajanlatElonezet.innerHTML = `<div class="kartya">
-      <h3 style="margin-top:0">Árajánlat előnézet: ${fajlnev} · ${tetelek.length} tétel, ebből párosítva ${talalt}</h3>
+      <h3 style="margin-top:0">Árajánlat előnézet: ${esc(fajlnev)} · ${tetelek.length} tétel, ebből párosítva ${talalt} <span class="sugo-jel" data-tip="A bepipált árak felülírják az utolsó ismert árat, a felületen és az exportokban ajánlatból jelöléssel. A nem párosított sorokhoz a cikktörzs bővítése után lehet visszatérni.">?</span></h3>
       <table><thead><tr><th></th><th>Ajánlat szerinti név</th><th>Cikkszám</th><th class="num">Nettó ár</th><th>Párosított cikk</th><th>Mód</th></tr></thead><tbody>
       ${tetelek.map((t,i) => `<tr class="${t.kod ? "talalt" : "nemtalalt"}">
         <td><input type="checkbox" data-aj="${i}" ${t.kod && t.hasznal ? "checked" : "disabled"}></td>
-        <td>${t.nev}</td><td>${t.cikkszam||""}</td><td class="num">${ft(t.ar)}</td>
-        <td>${t.kod ? (CIKK[t.kod]?.klinikai_nev || CIKK[t.kod]?.nev || t.kod) + ` <span class="minikat">${t.kod}</span>` : "<span class='minikat'>nincs találat</span>"}</td>
+        <td>${esc(t.nev)}</td><td>${esc(t.cikkszam)||""}</td><td class="num">${ft(t.ar)}</td>
+        <td>${t.kod ? esc(CIKK[t.kod]?.klinikai_nev || CIKK[t.kod]?.nev || t.kod) + ` <span class="minikat">${esc(t.kod)}</span>` : "<span class='minikat'>nincs találat</span>"}</td>
         <td class="minikat">${t.mod||""}</td></tr>`).join("")}
       </tbody></table>
       <div class="exportsav">
         <button class="gomb" id="ajanlatAlkalmaz">Bepipált árak alkalmazása</button>
         <button class="gomb masodlagos" id="ajanlatMegse">Mégse</button>
       </div>
-      <p class="megj" style="margin-bottom:0">Az alkalmazott árak felülírják az addig ismert árat a rendszerben (a keresőben és az exportokban "ajánlatból" jelöléssel), és automatikusan mentődnek. A nem párosított sorokhoz a cikktörzs bővítése után lehet visszatérni.</p>
     </div>`;
     document.getElementById("ajanlatMegse").onclick = () => { ajanlatElonezet.innerHTML = ""; };
     document.getElementById("ajanlatAlkalmaz").onclick = () => {
@@ -1504,7 +1521,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     kTabla.innerHTML = latszik.map(c => {
       const a = allapot(c.kod);
       return `<tr data-kod="${c.kod}">
-        <td>${cikkThumb(c.kod, 30)} <span class="cikknev-link" data-adatlap="${c.kod}">${nevE(c)}</span><br><span class="mini">${c.kod} · ${c.kategoria}</span></td>
+        <td>${cikkThumb(c.kod, 30)} <span class="cikknev-link" data-adatlap="${esc(c.kod)}">${esc(nevE(c))}</span><br><span class="mini">${esc(c.kod)} · ${esc(c.kategoria)}</span></td>
         <td class="num"><input type="number" min="0" step="1" data-mezo="db" value="${a.db ?? ""}" placeholder="–"> ${c.egyseg||""}</td>
         <td class="num"><input type="number" min="0" step="0.1" data-mezo="napi" value="${a.napi ? +a.napi.toFixed(1) : ""}" placeholder="–"><br><span class="mini">auto: ${napiBecsles(c) ? napiBecsles(c).toFixed(1) : "–"} / nap</span></td>
         <td class="num napok">${a.napok != null ? a.napok + " nap" : "–"}</td>
@@ -1555,20 +1572,20 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   // ---------- súgó ----------
   document.getElementById("sugoTartalom").innerHTML = `
   <div class="kartya">
-    <h3>Mi ez a rendszer és kinek készült?</h3>
-    <p>Ez a Sürgősségi Orvostani Klinika közös rendeléskezelő és raktárkövető felülete. Azt a munkát képezi le, amit eddig külön táblázatokban, e-mailekben és fejben tartottunk számon: a klinika összeállítja, mire van szükség, a gazdasági iroda (Timcsi) megrendeli, a klinika (Évi) fogadja az árut, és mindenki látja, hol tart a folyamat. A felület mindenkinek ugyanazt a cikktörzset mutatja, így egy nyelvet beszélünk: a kereskedelmi név, az SAP kód, a gyártói cikkszám és a kiszerelés össze van kapcsolva.</p>
+    <h3>Mire való ez a felület?</h3>
+    <p>A klinika közös rendeléskezelő és raktárkövető felülete. A klinikai oldal összeállítja és leadja az igényeket, a gazdasági oldal megrendeli, a beérkezés pedig tételesen követhető. Mindenki ugyanazt a cikktörzset látja: a kereskedelmi név, az SAP kód, a gyártói cikkszám és a kiszerelés össze van kapcsolva.</p>
   </div>
   <div class="kartya">
     <h3>Rendelésleadás – így állítasz össze egy rendelést</h3>
-    <p>1. Írd be a nevedet az Igénylő mezőbe, hogy később tudni lehessen, ki adta le a listát.</p>
-    <p>2. Keresd meg a cikket a bal oldali keresőben. A kereső mindenre keres: kereskedelmi név, SAP név és kód, gyártói cikkszám, forgalmazó, kiszerelés, kategória. Több szót is írhatsz (pl. "kesztyu nitril m") és ékezetek nélkül is működik. Ha nem keresel, a leggyakrabban rendelt tételeitek látszanak (ez a lista abból épül, amit ti tesztek listára, az idővel egyre okosabb lesz), a Tallózás gombbal pedig a teljes választék nyílik meg szakmai csoportokban.</p>
+    <p>1. A neved automatikusan ott van az Igénylő mezőben, így látszik, ki adta le a listát.</p>
+    <p>2. Keresd meg a cikket a bal oldali keresőben. A kereső mindenre keres: kereskedelmi név, SAP név és kód, gyártói cikkszám, forgalmazó, kiszerelés, kategória. Több szót is írhatsz (pl. "kesztyu nitril m"), ékezetek nélkül is működik, és érti a köznapi neveket is (pl. branül, lázmérő, vérvétel, tűgyűjtő). Ha nem keresel, a leggyakrabban rendelt tételeitek látszanak (ez a lista abból épül, amit ti tesztek listára, az idővel egyre okosabb lesz), a Tallózás gombbal pedig a teljes választék nyílik meg szakmai csoportokban.</p>
     <p>3. A + Hozzáad gombbal kerül a tétel az igénylistára, a szokásos rendelési mennyiséggel előtöltve. A mennyiség, az egység és a megjegyzés szabadon átírható, a Sürgős pipával jelezheted, ha nem várhat. Ha valami nincs a listában, a "Szabad szöveges tétel" gombbal veheted fel, ilyenkor írd le minél pontosabban (gyártó, méret, kiszerelés) és tegyél fel fotót.</p>
     <p>4. A fotó a cikkhez tartozik, nem a rendeléshez: ha egyszer felteszed (+ fotó gomb), onnantól mindig látszik a keresőben, a cikktörzsben és a készletnézetben is, kattintásra nagyban megnyílik. Így mindenki ránézésre tudja, pontosan melyik termékről van szó.</p>
     <p>5. Ha kész a lista, a "Lista leadása a naplóba" gombbal zárod le: időbélyeggel bekerül a Rendelésnaplóba és a lista kiürül. Előtte vagy helyette exportálhatod is (lásd lent).</p>
   </div>
   <div class="kartya">
     <h3>Exportok – melyik mire való?</h3>
-    <p><b>Timcsi-formátum (xlsx):</b> pontosan azokkal az oszlopokkal készül, ahogy Timcsi a javított tábláját vezeti (SAP, Terméknév, Cikkszám, Forgalmazó, Kiszerelés, Igényelt rendelési egység, Nettó egységár, Bruttó össz), a KEF-es tételek külön lapon. Ezt lehet közvetlenül továbbküldeni neki.</p>
+    <p><b>Rendelési xlsx:</b> a gazdasági iroda megrendelő táblájának oszlopaival készül (SAP, Terméknév, Cikkszám, Forgalmazó, Kiszerelés, Igényelt rendelési egység, Nettó egységár, Bruttó össz), a KEF-es tételek külön lapon. Közvetlenül továbbküldhető.</p>
     <p><b>Gazdasági xlsx (3 lap):</b> a tételeket automatikusan három lapra válogatja aszerint, hogy milyen úton mennek: Beszerzés (normál szállítói rendelés), KEF (közbeszerzési körbe tartozó), Belső raktár (az egyetemi központi raktárból rendelhető). Tartalmazza az utolsó ismert árat és a becsült értéket is.</p>
     <p><b>Egyszerű lista xlsx / CSV:</b> letisztult lista klinikai egyeztetéshez vagy bármilyen más célra.</p>
     <p>Ugyanezek az exportok a Rendelésnapló minden blokkjából is kérhetők, tehát egy már leadott havi rendelést utólag is le tudsz generálni bármelyik formában.</p>
@@ -1581,7 +1598,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Készlet – manuális vezetés riasztással</h3>
-    <p>A készletnézetben a fogyóanyagok és belső raktáras cikkek követhetők, vonalkód és automatika nélkül, ahogy eddig is vezettétek, csak strukturáltan. A Készleten mezőbe írod be, mennyi van éppen (leltár szemlélet). A rendszer az idei rendelési adatokból megbecsüli a napi fogyást (ezt felül tudod írni, ha jobban tudod) és kiszámolja, hány napra elég a készlet. 14 nap alatt "rendelj hamarosan", 7 nap alatt "kritikus" jelzést kapsz. Az Igénylistára gomb egyetlen cikket, a "Riasztásban lévők igénylistára" gomb az összes fogyóban lévőt átteszi a rendelésleadásba a szokásos mennyiséggel. A készletlap xlsx-be is exportálható.</p>
+    <p>A készletnézetben a fogyóanyagok és belső raktáras cikkek követhetők, vonalkód nélkül, kézi vezetéssel. A Készleten mezőbe írod be, mennyi van éppen (leltár szemlélet). A rendszer a rendelési adatokból megbecsüli a napi fogyást (felülírható, ha jobban tudod) és kiszámolja, hány napra elég a készlet. 14 nap alatt "rendelj hamarosan", 7 nap alatt "kritikus" jelzést kapsz. Az Igénylistára gomb egyetlen cikket, a "Riasztásban lévők igénylistára" gomb az összes fogyóban lévőt átteszi a rendelésleadásba a szokásos mennyiséggel. A készletlap xlsx-be is exportálható.</p>
   </div>
   <div class="kartya">
     <h3>Árfigyelő és árajánlatok beolvasása</h3>
@@ -1597,11 +1614,11 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Automatikus mentés és belépés</h3>
-    <p>A felület mögött közös szerver van: minden, amit beírsz (igénylista, napló, készletadatok, fotók, beolvasott árak, cikk-kiegészítések) pár másodpercen belül automatikusan mentődik, és mindenki ugyanazt látja, aki belép. A fejlécben a "minden mentve" felirat mutatja, hogy a legutolsó módosításod is felkerült. A rendszert csak belépéssel lehet használni, a belépési adatokat Kornéltól kapjátok. A jelszavadat a fejléc Jelszóváltás gombjával bármikor megváltoztathatod, és ha elfelejtenéd, Kornéltól kapsz újat. A Munkafájl mentése gomb megmaradt biztonsági mentésnek: egy fájlba letölti a teljes közös állapotot, a Munkafájl betöltése pedig visszaállítja belőle, ha valami elromlana.</p>
+    <p>Minden, amit beírsz (igénylista, napló, készletadatok, fotók, beolvasott árak, cikk-kiegészítések) pár másodpercen belül automatikusan mentődik, és mindenki ugyanazt látja, aki belép. A fejlécben a "minden mentve" felirat mutatja, hogy a legutolsó módosításod is felkerült. A jelszavadat a fejléc Jelszóváltás gombjával bármikor megváltoztathatod, elfelejtett jelszó esetén az adminisztrátor tud újat adni. A Munkafájl mentése gomb biztonsági mentés: egy fájlba letölti a teljes közös állapotot, a Munkafájl betöltése pedig visszaállítja belőle.</p>
   </div>
   <div class="kartya">
     <h3>Elemző nézetek (SAP adatok)</h3>
-    <p>Az Áttekintés, SAP megrendelések, Cikktörzs, Árfigyelő és Anomáliák fülek az egyetemi SAP-ból exportált idei megrendeléseken alapulnak (2026.01.01 óta). A SAP megrendelések fülön kereshetsz és a sorokra kattintva tételekig fúrhatsz le. Az Anomáliák fül a nyitott (SAP szerint nem érkeztetett) tételeket és a törölt sorokat gyűjti. Ezek az adatok új SAP export betöltésével frissülnek, ezt Kornél végzi a háttérrendszeren keresztül.</p>
+    <p>Az Áttekintés, SAP megrendelések, Cikktörzs és Árfigyelő fülek az egyetemi SAP-ból betöltött megrendeléseken alapulnak. A SAP megrendelések fülön kereshetsz és a sorokra kattintva tételekig fúrhatsz le. Az Eltérések fül a rendelésnaplóban jelölt eltéréseket gyűjti, a követés a mostantól leadott rendelésekre épül. Az SAP adatok új export betöltésével, a háttérrendszeren keresztül frissülnek.</p>
   </div>`;
 
   // ---------- szerveres szinkron csatolópontjai ----------
@@ -1623,6 +1640,10 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
 <script>
 // ================= BELÉPÉS ÉS SZERVERES SZINKRON =================
 (function(){
+  // beágyazás elleni védelem (clickjacking)
+  if (window.top !== window.self){
+    try { window.top.location = window.self.location; } catch(e){ document.body.innerHTML = ""; }
+  }
   const SUPA_URL = "https://kcjiydathdqrpiofokoi.supabase.co", SUPA_KEY = "sb_publishable_-SvSiiRu6PAhm9on3JQRpQ_f-f84ZY-";
   const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
   const SZEREP_NEV = { admin: "admin", gazdasagi: "gazdasági", klinikai: "klinikai" };
@@ -1713,7 +1734,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       const { data: profil, error: pHiba } = await supa.from("profiles").select("*").eq("id", user.id).single();
       if (pHiba || !profil || !profil.aktiv){
         await supa.auth.signOut();
-        hiba.textContent = "Ez a fiók nincs engedélyezve. Szólj Kornélnak.";
+        hiba.textContent = "Ez a fiók nincs engedélyezve.";
         gomb.disabled = false; gomb.textContent = "Belépés";
         return;
       }
