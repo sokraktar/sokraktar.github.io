@@ -196,8 +196,15 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
 .huser{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#C9CEE4;flex-wrap:wrap;justify-content:flex-end}
 .huser b{color:#fff}
 .hszerep{font-size:10.5px;font-weight:700;background:rgba(227,212,150,.15);color:var(--se-arany);border:1px solid rgba(227,212,150,.4);border-radius:20px;padding:2px 8px;text-transform:uppercase;letter-spacing:.4px}
-#kijelentkezes{font:inherit;font-size:11.5px;color:#C9CEE4;background:none;border:1px solid rgba(201,206,228,.4);border-radius:7px;padding:4px 10px;cursor:pointer}
-#kijelentkezes:hover{color:#fff;border-color:#fff}
+#kijelentkezes,#jelszovaltas{font:inherit;font-size:11.5px;color:#C9CEE4;background:none;border:1px solid rgba(201,206,228,.4);border-radius:7px;padding:4px 10px;cursor:pointer}
+#kijelentkezes:hover,#jelszovaltas:hover{color:#fff;border-color:#fff}
+#jelszoModal{position:fixed;inset:0;background:rgba(35,47,97,.55);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+#jelszoModal.nyitva{display:flex}
+#jelszoModal .panel{background:#fff;border-radius:14px;max-width:380px;width:100%;padding:24px;box-shadow:0 14px 50px rgba(0,0,0,.3)}
+#jelszoModal h3{margin:0 0 14px;font-size:15px}
+#jelszoModal label{display:block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--tinta2);margin:10px 0 4px}
+#jelszoModal input{width:100%;font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--keret);border-radius:8px}
+#jelszoHiba{color:var(--kritikus);font-size:12.5px;margin-top:8px;min-height:16px}
 #szinkronJelzo{font-size:11px;color:#9BE3B4}
 #szinkronJelzo.ment{color:var(--se-arany)}
 #szinkronJelzo.hiba{color:#FFADAD}
@@ -227,6 +234,20 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <p class="belepes-megj">A belépési adatokat Kornéltól kapjátok. Ha elfelejtetted a jelszavad, szólj neki és kapsz újat.</p>
   </div>
 </div>
+<div id="jelszoModal">
+  <div class="panel">
+    <h3>Jelszóváltás</h3>
+    <label for="ujJelszo1">Új jelszó (legalább 6 karakter)</label>
+    <input type="password" id="ujJelszo1" autocomplete="new-password">
+    <label for="ujJelszo2">Új jelszó még egyszer</label>
+    <input type="password" id="ujJelszo2" autocomplete="new-password">
+    <div id="jelszoHiba"></div>
+    <div class="exportsav">
+      <button class="gomb" id="jelszoMent">Mentés</button>
+      <button class="gomb masodlagos" id="jelszoMegse">Mégse</button>
+    </div>
+  </div>
+</div>
 <header>
   <div class="hwrap">
     <svg class="hlogo" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
@@ -244,6 +265,7 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <div class="huser" id="huser">
       <span><b id="huserNev"></b> <span class="hszerep" id="huserSzerep"></span></span>
       <span id="szinkronJelzo"></span>
+      <button id="jelszovaltas">Jelszóváltás</button>
       <button id="kijelentkezes">Kijelentkezés</button>
     </div>
   </div>
@@ -1575,7 +1597,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Automatikus mentés és belépés</h3>
-    <p>A felület mögött közös szerver van: minden, amit beírsz (igénylista, napló, készletadatok, fotók, beolvasott árak, cikk-kiegészítések) pár másodpercen belül automatikusan mentődik, és mindenki ugyanazt látja, aki belép. A fejlécben a "minden mentve" felirat mutatja, hogy a legutolsó módosításod is felkerült. A rendszert csak belépéssel lehet használni, a belépési adatokat Kornéltól kapjátok. Ha elfelejtetted a jelszavad, szólj neki és kapsz újat. A Munkafájl mentése gomb megmaradt biztonsági mentésnek: egy fájlba letölti a teljes közös állapotot, a Munkafájl betöltése pedig visszaállítja belőle, ha valami elromlana.</p>
+    <p>A felület mögött közös szerver van: minden, amit beírsz (igénylista, napló, készletadatok, fotók, beolvasott árak, cikk-kiegészítések) pár másodpercen belül automatikusan mentődik, és mindenki ugyanazt látja, aki belép. A fejlécben a "minden mentve" felirat mutatja, hogy a legutolsó módosításod is felkerült. A rendszert csak belépéssel lehet használni, a belépési adatokat Kornéltól kapjátok. A jelszavadat a fejléc Jelszóváltás gombjával bármikor megváltoztathatod, és ha elfelejtenéd, Kornéltól kapsz újat. A Munkafájl mentése gomb megmaradt biztonsági mentésnek: egy fájlba letölti a teljes közös állapotot, a Munkafájl betöltése pedig visszaállítja belőle, ha valami elromlana.</p>
   </div>
   <div class="kartya">
     <h3>Elemző nézetek (SAP adatok)</h3>
@@ -1720,6 +1742,35 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   document.getElementById("kijelentkezes").onclick = async () => {
     await supa.auth.signOut();
     location.reload();
+  };
+
+  // ---------- jelszóváltás ----------
+  const jelszoModal = document.getElementById("jelszoModal");
+  const jelszoHiba = document.getElementById("jelszoHiba");
+  document.getElementById("jelszovaltas").onclick = () => {
+    document.getElementById("ujJelszo1").value = "";
+    document.getElementById("ujJelszo2").value = "";
+    jelszoHiba.textContent = "";
+    jelszoModal.classList.add("nyitva");
+    document.getElementById("ujJelszo1").focus();
+  };
+  document.getElementById("jelszoMegse").onclick = () => jelszoModal.classList.remove("nyitva");
+  jelszoModal.onclick = ev => { if (ev.target === jelszoModal) jelszoModal.classList.remove("nyitva"); };
+  document.getElementById("jelszoMent").onclick = async () => {
+    const j1 = document.getElementById("ujJelszo1").value;
+    const j2 = document.getElementById("ujJelszo2").value;
+    if (j1.length < 6){ jelszoHiba.textContent = "A jelszó legyen legalább 6 karakter."; return; }
+    if (j1 !== j2){ jelszoHiba.textContent = "A két jelszó nem egyezik."; return; }
+    jelszoHiba.textContent = "";
+    const { error } = await supa.auth.updateUser({ password: j1 });
+    if (error){
+      jelszoHiba.textContent = /same/i.test(error.message)
+        ? "Az új jelszó nem lehet ugyanaz, mint a régi."
+        : "Nem sikerült: " + error.message;
+      return;
+    }
+    jelszoModal.classList.remove("nyitva");
+    alert("A jelszavad megváltozott, legközelebb már ezzel lépsz be.");
   };
 
   // ha van élő munkamenet (a böngésző megjegyezte), egyből indulunk
