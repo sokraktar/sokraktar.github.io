@@ -143,11 +143,12 @@ footer{max-width:1200px;margin:0 auto;padding:10px 24px 30px;font-size:12px;colo
 #kosarSav{display:none}
 @media(max-width:980px){
   #kosarSav:not([hidden]){display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;
-    align-items:center;gap:10px;padding:9px 14px;background:#fff;
+    align-items:center;gap:10px;background:#fff;
+    padding:9px 14px calc(9px + env(safe-area-inset-bottom, 0px));
     border-top:1px solid var(--keret-eros);box-shadow:0 -3px 14px rgba(35,47,97,.12)}
   #kosarSavSzoveg{flex:1;font-size:13px;font-weight:700;color:var(--tinta)}
   #kosarSav .gomb{min-height:40px}
-  main{padding-bottom:74px}
+  main{padding-bottom:calc(78px + env(safe-area-inset-bottom, 0px))}
 }
 .kosar-tetel input[type=number]{width:66px;font:inherit;font-size:13px;padding:5px 7px;border:1px solid var(--keret);border-radius:6px;text-align:right}
 .kosar-tetel select[data-egyseg]{font:inherit;font-size:12.5px;padding:5px 6px;border:1px solid var(--keret);border-radius:6px;background:#fff;min-width:0;width:94px}
@@ -325,6 +326,10 @@ tbody tr:hover{background:#FAF9F4}
 .talalatok::-webkit-scrollbar-thumb:hover{background:#C4C0B0}
 .adatlap-panel,#jelszoModal .panel,#fiokModal .panel,.belepes-kartya{border-top:5px solid var(--se-arany);animation:felbukkan .18s ease-out}
 #adatlap,#jelszoModal,#fiokModal,#lightbox{backdrop-filter:blur(2px)}
+/* iOS Safariban a 100vh a címsávot is beszámítja, ezért a modális alja levágódhat */
+@supports (height: 100dvh){
+  #adatlap,#jelszoModal,#fiokModal,#lightbox,#belepo{min-height:100dvh}
+}
 /* --- Érintésre méretezés: tableten (768) és minden érintőképernyőn, mert a
    klinikán ujjal használják. Csak méretek, az elrendezés lentebb, 700 alatt. --- */
 @media(max-width:1024px), (pointer:coarse){
@@ -964,7 +969,7 @@ tbody tr:hover{background:#EFF2F8}
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v2.8</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v2.9</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -976,10 +981,26 @@ Object.assign(CIKK_KEPEK, MENTETT.cikk_kepek || {});
 Object.assign(CIKK_MOD, MENTETT.cikk_mod || {});
 const modE = kod => CIKK_MOD[kod] || {};
 let kepFrissitok = [];   // nézetfrissítő hookok, ha fotó változik
-function kepValtozott(){ kepFrissitok.forEach(f => f()); if (window.jelolPiszkosH) window.jelolPiszkosH("cikk_kepek"); }
+// A fotó vagy beágyazva van (régi bejegyzések: adat), vagy a tárhelyen (ut), ilyenkor
+// aláírt hivatkozással jelenítjük meg. Az aláírt hivatkozásokat a boot szkript kéri.
+function kepUrl(k){
+  if (!k) return "";
+  if (k.adat) return k.adat;
+  return (window.fotoUrlok && window.fotoUrlok[k.ut]) || "";
+}
+// megkeresi az aláírás nélküli fotókat, és megkéri a bootot, hogy írja alá őket
+function fotoUrlPotol(){
+  if (!window.fotoAlairas) return;
+  const kell = new Set();
+  Object.values(CIKK_KEPEK || {}).forEach(l => (l||[]).forEach(k => {
+    if (k && k.ut && !(window.fotoUrlok||{})[k.ut]) kell.add(k.ut);
+  }));
+  if (kell.size) window.fotoAlairas([...kell]).then(() => kepFrissitok.forEach(f => f()));
+}
+function kepValtozott(){ kepFrissitok.forEach(f => f()); fotoUrlPotol(); if (window.jelolPiszkosH) window.jelolPiszkosH("cikk_kepek"); }
 function cikkThumb(kod, meret){
   const k = (CIKK_KEPEK[kod]||[])[0];
-  return k ? `<img class="thumb" ${meret?`style="width:${meret}px;height:${meret}px"`:""} src="${esc(k.adat)}" data-lbkod="${esc(kod)}" data-lbidx="0" title="Kattints a megtekintéshez">` : "";
+  return k ? `<img class="thumb" ${meret?`style="width:${meret}px;height:${meret}px"`:""} src="${esc(kepUrl(k))}" data-lbkod="${esc(kod)}" data-lbidx="0" title="Kattints a megtekintéshez">` : "";
 }
 // lightbox
 (function(){
@@ -988,7 +1009,7 @@ function cikkThumb(kod, meret){
   window.lightboxNyit = (kod, idx) => {
     const k = (CIKK_KEPEK[kod]||[])[idx]; if (!k) return;
     akt = {kod, idx};
-    lb.querySelector("img").src = k.adat;
+    lb.querySelector("img").src = kepUrl(k);
     lb.querySelector(".cim").textContent = k.nev || kod;
     lb.classList.add("nyitva");
   };
@@ -997,6 +1018,8 @@ function cikkThumb(kod, meret){
   document.getElementById("lbTorol").onclick = () => {
     if (!akt) return;
     if (confirm("Biztosan törlöd ezt a fotót a cikkről?")){
+      const torolt = CIKK_KEPEK[akt.kod][akt.idx];
+      if (torolt && torolt.ut && window.fotoTorol) window.fotoTorol(torolt.ut);
       CIKK_KEPEK[akt.kod].splice(akt.idx, 1);
       if (!CIKK_KEPEK[akt.kod].length) delete CIKK_KEPEK[akt.kod];
       if (window.esemenyIr) window.esemenyIr("fotó", akt.kod, "fotó törölve");
@@ -1315,6 +1338,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     return arany >= 3 || arany <= 1 / 3;
   };
   const arE = kod => {
+    const kezi = modE(kod).ar;                       // az adatlapon megadott pontos ár
+    if (kezi != null && kezi > 0) return kezi;
     if (MUNKA.arak[kod]?.ar != null) return MUNKA.arak[kod].ar;
     const c = CIKK[kod] || {};
     if (c.gazd_ar > 0) return c.gazd_ar;
@@ -1323,6 +1348,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   };
   // ár forrásjelzés: honnan van, mennyire friss, és ha ingadozik, azt is kiírjuk
   const arJelzes = kod => {
+    const m = modE(kod);
+    if (m.ar != null && m.ar > 0) return ` (kézzel megadva${m.ki ? ": " + esc(m.ki) : ""})`;
     if (MUNKA.arak[kod]) return ` (árajánlatból, ${dat(String(MUNKA.arak[kod].datum||"").slice(0,10))})`;
     const c = CIKK[kod] || {};
     if (c.gazd_ar > 0) return ` (gazdasági táblából${c.gazd_ar_datum ? ", " + String(c.gazd_ar_datum).slice(0,4) : ""})`;
@@ -1658,25 +1685,26 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   cikkFotoInput.onchange = () => {
     if (!fotoCel) return;
     const cel = fotoCel;
-    [...cikkFotoInput.files].forEach(f => kicsinyit(f, adat => {
-      // A fotók a közös mentésben utaznak, ezért van felső korlát: efölött a
-      // szinkron lassulna, és a realtime csatorna is elhagyná a nagy sorokat.
-      const eddigiMeret = JSON.stringify(CIKK_KEPEK).length + adat.length;
-      if (eddigiMeret > 3.5e6){
-        alert("Egyelőre ennyi fotó fér a rendszerbe. Törölj néhány régi fotót, "
-          + "hogy újat tudj feltölteni. Ha sok fotóra lesz szükség, szólj Kornélnak.");
+    [...cikkFotoInput.files].forEach(f => kicsinyit(f, async (adat, blob) => {
+      if ((CIKK_KEPEK[cel] || []).length >= 12){
+        alert("Egy cikkhez legfeljebb tizenkét fotó tartozhat. Törölj egyet, ha újat szeretnél feltenni.");
         return;
       }
-      if ((CIKK_KEPEK[cel] || []).length >= 6){
-        alert("Egy cikkhez legfeljebb hat fotó tartozhat. Törölj egyet, ha újat szeretnél feltenni.");
-        return;
+      // A fotó külön tárhelyre megy, a közös állapotba csak az útvonala kerül. Ha a
+      // feltöltés nem sikerül (pl. nincs net), a képet beágyazva tartjuk meg, hogy
+      // semmiképp ne veszjen el, és a következő alkalommal felkerülhet.
+      let bejegyzes = { nev: f.name, adat };
+      if (blob && window.fotoFeltolt){
+        const ut = await window.fotoFeltolt(cel, blob);
+        if (ut) bejegyzes = { nev: f.name, ut };
       }
-      (CIKK_KEPEK[cel] || (CIKK_KEPEK[cel] = [])).push({nev: f.name, adat});
+      (CIKK_KEPEK[cel] || (CIKK_KEPEK[cel] = [])).push(bejegyzes);
       esemeny("fotó", nevE(CIKK[cel]||{kod: cel}), "fotó feltöltve");
       kepValtozott();
     }));
     cikkFotoInput.value = "";
   };
+  fotoUrlPotol();
   kepFrissitok.push(keresRender, () => kosarRender(), () => keszletRender(), () => naploRender(),
     () => arfigyeloRender(), () => { if (attKesz) attekintesRender(); });
   keresRender();
@@ -1697,7 +1725,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       <div class="alcim">SAP: ${esc(c.nev) || "nincs SAP név"} · kód: ${esc(kod)} · ${esc(c.kategoria)||""}
         ${m.mikor ? ` · utoljára kiegészítette: ${esc(m.ki)||"?"} (${dat(helyiNap(m.mikor))})` : ""}</div>
       <div class="adatlap-mezo"><label>Fotók</label>
-        ${(CIKK_KEPEK[kod]||[]).map((k,i) => `<img class="thumb" src="${esc(k.adat)}" data-lbkod="${esc(kod)}" data-lbidx="${i}" style="width:56px;height:56px">`).join(" ")}
+        ${(CIKK_KEPEK[kod]||[]).map((k,i) => `<img class="thumb" src="${esc(kepUrl(k))}" data-lbkod="${esc(kod)}" data-lbidx="${i}" style="width:56px;height:56px">`).join(" ")}
         <button class="gomb masodlagos" id="alFoto" style="font-size:12px">+ fotó</button></div>
       ${mezo("Klinikai név (ahogy ti hívjátok)", "alKlinikai", m.klinikai_nev, c.klinikai_nev, "pl. zöld branül")}
       ${mezo("Gyártó / forgalmazó", "alGyarto", m.gyarto, t0.forgalmazo, "pl. B.Braun Trading Kft")}
@@ -1709,6 +1737,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
           <option value="igen" ${m.kef === "igen" ? "selected" : ""}>igen, KEF-es</option>
           <option value="nem" ${m.kef === "nem" ? "selected" : ""}>nem KEF-es</option>
         </select></div>
+      <div class="adatlap-mezo"><label>Nettó egységár, ha tudjátok a pontosat (Ft)</label>
+        <input type="number" id="alAr" min="0" step="0.01" value="${m.ar != null ? esc(m.ar) : ""}" placeholder="${arE(kod) != null ? "most: " + Math.round(arE(kod)) : "nincs ismert ár"}">
+        <div class="alap">${arE(kod) != null ? "A rendszer most ezzel számol: " + ft(arE(kod)) + arJelzes(kod) : "Erről a cikkről nincs ismert ár."}${(CIKK[kod]||{}).ar_szoras ? " Az eddigi árak " + ft(CIKK[kod].ar_szoras[0]) + " és " + ft(CIKK[kod].ar_szoras[1]) + " között szórtak, ezért érdemes pontosítani." : ""}</div></div>
       <div class="adatlap-mezo"><label>Megjegyzés (bármi, ami segít: minimum rendelés, mire figyeljünk...)</label>
         <textarea id="alMegj">${esc(m.megjegyzes)}</textarea>
         ${c.kp_megjegyzes ? `<div class="alap">központi raktár: ${esc(c.kp_megjegyzes)}</div>` : ""}</div>
@@ -1738,6 +1769,10 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         kiszereles: document.getElementById("alKiszereles").value.trim(),
         kef: document.getElementById("alKef").value,
         megjegyzes: document.getElementById("alMegj").value.trim(),
+        ar: (() => { const v = document.getElementById("alAr").value;
+          if (v === "") return null;
+          const sz = +v;
+          return (Number.isFinite(sz) && sz >= 0 && sz < 1e8) ? sz : null; })(),
         ki: document.getElementById("alKi").value.trim(),
         mikor: new Date().toISOString()
       };
@@ -1992,9 +2027,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         <td><input type="text" data-mezo="megj" maxlength="200" value="${esc(t.megj)}" placeholder="pl. kiszerelés, sürgősség oka" aria-label="${esc(t.nev)}: megjegyzés"></td>
         <td style="text-align:center"><input type="checkbox" data-mezo="surgos" ${t.surgos ? "checked" : ""} aria-label="${esc(t.nev)}: sürgős"></td>
         <td>${t.kod
-            ? `${(CIKK_KEPEK[t.kod]||[]).map((k,i) => `<img class="thumb" src="${esc(k.adat)}" title="${esc(k.nev)}" data-lbkod="${esc(t.kod)}" data-lbidx="${i}">`).join(" ")}
+            ? `${(CIKK_KEPEK[t.kod]||[]).map((k,i) => `<img class="thumb" src="${esc(kepUrl(k))}" title="${esc(k.nev)}" data-lbkod="${esc(t.kod)}" data-lbidx="${i}">`).join(" ")}
                <button class="kepgomb" data-akcio="cikkkep">+ fotó</button>`
-            : `${t.kepek.map((k,i) => `<img class="thumb" src="${esc(k.adat)}" title="${esc(k.nev)}" data-kep="${i}">`).join(" ")}
+            : `${t.kepek.map((k,i) => `<img class="thumb" src="${esc(kepUrl(k))}" title="${esc(k.nev)}" data-kep="${i}">`).join(" ")}
                <button class="kepgomb" data-akcio="kep">+ fotó</button>
                <input type="file" accept="image/*" multiple style="display:none">`}</td>
         <td><button class="torol" data-akcio="torol" title="Tétel törlése" aria-label="Tétel törlése az igénylistáról">✕</button></td>
@@ -2041,13 +2076,16 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
           return v;
         };
         if (inp.dataset.mezo === "menny") inp.oninput = () => {
-          t.menny = mennyErtek(); t.mod = new Date().toISOString(); jelolPiszkos("tetelek"); sorFrissit(tr, t);
+          t.menny = mennyErtek(); t.mod = new Date().toISOString();
+          valtozasJelol("tetelek", t.id, "menny");
+          jelolPiszkos("tetelek"); sorFrissit(tr, t);
         };
         inp.onchange = () => {
           if (inp.dataset.mezo === "surgos"){ t.surgos = inp.checked; tr.classList.toggle("surgos-sor", t.surgos); }
           else if (inp.dataset.mezo === "menny") t.menny = mennyErtek();
           else if (inp.dataset.mezo === "egyseg") return;   // az egységet külön kezeljük
           else t[inp.dataset.mezo] = inp.value;
+          valtozasJelol("tetelek", t.id, inp.dataset.mezo);
           t.mod = new Date().toISOString();
           jelolPiszkos("tetelek");
           sorFrissit(tr, t);
@@ -2058,6 +2096,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       const egysegElem = tr.querySelector("[data-egyseg]");
       if (egysegElem) egysegElem.onchange = () => {
         t.mod = new Date().toISOString();
+        valtozasJelol("tetelek", t.id, "egyseg");
+        valtozasJelol("tetelek", t.id, "menny");
         const k = t.kod ? kiszerelesE(t.kod) : null;
         const regi = t.egyseg, uj = egysegElem.value;
         const regiCsomag = csomagbanVan(t.kod, regi), ujCsomag = csomagbanVan(t.kod, uj);
@@ -2085,7 +2125,14 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       if (kepGomb && fajl){
         kepGomb.onclick = () => fajl.click();
         fajl.onchange = () => {
-          [...fajl.files].forEach(f => kicsinyit(f, adat => { t.kepek.push({nev: f.name, adat}); kosarRender(); }));
+          [...fajl.files].forEach(f => kicsinyit(f, async (adat, blob) => {
+            let bejegyzes = { nev: f.name, adat };
+            if (blob && window.fotoFeltolt && t.kod){
+              const ut = await window.fotoFeltolt(t.kod, blob);
+              if (ut) bejegyzes = { nev: f.name, ut };
+            }
+            t.kepek.push(bejegyzes); jelolPiszkos("tetelek"); kosarRender();
+          }));
         };
         tr.querySelectorAll("img.thumb[data-kep]").forEach(img => img.onclick = () => {
           if (confirm("Törlöd ezt a fotót a tételről?")) { t.kepek.splice(+img.dataset.kep, 1); kosarRender(); }
@@ -2104,7 +2151,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       const cv = document.createElement("canvas");
       cv.width = Math.round(img.width * ar); cv.height = Math.round(img.height * ar);
       cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
-      cb(cv.toDataURL("image/jpeg", 0.82));
+      const adat = cv.toDataURL("image/jpeg", 0.82);
+      cv.toBlob(blob => cb(adat, blob), "image/jpeg", 0.82);
       URL.revokeObjectURL(img.src);
     };
     img.src = URL.createObjectURL(file);
@@ -2440,6 +2488,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         const regi = r.statusz;
         r.statusz = ev.target.value;
         r.kezi_statusz = ev.target.value;
+        valtozasJelol("leadott", r.id, "statusz");
+        valtozasJelol("leadott", r.id, "kezi_statusz");
         r.mod = { ki: PROFIL.nev, mikor: new Date().toISOString(), mit: "állapot: " + r.statusz };
         jelolPiszkos("leadott");
         esemeny("rendelés állapota", idoStr(r.mikor) + " (" + (r.igenylo||"névtelen") + ")", regi + " helyett " + r.statusz);
@@ -2478,6 +2528,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       blokk.querySelectorAll(".mikro-select").forEach(sel => sel.onchange = () => {
         const t = r.tetelek[+sel.dataset.tetel];
         t.allapot = sel.value;
+        valtozasJelol("leadott", r.id + "#" + sel.dataset.tetel, "allapot");
         r.mod = { ki: PROFIL.nev, mikor: new Date().toISOString(), mit: t.nev + ": " + sel.value };
         jelolPiszkos("leadott");
         esemeny("tétel állapota", t.nev, sel.value);
@@ -2490,6 +2541,10 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         if (inp.value !== "" && !Number.isFinite(+inp.value)){ inp.value = t.erkezett ?? ""; return; }
         const ertek = inp.value === "" ? null : Math.max(0, +inp.value);
         t.erkezett = ertek;
+        valtozasJelol("leadott", r.id + "#" + inp.dataset.erkezett, "erkezett");
+        valtozasJelol("leadott", r.id + "#" + inp.dataset.erkezett, "erkezes_datum");
+        valtozasJelol("leadott", r.id + "#" + inp.dataset.erkezett, "atvette");
+        valtozasJelol("leadott", r.id + "#" + inp.dataset.erkezett, "allapot");
         if (ertek != null){
           t.erkezes_datum = new Date().toISOString();
           t.atvette = PROFIL.nev;
@@ -2545,6 +2600,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       const biz = blokk.querySelector('[data-akcio="bizonylat"]');
       if (biz) biz.onchange = () => {
         r.sap_bizonylat = biz.value.trim();
+        valtozasJelol("leadott", r.id, "sap_bizonylat");
         r.mod = { ki: PROFIL.nev, mikor: new Date().toISOString(), mit: "SAP bizonylatszám" };
         jelolPiszkos("leadott");
         esemeny("SAP bizonylat", idoStr(r.mikor) + " rendelés", r.sap_bizonylat || "törölve");
@@ -2569,12 +2625,14 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       blokk.querySelectorAll("[data-kovetes]").forEach(inp => inp.onchange = () => {
         const t = r.tetelek[+inp.dataset.kovetes];
         t.kovetes = inp.value;
+        valtozasJelol("leadott", r.id + "#" + inp.dataset.kovetes, "kovetes");
         r.mod = { ki: PROFIL.nev, mikor: new Date().toISOString(), mit: t.nev + ": követési megjegyzés" };
         jelolPiszkos("leadott");
         esemeny("követési megjegyzés", t.nev, inp.value);
       });
       blokk.querySelector('[data-akcio="blokkmegj"]').onchange = ev => {
         r.megjegyzes = ev.target.value;
+        valtozasJelol("leadott", r.id, "megjegyzes");
         r.mod = { ki: PROFIL.nev, mikor: new Date().toISOString(), mit: "megjegyzés" };
         jelolPiszkos("leadott");
         esemeny("rendelés megjegyzés", idoStr(r.mikor) + " (" + (r.igenylo||"névtelen") + ")", ev.target.value);
@@ -3142,6 +3200,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
           inp.value = st[inp.dataset.mezo] ?? ""; return;
         }
         st.modositva = new Date().toISOString();
+        valtozasJelol("keszlet", kod, inp.dataset.mezo);
         if (inp.dataset.mezo === "hely"){
           st.hely = inp.value.trim() || null;
           jelolPiszkos("keszlet");
@@ -3323,8 +3382,12 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     <p>Minden, amit beírsz (igénylista, napló, készletadatok, fotók, beolvasott árak, cikk-kiegészítések) pár másodpercen belül automatikusan mentődik, és mindenki ugyanazt látja, aki belép. A fejléc jelzője mutatja, hol tart a mentés: "mentés folyamatban", majd "elmentve" az időponttal. Ha nincs internet vagy a szerver nem válaszol, ezt is kiírja. Amit beírtál, megvan a böngészőben, és a kapcsolat visszatérésekor magától felkerül, de addig ne zárd be a lapot. Ha valaki más módosítja ugyanazt a listát, miközben te épp írsz, azt is jelzi, és a változás akkor jelenik meg, amikor kilépsz a mezőből. Ha ugyanezen a gépen és böngészőben más lép be a te lapod mellett, a felület újratölti magát, hogy semmi ne kerüljön véletlenül a te nevedre. A jobb felső menüben a <b>Munkafájl mentése</b> biztonsági mentést készít egy fájlba, a <b>Munkafájl visszaállítása</b> pedig ebből tölti vissza az adatokat. Erre figyelj: a visszaállítás a mostani igénylistát, rendelésnaplót, készletet és árakat mindenkinél a fájlban lévőre cseréli, ezért csak megbeszélés után használd.</p>
   </div>
   <div class="kartya">
+    <h3>Ha egy ár nem stimmel</h3>
+    <p>A cikk nevére kattintva az adatlapon megadható a <b>pontos nettó egységár</b>. Ez a legerősebb: onnantól minden ezzel számol, és odaírja, hogy kézzel adták meg. Ott azt is látod, mivel számol most a rendszer, és ha egy cikk ára korábban erősen szórt, azt is kiírja, hogy érdemes pontosítani. Az árajánlat-beolvasás ugyanígy felülírja a SAP-árat, de csak azoknál a tételeknél, amiket bepipálsz.</p>
+  </div>
+  <div class="kartya">
     <h3>Mi van, ha valaki elront valamit?</h3>
-    <p>Nem lehet vele nagy baj. Minden módosítás előtti állapot megmarad, és a szuperadmin egy kattintással visszahozhatja a korábbit (Fiókom, Visszaállítási pontok), tehát egy véletlen törlés vagy elírás nem jelenti azt, hogy újra kell kezdeni. Emellett a rendszer teljes adata minden nap automatikusan lementődik a klinikai gépre és egy attól független tárhelyre is. Ha valami nagyon félrement, szólj Kornélnak, és visszaállítjuk.</p>
+    <p>Nem lehet vele nagy baj. A már leadott rendelés törzse (a dátum, az igénylő, az út, a cikkek és a rendelt mennyiség) utólag nem írható át, csak a beérkezés, az állapot és a megjegyzések. Minden módosítás előtti állapot megmarad, és a szuperadmin egy kattintással visszahozhatja a korábbit (Fiókom, Visszaállítási pontok), tehát egy véletlen törlés vagy elírás nem jelenti azt, hogy újra kell kezdeni. Emellett a rendszer teljes adata minden nap automatikusan lementődik a klinikai gépre és egy attól független tárhelyre is. Ha valami nagyon félrement, szólj Kornélnak, és visszaállítjuk.</p>
   </div>
   <div class="kartya">
     <h3>Honnan jönnek az adatok?</h3>
@@ -3345,6 +3408,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v2.9</b> · pontos ár megadható az adatlapon, a fotók külön tárhelyre kerülnek (nincs több méretkorlát), a leadott rendelés törzse utólag nem írható át, mezőnkénti összefésülés egyidejű szerkesztésnél</p>
     <p style="margin-bottom:6px"><b>v2.8</b> · két gépen egyszerre is biztonságos: az igénylista tételenként fésül össze, ha ugyanabban a böngészőben más lép be, a felület újratölt, a kolléga módosítása a mező elhagyásakor azonnal megjelenik</p>
     <p style="margin-bottom:6px"><b>v2.7</b> · tabletre és érintésre méretezett gombok, ragadós sáv az igénylista összegével, jobb kontrasztok, billentyűzetes és képernyőolvasós használat, beszédes exportnevek</p>
     <p style="margin-bottom:6px"><b>v2.6</b> · tipikus ár a kiugró helyett, fogyásbecslés csak elég friss adatból, sztornó nem számol fogyásnak, központi raktári minimum több mértékegységgel, értelmes határok a mennyiségeknél</p>
@@ -3381,6 +3445,27 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   // a helyben törölt igénylista-tételek (hogy egy időközbeni távoli frissítés ne
   // tegye vissza őket), magától kiürül, amint a szerver is követi a törlést
   const tetelLevettek = new Map();
+  // Mezőszintű nyilvántartás: melyik tétel melyik mezőjét írtuk át a legutóbbi
+  // mentés óta. Összefésülésnél a beérkező (kolléga által mentett) állapotra csak
+  // ezeket tesszük rá, tehát ha ő a mennyiséget írta, mi a megjegyzést, mindkettő
+  // megmarad. A mentés sikere után a nyilvántartás kiürül (window.helyiValtozasTorol).
+  const helyiValtozasok = new Map();   // szakasz -> Map(azonosító -> Set(mezőnév))
+  function valtozasJelol(szakasz, azonosito, mezo){
+    if (!helyiValtozasok.has(szakasz)) helyiValtozasok.set(szakasz, new Map());
+    const m = helyiValtozasok.get(szakasz);
+    if (!m.has(String(azonosito))) m.set(String(azonosito), new Set());
+    m.get(String(azonosito)).add(mezo);
+  }
+  window.helyiValtozasTorol = szakasz => helyiValtozasok.delete(szakasz);
+  // a helyben módosított mezők visszahelyezése a beérkező elemre
+  function mezoketRatesz(szakasz, azonosito, tavoliElem, helyiElem){
+    const m = helyiValtozasok.get(szakasz);
+    const mezok = m && m.get(String(azonosito));
+    if (!mezok || !mezok.size) return tavoliElem;
+    const uj = { ...tavoliElem };
+    mezok.forEach(mezo => { uj[mezo] = helyiElem[mezo]; });
+    return uj;
+  }
   function osszefuz(kulcs, tavoli){
     try {
       if (kulcs === "leadott" && Array.isArray(tavoli)){
@@ -3390,8 +3475,16 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
           // távoli pár nélkül csak a nálunk most született blokk maradhat, a többi
           // (máshol törölt) blokkot nem élesztjük újra
           if (!t){ if (sajatUjBlokkok.has(String(r.id))) map.set(String(r.id), r); return; }
-          const hm = r.mod && r.mod.mikor, tm = t.mod && t.mod.mikor;
-          if (hm && (!tm || String(hm) > String(tm))) map.set(String(r.id), r);
+          // mezőszinten fésülünk: a blokk saját mezői és minden tétel mezői külön,
+          // hogy két egyidejű beérkeztetés ne írja ki egymást
+          const ossz = mezoketRatesz("leadott", r.id, t, r);
+          if (Array.isArray(t.tetelek)){
+            ossz.tetelek = t.tetelek.map((tt, i) => {
+              const helyi = (r.tetelek || [])[i];
+              return helyi ? mezoketRatesz("leadott", r.id + "#" + i, tt, helyi) : tt;
+            });
+          }
+          map.set(String(r.id), ossz);
         });
         return [...map.values()].sort((a,b) => String(b.mikor||"").localeCompare(String(a.mikor||"")));
       }
@@ -3400,8 +3493,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         MUNKA.tetelek.forEach(t => {
           const tav = map.get(String(t.id));
           if (!tav){ map.set(String(t.id), t); return; }   // nálunk most felvett tétel
-          const hm = t.mod, tm = tav.mod;
-          if (hm && (!tm || String(hm) > String(tm))) map.set(String(t.id), t);
+          // mezőszinten: a beérkező tételre visszatesszük, amit MI írtunk át
+          map.set(String(t.id), mezoketRatesz("tetelek", t.id, tav, t));
         });
         // amit itt vettünk le a listáról, azt a távoli állapot ne hozza vissza
         tetelLevettek.forEach((mikor, id) => {
@@ -3441,7 +3534,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         Object.entries(MUNKA.keszlet || {}).forEach(([kod, st]) => {
           const t = tavoli[kod];
           if (!t){ ossz[kod] = st; return; }
-          if (ido(st) && ido(st) > ido(t)) ossz[kod] = st;
+          ossz[kod] = mezoketRatesz("keszlet", kod, t, st);
         });
         // amit itt vettünk le a követésből, azt a távoli állapot ne hozza vissza
         keszletLevettek.forEach((mikor, kod) => {
@@ -3623,6 +3716,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
             if ("keszletre_vezetve" in t) t.keszletre_vezetve = szam(t.keszletre_vezetve);
             ["nev","egyseg","megj","kovetes","allapot","atvette"].forEach(mezo => { if (mezo in t) t[mezo] = szoveg(t[mezo]); });
             if (!Array.isArray(t.kepek)) t.kepek = [];
+            else t.kepek = t.kepek.filter(k => k && typeof k === "object"
+                   && (typeof k.adat === "string" || typeof k.ut === "string"));
           }});
           if (x.mod && typeof x.mod === "object"){ x.mod.ki = szoveg(x.mod.ki); x.mod.mit = szoveg(x.mod.mit); }
         } else if (!Array.isArray(x.kepek)) x.kepek = [];
@@ -3648,13 +3743,19 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       if (!e || typeof e !== "object" || Array.isArray(e)) return {};
       Object.entries(e).forEach(([k2, v]) => {
         if (!Array.isArray(v)) { delete e[k2]; return; }
-        e[k2] = v.filter(x => x && typeof x === "object" && typeof x.adat === "string")
-                 .map(x => ({ nev: szoveg(x.nev), adat: x.adat }));
+        // kétféle bejegyzés lehet: régi, beágyazott kép (adat) és a tárhelyen lévő
+        // fájl útvonala (ut). Mindkettőt megtartjuk, minden mást eldobunk.
+        e[k2] = v.filter(x => x && typeof x === "object"
+                    && (typeof x.adat === "string" || typeof x.ut === "string"))
+                 .map(x => x.ut ? { nev: szoveg(x.nev), ut: szoveg(x.ut) }
+                                : { nev: szoveg(x.nev), adat: x.adat });
         if (!e[k2].length) delete e[k2];
       });
       return e;
     }
     if (kulcs === "cikk_mod"){
+      if (e && typeof e === "object" && !Array.isArray(e))
+        Object.values(e).forEach(m => { if (m && typeof m === "object" && "ar" in m) m.ar = szam(m.ar); });
       if (!e || typeof e !== "object" || Array.isArray(e)) return {};
       Object.entries(e).forEach(([k2, v]) => {
         if (!v || typeof v !== "object"){ delete e[k2]; return; }
@@ -3747,6 +3848,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         const elozo = window.szinkron.utolso[r.kulcs];
         window.szinkron.utolso[r.kulcs] = kanon(r.ertek);
         const { error } = await supa.from("munka_allapot").upsert(r);
+        if (!error && window.helyiValtozasTorol) window.helyiValtozasTorol(r.kulcs);
         if (error){
           window.szinkron.utolso[r.kulcs] = elozo;
           piszkosSzakaszok.add(r.kulcs);
@@ -3857,6 +3959,36 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       if (allapot === "SUBSCRIBED") await csatorna.track({ nev: PROFIL.nev });
     });
   }
+
+  // ---------- cikkfotók a külön tárhelyen ----------
+  // A fotók korábban beágyazva (data URL) utaztak a közös állapotban, ezért minden
+  // mentés és minden realtime esemény vitte őket. Mostantól a Storage tárolja őket,
+  // a közös állapotban csak az útvonal van, a megjelenítés aláírt hivatkozással megy.
+  window.fotoUrlok = {};
+  window.fotoFeltolt = async (kod, blob) => {
+    try {
+      const nev = `${kod}/${Date.now()}-${Math.round(performance.now())}.jpg`;
+      const { error } = await supa.storage.from("cikkfoto")
+        .upload(nev, blob, { contentType: "image/jpeg", upsert: false });
+      if (error){ console.error("Fotó feltöltés hiba:", error); return null; }
+      const { data } = await supa.storage.from("cikkfoto").createSignedUrl(nev, 604800);
+      if (data && data.signedUrl) window.fotoUrlok[nev] = data.signedUrl;
+      return nev;
+    } catch(e){ console.error("Fotó feltöltés hiba:", e); return null; }
+  };
+  window.fotoAlairas = async utak => {
+    const kell = utak.filter(u => u && !window.fotoUrlok[u]);
+    if (!kell.length) return;
+    const { data, error } = await supa.storage.from("cikkfoto").createSignedUrls(kell, 604800);
+    if (error){ console.error("Fotó hivatkozás hiba:", error); return; }
+    (data || []).forEach(x => { if (x && x.signedUrl && x.path) window.fotoUrlok[x.path] = x.signedUrl; });
+  };
+  window.fotoTorol = async ut => {
+    if (!ut) return;
+    const { error } = await supa.storage.from("cikkfoto").remove([ut]);
+    if (error) console.error("Fotó törlés hiba:", error);
+    delete window.fotoUrlok[ut];
+  };
 
   // ---------- közös kedvencek és sablonok írása ----------
   window.kedvencValt = async (kod, fel) => {
