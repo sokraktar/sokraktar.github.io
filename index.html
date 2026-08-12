@@ -609,7 +609,7 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
 </section>
 
 <section id="cikkek" class="nezet">
-  <h2>Cikktörzs (706 cikk) <span class="sugo-jel" data-tip="A cikk nevére kattintva bárki kiegészítheti az adatlapot (klinikai név, gyártó, kiszerelés, fotó). A sárga KEF? címke a K- előtag alapján automatikus gyanújelölés.">?</span></h2>
+  <h2>Cikktörzs (1159 cikk) <span class="sugo-jel" data-tip="A cikk nevére kattintva bárki kiegészítheti az adatlapot (klinikai név, gyártó, kiszerelés, fotó). A sárga KEF? címke a K- előtag alapján automatikus gyanújelölés.">?</span></h2>
   <div class="szurok">
     <input type="search" id="cikkKeres" placeholder="Keresés cikknévre vagy cikkszámra...">
     <select id="cikkKat"><option value="">Minden kategória</option></select>
@@ -655,7 +655,7 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v1.7</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v1.8</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -908,8 +908,18 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   const NAP_MS = 86400e3;
   const ELTELT_NAP = Math.max(1, Math.round((new Date(ADAT.kpi.dig) - new Date(ADAT.kpi.dtol)) / NAP_MS));
   const CIKK = {}; ADAT.cikkek.forEach(c => CIKK[c.kod] = c);
-  const napiBecsles = c => (c && c.ossz_menny > 0) ? c.ossz_menny / ELTELT_NAP : null;
-  const szokasos = c => (c && c.n_rendeles > 0) ? Math.max(1, Math.round(c.ossz_menny / c.n_rendeles)) : 1;
+  // fogyásbecslés és szokásos rendelés: elsősorban az utolsó 12 hónap
+  // rendeléseiből, mert a 2023-tól kezdődő teljes átlag már nem a mai gyakorlat
+  const napiBecsles = c => {
+    if (!c) return null;
+    if (c.menny_12ho > 0) return c.menny_12ho / 365;
+    return c.ossz_menny > 0 ? c.ossz_menny / ELTELT_NAP : null;
+  };
+  const szokasos = c => {
+    if (!c) return 1;
+    if (c.menny_12ho > 0 && c.rendeles_12ho > 0) return Math.max(1, Math.round(c.menny_12ho / c.rendeles_12ho));
+    return c.n_rendeles > 0 ? Math.max(1, Math.round(c.ossz_menny / c.n_rendeles)) : 1;
+  };
   const ma = () => new Date().toISOString().slice(0,10);
 
   // közös állapot: a szerverről töltődik és minden módosítás automatikusan visszamentődik
@@ -937,7 +947,15 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   window.jelolPiszkosH = jelolPiszkos;
   // aktuális érvényes ár: beolvasott árajánlat felülírja az utolsó ismert árat
   const arE = kod => MUNKA.arak[kod]?.ar ?? CIKK[kod]?.utolso_ar ?? null;
-  const arJelzes = kod => MUNKA.arak[kod] ? ` (árajánlatból, ${MUNKA.arak[kod].datum||""})` : (CIKK[kod]?.ar_forras === "timcsi_tabla" ? " (gazdasági táblából)" : " (SAP rendelésből)");
+  // ár forrásjelzés: ha az utolsó rendelés régi, a dátum is látszik (az ár elavulhatott)
+  const arJelzes = kod => {
+    if (MUNKA.arak[kod]) return ` (árajánlatból, ${MUNKA.arak[kod].datum||""})`;
+    const c = CIKK[kod] || {};
+    if (c.ar_forras === "timcsi_tabla") return " (gazdasági táblából)";
+    const ev = String(c.utolso || "").slice(0, 4);
+    const regi = ev && (+ev < new Date().getFullYear());
+    return regi ? ` (SAP rendelésből, ${ev})` : " (SAP rendelésből)";
+  };
   // egy tétel becsült nettó értéke: ha rendelési egységben (pl. dobozban)
   // adták meg, a darabra vetített árral számol
   function arErtek(t){
@@ -1120,7 +1138,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       const ts = ADAT.termekek[c.kod] || [];
       const t0 = ts[0];
       const m = modE(c.kod);
-      const forg = m.gyarto || t0?.forgalmazo, kisz = m.kiszereles || t0?.kiszereles,
+      const forg = m.gyarto || t0?.forgalmazo || c.szallito, kisz = m.kiszereles || t0?.kiszereles,
             cksz = m.gyartoi_cikkszam || (t0?.cikkszam !== "-" ? t0?.cikkszam : "");
       return csoportFejlec(c) + `
       <div class="talalat">
@@ -1527,7 +1545,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       const ar = t.kod ? arE(t.kod) : null;
       return [t.kod || "", t.nev,
         m.gyartoi_cikkszam || (p?.cikkszam && p.cikkszam !== "-" ? p.cikkszam : ""),
-        m.gyarto || p?.forgalmazo || (c?.kp ? "Központi raktár" : ""),
+        m.gyarto || p?.forgalmazo || c?.szallito || (c?.kp ? "Központi raktár" : ""),
         m.kiszereles || p?.kiszereles || "",
         t.menny, t.egyseg || "", osszDarab(t.kod, t.menny, t.egyseg),
         ar ?? "", arErtek(t) != null ? Math.round(arErtek(t) * 1.27 * 100) / 100 : ""];
@@ -2264,7 +2282,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Honnan jönnek az adatok?</h3>
-    <p>A cikktörzs és az utolsó ismert árak háttéradatból épülnek és a háttérrendszeren keresztül frissülnek, minden más (rendelések, készlet, eltérések, árak alkalmazása) itt a felületen, a ti munkátokból keletkezik. Az Eltérések fül a rendelésnaplóban jelölt eltéréseket gyűjti, a követés a mostantól leadott rendelésekre épül.</p>
+    <p>A cikktörzs, az utolsó ismert árak, a szállítók és a fogyásbecslés az egyetemi SAP megrendelés-adataiból épülnek (2023.01.01 óta, a gazdasági hivatal exportjából), és a háttérrendszeren keresztül frissülnek. Csak a fogyóanyag és a belső raktári kör látszik, a szolgáltatás és épületüzemeltetés nem.</p>
+    <p>Minden ár becsült: az utolsó ismert árat mutatjuk, mellette a forrással. Ha a legutóbbi rendelés régebbi, az évszám is ott van (pl. "SAP rendelésből, 2024"), mert az ár addig változhatott. A napi fogyás és a szokásos rendelési mennyiség az utolsó 12 hónap rendeléseiből számol, hogy a mai gyakorlatot tükrözze.</p>
+    <p>Minden más (rendelések, készlet, eltérések, árajánlatok alkalmazása) itt a felületen, a ti munkátokból keletkezik. Az Eltérések fül a rendelésnaplóban jelölt eltéréseket gyűjti, a követés a mostantól leadott rendelésekre épül.</p>
   </div>
   <div class="kartya">
     <h3>Kiszerelés és darabszám – egy nyelvet beszélünk</h3>
@@ -2278,6 +2298,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v1.8</b> · 2023-ig visszamenő SAP adatok: 1159 cikk a keresőben, szállítói nevek, pontosabb fogyásbecslés (utolsó 12 hónap), régi árnál évszám</p>
     <p style="margin-bottom:6px"><b>v1.7</b> · a rendelésleadás áttekinthetőbb lett (számozott lépések, együtt maradó igénylista, tömörebb találatok), a mennyiségszámítás pontosítva, biztonsági keményítés (más nevében nem lehet üzenetet írni), napi automatikus mentés</p>
     <p style="margin-bottom:6px"><b>v1.6</b> · tételenkénti becsült érték, csomagár a keresőben, figyelmeztetés és egykattintásos kerekítés nem kerek csomagnál, jelzés a hiányzó kiszerelésről</p>
     <p style="margin-bottom:6px"><b>v1.5</b> · élő átváltás és egységváltás az igénylistán, a támogató menüpontok (Fiókom, Javaslatok, Előzmények, Súgó) a jobb felső menübe kerültek</p>
