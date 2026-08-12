@@ -1,0 +1,5 @@
+# Csak a generált dashboard és a leírás mehet ki a publikus repóba.
+*
+!index.html
+!README.md
+!.gitignore
