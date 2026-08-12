@@ -964,7 +964,7 @@ tbody tr:hover{background:#EFF2F8}
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v2.7</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v2.8</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -1761,6 +1761,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     if (megvan) {
       // ismételt hozzáadás: egy egységgel emelünk, nem a nagy átlaggal
       megvan.menny = (+megvan.menny || 0) + 1;
+      megvan.mod = new Date().toISOString();
       jelolPiszkos("tetelek");
       kosarRender(); keresRender(); mennyisegreFokusz(megvan.id); return;
     }
@@ -1782,7 +1783,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       if (minDb) indMenny = Math.max(1, Math.ceil(minDb / kk.elemszam));
     } else if (minDb) indMenny = minDb;
     MUNKA.tetelek.push({ id: ++sorszam, kod, nev: c.klinikai_nev||c.nev||kod, menny: indMenny,
-      egyseg: indEgyseg, megj: "", surgos: false, kepek: [], felvette: PROFIL.nev });
+      egyseg: indEgyseg, megj: "", surgos: false, kepek: [], felvette: PROFIL.nev,
+      mod: new Date().toISOString() });
     jelolPiszkos("tetelek");
     kosarRender(); keresRender(); mennyisegreFokusz(sorszam);
   }
@@ -2039,13 +2041,14 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
           return v;
         };
         if (inp.dataset.mezo === "menny") inp.oninput = () => {
-          t.menny = mennyErtek(); jelolPiszkos("tetelek"); sorFrissit(tr, t);
+          t.menny = mennyErtek(); t.mod = new Date().toISOString(); jelolPiszkos("tetelek"); sorFrissit(tr, t);
         };
         inp.onchange = () => {
           if (inp.dataset.mezo === "surgos"){ t.surgos = inp.checked; tr.classList.toggle("surgos-sor", t.surgos); }
           else if (inp.dataset.mezo === "menny") t.menny = mennyErtek();
           else if (inp.dataset.mezo === "egyseg") return;   // az egységet külön kezeljük
           else t[inp.dataset.mezo] = inp.value;
+          t.mod = new Date().toISOString();
           jelolPiszkos("tetelek");
           sorFrissit(tr, t);
           if (inp.dataset.mezo === "menny") keresRender();
@@ -2054,6 +2057,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       // egység váltása: a mennyiség átszámol a kiszerelés szerint (láncolva)
       const egysegElem = tr.querySelector("[data-egyseg]");
       if (egysegElem) egysegElem.onchange = () => {
+        t.mod = new Date().toISOString();
         const k = t.kod ? kiszerelesE(t.kod) : null;
         const regi = t.egyseg, uj = egysegElem.value;
         const regiCsomag = csomagbanVan(t.kod, regi), ujCsomag = csomagbanVan(t.kod, uj);
@@ -2070,7 +2074,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         keresRender();
       };
       tr.querySelector('[data-akcio="torol"]').onclick = () => {
-        MUNKA.tetelek = MUNKA.tetelek.filter(x => x.id != t.id); jelolPiszkos("tetelek"); kosarRender(); keresRender();
+        MUNKA.tetelek = MUNKA.tetelek.filter(x => x.id != t.id);
+        tetelLevettek.set(String(t.id), new Date().toISOString());
+        jelolPiszkos("tetelek"); kosarRender(); keresRender();
       };
       const cikkKepGomb = tr.querySelector('[data-akcio="cikkkep"]');
       if (cikkKepGomb) cikkKepGomb.onclick = () => cikkFotoFeltolt(t.kod);
@@ -3314,7 +3320,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Automatikus mentés és belépés</h3>
-    <p>Minden, amit beírsz (igénylista, napló, készletadatok, fotók, beolvasott árak, cikk-kiegészítések) pár másodpercen belül automatikusan mentődik, és mindenki ugyanazt látja, aki belép. A fejléc jelzője mutatja, hol tart a mentés: "mentés folyamatban", majd "elmentve" az időponttal. Ha nincs internet vagy a szerver nem válaszol, ezt is kiírja. Amit beírtál, megvan a böngészőben, és a kapcsolat visszatérésekor magától felkerül, de addig ne zárd be a lapot. Ha valaki más módosítja ugyanazt a listát, miközben te épp írsz, azt is jelzi, és a változás akkor jelenik meg, amikor kilépsz a mezőből. A jobb felső menüben a <b>Munkafájl mentése</b> biztonsági mentést készít egy fájlba, a <b>Munkafájl visszaállítása</b> pedig ebből tölti vissza az adatokat. Erre figyelj: a visszaállítás a mostani igénylistát, rendelésnaplót, készletet és árakat mindenkinél a fájlban lévőre cseréli, ezért csak megbeszélés után használd.</p>
+    <p>Minden, amit beírsz (igénylista, napló, készletadatok, fotók, beolvasott árak, cikk-kiegészítések) pár másodpercen belül automatikusan mentődik, és mindenki ugyanazt látja, aki belép. A fejléc jelzője mutatja, hol tart a mentés: "mentés folyamatban", majd "elmentve" az időponttal. Ha nincs internet vagy a szerver nem válaszol, ezt is kiírja. Amit beírtál, megvan a böngészőben, és a kapcsolat visszatérésekor magától felkerül, de addig ne zárd be a lapot. Ha valaki más módosítja ugyanazt a listát, miközben te épp írsz, azt is jelzi, és a változás akkor jelenik meg, amikor kilépsz a mezőből. Ha ugyanezen a gépen és böngészőben más lép be a te lapod mellett, a felület újratölti magát, hogy semmi ne kerüljön véletlenül a te nevedre. A jobb felső menüben a <b>Munkafájl mentése</b> biztonsági mentést készít egy fájlba, a <b>Munkafájl visszaállítása</b> pedig ebből tölti vissza az adatokat. Erre figyelj: a visszaállítás a mostani igénylistát, rendelésnaplót, készletet és árakat mindenkinél a fájlban lévőre cseréli, ezért csak megbeszélés után használd.</p>
   </div>
   <div class="kartya">
     <h3>Mi van, ha valaki elront valamit?</h3>
@@ -3339,6 +3345,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v2.8</b> · két gépen egyszerre is biztonságos: az igénylista tételenként fésül össze, ha ugyanabban a böngészőben más lép be, a felület újratölt, a kolléga módosítása a mező elhagyásakor azonnal megjelenik</p>
     <p style="margin-bottom:6px"><b>v2.7</b> · tabletre és érintésre méretezett gombok, ragadós sáv az igénylista összegével, jobb kontrasztok, billentyűzetes és képernyőolvasós használat, beszédes exportnevek</p>
     <p style="margin-bottom:6px"><b>v2.6</b> · tipikus ár a kiugró helyett, fogyásbecslés csak elég friss adatból, sztornó nem számol fogyásnak, központi raktári minimum több mértékegységgel, értelmes határok a mennyiségeknél</p>
     <p style="margin-bottom:6px"><b>v2.5</b> · a becsült érték és a darabszám ott is helyes, ahol a SAP egysége maga a csomag, 25 addig nem kereshető cikk elérhető lett, pontosabb szinonimák, éjszakai műszakban is a helyes dátum, a fotók nem írják felül egymást</p>
@@ -3371,6 +3378,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   // a helyben követésből levett cikkek, hogy egy időközbeni távoli frissítés ne
   // tegye vissza őket (magától kiürül, amint a szerver is követi a levételt)
   const keszletLevettek = new Map();
+  // a helyben törölt igénylista-tételek (hogy egy időközbeni távoli frissítés ne
+  // tegye vissza őket), magától kiürül, amint a szerver is követi a törlést
+  const tetelLevettek = new Map();
   function osszefuz(kulcs, tavoli){
     try {
       if (kulcs === "leadott" && Array.isArray(tavoli)){
@@ -3384,6 +3394,22 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
           if (hm && (!tm || String(hm) > String(tm))) map.set(String(r.id), r);
         });
         return [...map.values()].sort((a,b) => String(b.mikor||"").localeCompare(String(a.mikor||"")));
+      }
+      if (kulcs === "tetelek" && Array.isArray(tavoli)){
+        const map = new Map(tavoli.map(t => [String(t.id), t]));
+        MUNKA.tetelek.forEach(t => {
+          const tav = map.get(String(t.id));
+          if (!tav){ map.set(String(t.id), t); return; }   // nálunk most felvett tétel
+          const hm = t.mod, tm = tav.mod;
+          if (hm && (!tm || String(hm) > String(tm))) map.set(String(t.id), t);
+        });
+        // amit itt vettünk le a listáról, azt a távoli állapot ne hozza vissza
+        tetelLevettek.forEach((mikor, id) => {
+          const tav = map.get(String(id));
+          if (!tav) { tetelLevettek.delete(id); return; }
+          if (mikor > String(tav.mod || "")) map.delete(String(id));
+        });
+        return [...map.values()];
       }
       if (kulcs === "cikk_kepek" && tavoli && typeof tavoli === "object"){
         // fotóknál sosem dobunk el képet: a két oldal uniója marad
@@ -3463,8 +3489,12 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     });
     if (kesz.length && !vararakozoAlkalmazas.size && window.mentesUjra) window.mentesUjra();
   }
-  document.addEventListener("focusout", () => setTimeout(halasztFlush, 80));
-  setInterval(halasztFlush, 4000);
+  // Minden felhasználói mozdulatra megpróbáljuk beengedni a várakozó frissítést,
+  // hogy ne múljon időzítőn (rejtett vagy háttérben lévő lapon a böngésző fojtja
+  // az időzítőket, ezért a puszta setInterval nem elég).
+  ["focusout", "click", "keyup", "visibilitychange"].forEach(e =>
+    document.addEventListener(e, () => setTimeout(halasztFlush, 60), true));
+  setInterval(halasztFlush, 3000);
   window.szinkron.varakozik = kulcs => vararakozoAlkalmazas.has(kulcs);
   window.szinkron.alkalmaz = (kulcs, ertek) => {
     if (halasztKell(kulcs)){
@@ -4270,14 +4300,31 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
 
   // jelszó-visszaállító linkről érkezés: belépés után egyből jelszóváltás
   let helyreallitas = false;
-  supa.auth.onAuthStateChange(ev => {
+  supa.auth.onAuthStateChange((ev, sess) => {
     if (ev === "PASSWORD_RECOVERY"){
       helyreallitas = true;
       if (elindult) jelszoNyit(true); else indit().then(() => jelszoNyit(true));
+      return;
+    }
+    // Ha ugyanebben a böngészőben más fiók lép be (közös gépen egymás után), a már
+    // megnyitott lap felülete még a régi nevet mutatná, a kérései viszont már az új
+    // fiók nevében mennének. Ezért ilyenkor újratöltjük a lapot.
+    if (!elindult) return;
+    const ujId = sess && sess.user && sess.user.id;
+    if (ev === "SIGNED_OUT" || (ujId && window.PROFIL_ID && ujId !== window.PROFIL_ID)){
+      try { sessionStorage.setItem("raktar_fiokvaltas", "1"); } catch(e){}
+      location.reload();
     }
   });
 
   // ha van élő munkamenet (a böngésző megjegyezte), egyből indulunk
+  try {
+    if (sessionStorage.getItem("raktar_fiokvaltas")){
+      sessionStorage.removeItem("raktar_fiokvaltas");
+      hiba.style.color = "";
+      hiba.textContent = "Ebben a böngészőben másik fiók lépett be, ezért újratöltöttük a felületet.";
+    }
+  } catch(e){}
   supa.auth.getSession().then(({ data: { session } }) => { if (session && !helyreallitas) indit(); });
 })();
 </script>
