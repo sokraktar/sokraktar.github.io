@@ -655,7 +655,7 @@ body.varakozik header,body.varakozik main,body.varakozik footer{display:none}
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v1.6</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v1.7</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -2239,7 +2239,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Fiókom</h3>
-    <p>A jobb felső sarokban a nevedre kattintva nyílik a menü: itt van a Fiókom (név, beosztás, telefon módosítása, jelszóváltás), a Javaslatok, az Előzmények, a Súgó és a Kijelentkezés. Az e-mail címed nem változtatható. Ha elfelejtetted a jelszavad, a belépőképernyő "Elfelejtetted a jelszavad?" gombjával kérhetsz visszaállító e-mailt.</p>
+    <p>A jobb felső sarokban a nevedre kattintva nyílik a menü: itt van a Fiókom (név, beosztás, telefon módosítása, jelszóváltás), a Javaslatok, az Előzmények, a Súgó, a munkafájl mentése és betöltése, valamint a Kijelentkezés. Az e-mail címed nem változtatható. Ha elfelejtetted a jelszavad, a belépőképernyő "Elfelejtetted a jelszavad?" gombjával kérhetsz visszaállító e-mailt.</p>
     <p>A szuperadmin ugyanitt kezeli a fiókokat: nevet és beosztást írhat át, szerepet állíthat, fiókot kapcsolhat ki, jelszó-visszaállító e-mailt küldhet, jelszócserét kérhet, és letöltheti a rendszer teljes mentését egy fájlban.</p>
   </div>
   <div class="kartya">
@@ -2260,7 +2260,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Automatikus mentés és belépés</h3>
-    <p>Minden, amit beírsz (igénylista, napló, készletadatok, fotók, beolvasott árak, cikk-kiegészítések) pár másodpercen belül automatikusan mentődik, és mindenki ugyanazt látja, aki belép. A fejlécben a "minden mentve" felirat mutatja, hogy a legutolsó módosításod is felkerült. A jelszavadat a jobb felső menü Fiókom pontjában bármikor megváltoztathatod. A Munkafájl mentése gomb biztonsági mentés: egy fájlba letölti a teljes közös állapotot, a Munkafájl betöltése pedig visszaállítja belőle.</p>
+    <p>Minden, amit beírsz (igénylista, napló, készletadatok, fotók, beolvasott árak, cikk-kiegészítések) pár másodpercen belül automatikusan mentődik, és mindenki ugyanazt látja, aki belép. A fejlécben a "minden mentve" felirat mutatja, hogy a legutolsó módosításod is felkerült. A jelszavadat a jobb felső menü Fiókom pontjában bármikor megváltoztathatod. A jobb felső menüben a Munkafájl mentése biztonsági mentést készít egy fájlba, a Munkafájl betöltése pedig visszaállítja belőle. A rendszer emellett minden este automatikus mentést is készít a háttérben. Ha 12 óránál hosszabb ideig nem használod a felületet, biztonsági okból kilép.</p>
   </div>
   <div class="kartya">
     <h3>Honnan jönnek az adatok?</h3>
@@ -2278,6 +2278,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v1.7</b> · a rendelésleadás áttekinthetőbb lett (számozott lépések, együtt maradó igénylista, tömörebb találatok), a mennyiségszámítás pontosítva, biztonsági keményítés (más nevében nem lehet üzenetet írni), napi automatikus mentés</p>
     <p style="margin-bottom:6px"><b>v1.6</b> · tételenkénti becsült érték, csomagár a keresőben, figyelmeztetés és egykattintásos kerekítés nem kerek csomagnál, jelzés a hiányzó kiszerelésről</p>
     <p style="margin-bottom:6px"><b>v1.5</b> · élő átváltás és egységváltás az igénylistán, a támogató menüpontok (Fiókom, Javaslatok, Előzmények, Súgó) a jobb felső menübe kerültek</p>
     <p style="margin-bottom:6px"><b>v1.4</b> · kiszerelés-átváltás (darab és rendelési egység megfeleltetése), Hol van? mező a készletnél, Javaslatok fül, online jelzés a fejlécben, belépési napló, verziónapló</p>
