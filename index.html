@@ -1143,7 +1143,7 @@ tbody tr:hover{background:#EFF2F8}
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.3</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.4</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -2182,6 +2182,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       <div class="exportsav">
         ${!m.inaktiv ? `<button class="gomb masodlagos" id="alIgenylistara">Igénylistára</button>` : ""}
         <button class="gomb" id="alMent">Mentés</button>
+        ${m.sajat ? `<button class="gomb masodlagos veszelyes mini" id="alSajatTorol">Kézi cikk törlése</button>` : ""}
         <button class="gomb masodlagos" id="alMegse">Bezárás mentés nélkül</button>
         ${CIKK_MOD[kod] ? '<button class="gomb masodlagos" id="alTorol">Kiegészítések törlése</button>' : ""}
       </div>
@@ -2196,6 +2197,32 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         esemeny("cikk adatlap", nevE(c), "kiegészítések törölve");
         adatlapDiv.classList.remove("nyitva"); kepValtozott();
       }
+    };
+    const sajatTorolGomb = document.getElementById("alSajatTorol");
+    if (sajatTorolGomb) sajatTorolGomb.onclick = () => {
+      // csak akkor törölhető véglegesen, ha még semmihez nincs hozzárendelve,
+      // különben a leadott rendelésben vagy a készletben névtelen sor maradna
+      const listan = MUNKA.tetelek.some(t => t.kod === kod);
+      const keszleten = !!MUNKA.keszlet[kod];
+      const leadva = MUNKA.leadott.some(r => (r.tetelek||[]).some(t => t.kod === kod));
+      if (listan || keszleten || leadva){
+        alert("Ez a kézi cikk már használatban van"
+          + (listan ? " (az igénylistán)" : "") + (keszleten ? " (a készletnézetben)" : "")
+          + (leadva ? " (egy leadott rendelésben)" : "")
+          + ", ezért nem törölhető.\n\nHa nem kell többé, pipáld be helyette az \"inaktív\" jelölőt: "
+          + "akkor nem kínálja fel a rendszer, de a korábbi adatok épek maradnak.");
+        return;
+      }
+      if (!confirm(`Véglegesen törlöd ezt a kézzel felvitt cikket?\n\n${nevE(c)}\n\n`
+          + "Ez nem visszavonható, de a cikk újra felvehető a Cikktörzsből.")) return;
+      delete CIKK_MOD[kod];
+      if (window.valtozasJelolH) window.valtozasJelolH("cikk_mod", kod, "sajat");
+      jelolPiszkos("cikk_mod");
+      esemeny("kézi cikk törlése", nevE(c), "véglegesen törölve a törzsből");
+      sajatUjra(); cikkIndexEpit();
+      adatlapDiv.classList.remove("nyitva");
+      kepFrissitok.forEach(f => f());
+      alert("A kézi cikk törölve.");
     };
     const igenyGomb = document.getElementById("alIgenylistara");
     if (igenyGomb) igenyGomb.onclick = () => {
@@ -2842,7 +2869,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       const p = t.kod ? (ADAT.termekek[t.kod]||[])[0] : null;
       const m = t.kod ? modE(t.kod) : {};
       const ar = t.kod ? arE(t.kod) : null;
-      return [t.kod || (t.uj_tetel ? "ÚJ CIKK" : ""), t.nev,
+      const sajatE = t.kod && String(t.kod).startsWith("SAJAT-");
+      return [sajatE ? "kézi cikk" : (t.kod || (t.uj_tetel ? "ÚJ CIKK" : "")), t.nev,
         m.gyartoi_cikkszam || (p?.cikkszam && p.cikkszam !== "-" ? p.cikkszam : "") || t.uj_cikkszam || "",
         m.gyarto || p?.forgalmazo || c?.szallito || (c?.kp ? "Központi raktár" : "") || t.uj_forgalmazo || "",
         m.kiszereles || p?.kiszereles || t.uj_kiszereles || "",
@@ -4002,6 +4030,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v3.4</b> · a kézzel felvitt cikk törölhető, ha még semmihez nincs hozzárendelve, és az exportban nem a SAP cikkszám oszlopban jelenik meg</p>
     <p style="margin-bottom:6px"><b>v3.3</b> · új cikk felvehető a törzsbe is (kézi katalógus-bővítés, mindenhol kézi cikk jelöléssel), a Cikktörzs minden sorából és a cikk adatlapjáról egy kattintással igénylistára tehető, és az állapotfülek térköze rendben</p>
     <p style="margin-bottom:6px"><b>v3.2</b> · a Cikktörzsben aktív, inaktív és mind fül a darabszámmal, állapot oszlop az indokkal, és egyszerre több cikk is inaktiválható vagy visszakapcsolható</p>
     <p style="margin-bottom:6px"><b>v3.1</b> · új cikk felvitele kötelező mezőkkel (megnevezés, mennyiség, egység, gyártó, indok), hiányos tétellel nem adható le a lista, és az új cikk adatai bekerülnek az exportba</p>
