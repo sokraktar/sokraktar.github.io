@@ -1567,9 +1567,9 @@ document.querySelectorAll("[data-nezet]").forEach(b => b.onclick = () => {
   }
   function epit(q){
     const ki = [];
-    const sz = (mit, mibol) => !q || keresIllik(q, mibol);
-    nezetek().forEach(n => { if (sz(q, [n.cimke])) ki.push(n); });
-    muveletek().forEach(m => { if (sz(q, [m.cimke, m.kulcs])) ki.push(m); });
+    const illik = mibol => !q || keresIllik(q, mibol);
+    nezetek().forEach(n => { if (illik([n.cimke])) ki.push(n); });
+    muveletek().forEach(m => { if (illik([m.cimke, m.kulcs])) ki.push(m); });
     if (!q && (window.UTOLSO_CIKKEK || []).length){
       const ind = {};
       cikkLista().forEach(c => { ind[c.kod] = c; });
@@ -1587,14 +1587,36 @@ document.querySelectorAll("[data-nezet]").forEach(b => b.onclick = () => {
         if (db >= 8) break;
         if (!keresIllik(q, [gyNev(c), c.kod, c.klinikai_nev, c.kategoria])) continue;
         const m = modE(c.kod);
-        ki.push({ fajta: "cikk", cimke: gyNev(c), kod: c.kod, ikon: "≡",
+        ki.push({ fajta: "cikk", cimke: gyNev(c), kod: c.kod, ikon: "≡", inaktiv: !!m.inaktiv,
           mell: (m.inaktiv ? "inaktív · " : "") + (String(c.kod).startsWith("SAJAT-") ? "kézi cikk" : c.kod),
           futtat: () => { if (window.adatlapNyit) window.adatlapNyit(c.kod); } });
         db++;
       }
     }
+    // Elöl a pontos találat (ahogy a nagy gyorsindítókban): ha a beírt szöveggel
+    // KEZDŐDIK a cimke, az előbbre kerül, mint a szó közepére eső találat.
+    const nq = q ? norm(q) : "";
+    const ero = t => {
+      // az inaktivált cikk (máshonnan rendeljük, duplikált cikkszám) mindig a
+      // hasonlóan jó találatú aktív cikkek MÖGÉ kerül
+      const buntetes = t.inaktiv ? 4 : 0;
+      if (!nq) return 1 + buntetes;
+      const nc = norm(t.cimke);
+      if (nc === nq) return 0 + buntetes;
+      if (nc.startsWith(nq)) return 1 + buntetes;
+      if (t.fajta === "cikk" && String(t.kod || "").toLowerCase().startsWith(nq)) return 1 + buntetes;
+      return 2 + buntetes;
+    };
+    // A csoportok maradjanak egyben (különben ismétlődne a szakaszcím), de az a
+    // csoport kerüljön előre, amelyikben a legpontosabb találat van.
     const rend = { utolso: 0, cikk: 1, nezet: 2, muvelet: 3 };
-    ki.sort((a, b) => rend[a.fajta] - rend[b.fajta]);
+    const csoportEro = {};
+    ki.forEach(t => {
+      t._ero = ero(t);
+      csoportEro[t.fajta] = Math.min(csoportEro[t.fajta] === undefined ? 9 : csoportEro[t.fajta], t._ero);
+    });
+    ki.sort((a, b) => (csoportEro[a.fajta] - csoportEro[b.fajta])
+      || (rend[a.fajta] - rend[b.fajta]) || (a._ero - b._ero));
     return ki.slice(0, 24);
   }
   function rajzol(q){
@@ -1602,7 +1624,7 @@ document.querySelectorAll("[data-nezet]").forEach(b => b.onclick = () => {
       lista.innerHTML = `<div class="gy-ures">Nincs találat erre: <b>${esc(q)}</b></div>`;
       return;
     }
-    let elozo = "", html = "";
+    let elozo = null, html = "";
     const cimek = { utolso: "Legutóbb megnyitott", nezet: "Nézetek", muvelet: "Műveletek", cikk: "Cikkek" };
     talalatok.forEach((t, i) => {
       if (t.fajta !== elozo){ html += `<div class="gy-cim">${cimek[t.fajta]}</div>`; elozo = t.fajta; }
@@ -2067,7 +2089,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       return;
     }
     if (!confirm(`Beírjuk ${num(erintett.length)} cikkhez, hogy ${TK_CIMKE[mezo]}: ${ertek}`
-      + (felul && erintett.length !== kodok.length ? "" : "")
+      + (erintett.length !== kodok.length
+          ? `\n\n(A kijelölt ${num(kodok.length)} cikk közül ${num(kodok.length - erintett.length)} helyen már van adat, azokat nem írjuk át.)`
+          : "")
       + `\n\nA többi adat változatlan marad, és a művelet visszavonható.`)) return;
     const most = new Date().toISOString();
     const elozoek = {};
