@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#232F61">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Raktárkészlet">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='34' fill='%23232F61'/%3E%3Cg fill='none' stroke='%23E3D496' stroke-width='9' stroke-linecap='round'%3E%3Crect x='50' y='62' width='80' height='62' rx='9'/%3E%3Cpath d='M74 62V52a16 16 0 0 1 32 0v10M90 82v22M79 93h22'/%3E%3C/g%3E%3C/svg%3E">
 <title>Raktárkészlet · Sürgősségi Orvostani Klinika</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -138,6 +143,24 @@ footer{max-width:1200px;margin:0 auto;padding:10px 24px 30px;font-size:12px;colo
 .export-racs > div{display:flex;flex-direction:column;gap:3px}
 .export-racs .gomb{width:100%}
 .export-magy{font-size:11.5px;color:var(--tinta3);line-height:1.35}
+#gyorsGomb .gyors-jel{margin-left:6px;font-size:10px;font-weight:700;letter-spacing:.3px;opacity:.75}
+@media(max-width:820px){#gyorsGomb .gyors-jel{display:none}}
+#gyorsPaletta{position:fixed;inset:0;background:rgba(35,47,97,.45);display:none;align-items:flex-start;
+  justify-content:center;padding:9vh 16px 16px;z-index:220}
+#gyorsPaletta.nyitva{display:flex}
+#gyorsPaletta .panel{background:#fff;border-radius:var(--r-l);width:100%;max-width:620px;box-shadow:0 24px 60px rgba(20,26,54,.3);
+  overflow:hidden;display:flex;flex-direction:column;max-height:74vh}
+#gyorsMezo{width:100%;font:inherit;font-size:16px;border:0;border-bottom:1px solid var(--vonal);padding:16px 18px;outline:none}
+#gyorsLista{overflow-y:auto;padding:6px}
+.gy-cim{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--tinta3);padding:9px 12px 4px}
+.gy-elem{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer}
+.gy-elem .fo{font-size:13.5px;font-weight:600;color:var(--tinta);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gy-elem .mell{font-size:11.5px;color:var(--tinta3);white-space:nowrap}
+.gy-elem .ikon{width:22px;text-align:center;font-size:13px;color:var(--tinta3);flex:none}
+.gy-elem.kivalasztott{background:#EDF2FB}
+.gy-elem.kivalasztott .fo{color:var(--se-kek)}
+.gy-ures{padding:22px 16px;text-align:center;color:var(--tinta3);font-size:13px}
+.gy-labjegyzet{border-top:1px solid var(--vonal);padding:8px 14px;font-size:11px;color:var(--tinta3);display:flex;gap:14px;flex-wrap:wrap}
 #torzsCikkModal{position:fixed;inset:0;background:rgba(35,47,97,.5);display:none;align-items:flex-start;
   justify-content:center;padding:4vh 12px;z-index:80;overflow-y:auto}
 #torzsCikkModal.nyitva{display:flex}
@@ -180,6 +203,21 @@ footer{max-width:1200px;margin:0 auto;padding:10px 24px 30px;font-size:12px;colo
   color:var(--tinta);box-shadow:inset 0 0 0 1px var(--se-arany-sotet)}
 .munka-csip .db{font-weight:700;opacity:.7;margin-left:4px}
 .atnezve-jel{color:var(--jo);font-weight:700;font-size:11.5px;white-space:nowrap}
+.allapot-jobb{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tomeges-kitolt{display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-basis:100%;
+  margin-top:8px;padding-top:9px;border-top:1px solid rgba(35,47,97,.12)}
+.tomeges-kitolt .tk-cim{font-size:12px;font-weight:700;color:var(--tinta2)}
+.tomeges-kitolt select,.tomeges-kitolt input[type="text"]{font:inherit;font-size:12.5px;padding:6px 8px;
+  border:1px solid var(--vonal);border-radius:8px;background:#fff}
+.tomeges-kitolt input[type="text"]{flex:1;min-width:170px}
+.tomeges-kitolt .tk-jel{font-size:11.5px;color:var(--tinta3)}
+.atnez-gomb{display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-family:inherit;font-size:11.5px;font-weight:600;
+  color:var(--tinta3);background:#fff;border:1px solid var(--vonal);border-radius:20px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+.atnez-gomb:hover{border-color:#7FC2A0;color:#0F7B3F;background:#F4FBF7}
+.atnez-gomb .pipa{font-size:12px;line-height:1;opacity:.3}
+.atnez-gomb.kesz{color:#0F7B3F;background:#EAF7F0;border-color:#A9DCBE}
+.atnez-gomb.kesz .pipa{opacity:1}
+.atnez-gomb.kesz:hover{background:#FDECEC;border-color:#E2A9A9;color:#9B2C2C}
 .allapot-sor{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
   gap:10px;margin:14px 0 12px}
 .allapot-fulek{display:flex;gap:6px;flex-wrap:wrap}
@@ -207,6 +245,22 @@ tr.inaktiv-sor td:nth-child(3){opacity:.72}
   color:#8A5A00;background:#FDF3DF;border:1px solid #EBD9AE;border-radius:5px;padding:1px 6px;margin-left:6px}
 /* Ragadós összefoglaló sáv: kisebb kijelzőn az igénylista és a leadás messze a
    hajtás alatt van, ezért a lényeg mindig kézre esik. */
+#jelzesSav{position:fixed;left:50%;transform:translateX(-50%);top:16px;z-index:95;
+  padding:11px 18px;background:var(--se-kek);color:#fff;border-radius:999px;
+  box-shadow:var(--e3);font-size:13.5px;font-weight:600;max-width:92vw;text-align:center}
+#jelzesSav[hidden]{display:none}
+#jelzesSav.hiba{background:var(--kritikus)}
+@media(prefers-reduced-motion:no-preference){
+  #jelzesSav:not([hidden]){animation:jelzesBe .18s ease-out}
+  @keyframes jelzesBe{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
+}
+#visszavonSav{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:90;
+  display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--tinta);
+  color:#fff;border-radius:999px;box-shadow:var(--e3);font-size:13px;max-width:92vw}
+#visszavonSav[hidden]{display:none}
+#visszavonSav .szoveg{font-weight:600}
+#visszavonSav .gomb{background:#fff;color:var(--tinta);border:none;min-height:32px;padding:6px 12px}
+@media(max-width:980px){ #visszavonSav{bottom:76px} }
 #kosarSav{display:none}
 @media(max-width:980px){
   #kosarSav:not([hidden]){display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;
@@ -318,6 +372,10 @@ tr.inaktiv-sor td:nth-child(3){opacity:.72}
 .adatlap-mezo input,.adatlap-mezo select,.adatlap-mezo textarea{width:100%;font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--keret);border-radius:8px;background:#fff}
 .adatlap-mezo textarea{resize:vertical;min-height:56px}
 .adatlap-mezo .alap{font-size:11.5px;color:var(--tinta3);margin-top:2px}
+.adatlap-suly{font-size:12.5px;color:var(--tinta2);background:#F6F5EF;border:1px solid var(--keret);
+  border-radius:var(--r-s);padding:7px 10px;margin:10px 0 4px}
+.adatlap-muveletek{position:sticky;bottom:0;background:#fff;padding:12px 0 2px;margin-top:16px;
+  border-top:1px solid var(--keret);z-index:2}
 .cikknev-link{cursor:pointer}
 .cikknev-link:hover{text-decoration:underline;text-decoration-color:var(--se-arany-sotet);text-underline-offset:3px}
 .szerk-jel{font-size:10.5px;font-weight:700;color:#0B5C8B;background:#E3EFF8;border:1px solid #A9CFE8;border-radius:20px;padding:1px 7px}
@@ -685,6 +743,7 @@ tbody tr:hover{background:#EFF2F8}
   border:1px dashed var(--keret);border-radius:var(--r-m);background:#FCFCFB}
 .nincs-talalat .gomb{margin-top:var(--t3)}
 .utolso-jel{color:var(--tinta3-halk)}
+mark{background:#FDF3DF;color:inherit;padding:0 1px;border-radius:3px;font-weight:700}
 /* --- kedvencek és sablonok --- */
 .lista-fulek{display:flex;gap:var(--t1);margin:var(--t3) 0 0;border-bottom:1px solid var(--keret)}
 .lista-ful{font:inherit;font-size:var(--t-kis);font-weight:700;color:var(--tinta3);background:none;
@@ -818,6 +877,14 @@ tbody tr:hover{background:#EFF2F8}
     </div>
   </div>
 </div>
+<div id="gyorsPaletta" role="dialog" aria-modal="true" aria-label="Gyorskereső">
+  <div class="panel">
+    <input type="text" id="gyorsMezo" autocomplete="off" spellcheck="false"
+      placeholder="Írj be cikknevet, cikkszámot vagy nézetet (pl. nitril, készlet, új cikk)" aria-label="Gyorskereső">
+    <div id="gyorsLista" role="listbox"></div>
+    <div class="gy-labjegyzet"><span>Fel és le nyíl: mozgás</span><span>Enter: megnyitás</span><span>Esc: bezárás</span></div>
+  </div>
+</div>
 <div id="torzsCikkModal">
   <div class="panel">
     <h3>Új cikk felvitele a törzsbe</h3>
@@ -905,6 +972,7 @@ tbody tr:hover{background:#EFF2F8}
     <div class="huser" id="huser">
       <span id="szinkronJelzo" role="status" aria-live="off"></span>
       <span id="onlineJelzo" data-tip=""></span>
+      <button id="gyorsGomb" title="Gyorskereső és ugrás (Ctrl+K)" aria-label="Gyorskereső"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg><span class="gyors-jel" aria-hidden="true">Ctrl K</span></button>
       <button id="harang" title="Értesítések" aria-label="Értesítések"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="szam" id="harangSzam" aria-hidden="true"></span></button>
       <button id="userMenu" title="Menü"><b id="huserNev"></b> <span class="hszerep" id="huserSzerep"></span> <span class="caret" aria-hidden="true">▾</span></button>
     </div>
@@ -939,6 +1007,11 @@ tbody tr:hover{background:#EFF2F8}
 </div>
 <input type="file" id="munkafajlInput" accept=".json" style="display:none">
 <div id="ertesitesPanel"></div>
+<div id="jelzesSav" role="status" aria-live="polite" hidden></div>
+<div id="visszavonSav" hidden>
+  <span class="szoveg"></span>
+  <button type="button" class="gomb masodlagos mini">Visszavonás</button>
+</div>
 <div id="kosarSav" hidden>
   <span id="kosarSavSzoveg">Az igénylista üres</span>
   <button class="gomb masodlagos mini" id="kosarSavUgras">Listához</button>
@@ -1121,7 +1194,10 @@ tbody tr:hover{background:#EFF2F8}
       <button type="button" class="allapot-ful" data-allapot="inaktiv" aria-pressed="false">Inaktív <span class="db" id="cikkInaktivDb"></span></button>
       <button type="button" class="allapot-ful" data-allapot="mind" aria-pressed="false">Mind</button>
     </div>
-    <button class="gomb masodlagos mini" id="ujTorzsCikk">+ Új cikk a törzsbe</button>
+    <div class="allapot-jobb">
+      <button class="gomb masodlagos mini" id="cikkExport" title="A most látható (szűrt) cikkek letöltése Excelbe, hogy offline is átnézhető legyen">Excel-export</button>
+      <button class="gomb masodlagos mini" id="ujTorzsCikk">+ Új cikk a törzsbe</button>
+    </div>
   </div>
   <div id="cikkTomeges" hidden>
     <span id="cikkKijeloltDb"></span>
@@ -1129,6 +1205,18 @@ tbody tr:hover{background:#EFF2F8}
     <button class="gomb masodlagos mini" id="cikkInaktival">Kijelöltek inaktiválása</button>
     <button class="gomb masodlagos mini" id="cikkAktival" hidden>Kijelöltek visszakapcsolása</button>
     <button class="kepgomb" id="cikkKijelolesTorles">kijelölés törlése</button>
+    <div class="tomeges-kitolt">
+      <span class="tk-cim">Tömeges kitöltés:</span>
+      <select id="cikkTomegesMezo" aria-label="Melyik adatot töltjük ki?">
+        <option value="gyarto">Gyártó / forgalmazó</option>
+        <option value="kiszereles">Kiszerelés</option>
+        <option value="megjegyzes">Megjegyzés</option>
+      </select>
+      <input type="text" id="cikkTomegesErtek" maxlength="120" placeholder="pl. B.Braun Trading Kft">
+      <label class="cb" title="Bekapcsolva a már kitöltött adatot is felülírja"><input type="checkbox" id="cikkTomegesFelul"> a meglévőt is írja át</label>
+      <button class="gomb masodlagos mini" id="cikkTomegesKitolt">Kitöltés a kijelölteknél</button>
+      <span class="tk-jel" id="cikkTomegesJel"></span>
+    </div>
   </div>
   <div class="kartya tablas">
     <table id="cikkTabla">
@@ -1174,7 +1262,7 @@ tbody tr:hover{background:#EFF2F8}
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.5</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.6</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -1185,6 +1273,15 @@ const CIKK_MOD = {};
 Object.assign(CIKK_KEPEK, MENTETT.cikk_kepek || {});
 Object.assign(CIKK_MOD, MENTETT.cikk_mod || {});
 const modE = kod => CIKK_MOD[kod] || {};
+// Van-e a bejegyzésben tényleges tartalom? Az üres (vagy csak technikai mezőket
+// tartalmazó) bejegyzés ne mutasson "kiegészítve" címkét.
+const MOD_TECHNIKAI = new Set(["ki", "mikor", "atnezve", "atnezve_ki", "atnezve_mikor"]);
+function modTartalom(kod){
+  const m = CIKK_MOD[kod];
+  if (!m || typeof m !== "object") return false;
+  return Object.entries(m).some(([k, v]) =>
+    !MOD_TECHNIKAI.has(k) && v !== null && v !== "" && v !== undefined && v !== false);
+}
 window.ADAT_CIKKEK = [];   // az appStart tölti fel a SAP-törzzsel
 // A kézzel felvitt cikkek: a közös cikk_mod szakaszban élnek sajat:true jelöléssel,
 // és a katalógus részeként viselkednek (kereshetők, rendelhetők, készletre vehetők).
@@ -1261,6 +1358,18 @@ function cikkThumb(kod, meret){
     const a = ev.target.closest("[data-adatlap]");
     if (a && window.adatlapNyit) window.adatlapNyit(a.dataset.adatlap);
   });
+  // "/" a keresőre áll (a felület használói gépelve dolgoznak, ne kelljen egérhez nyúlni)
+  document.addEventListener("keydown", ev => {
+    if (ev.key !== "/" || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    const a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
+    const nyitva = [...document.querySelectorAll("#adatlap,#fiokModal,#jelszoModal,#lightbox,#ujTetelModal,#torzsCikkModal,#gyorsPaletta")]
+      .some(x => x.classList.contains("nyitva"));
+    if (nyitva) return;
+    const aktiv = document.querySelector(".nezet.aktiv");
+    const kereso = aktiv && aktiv.querySelector('input[type="search"]');
+    if (kereso){ ev.preventDefault(); kereso.focus(); kereso.select(); }
+  });
   // a cikknév billentyűzetről is nyitható (Enter vagy szóköz)
   document.addEventListener("keydown", ev => {
     if (ev.key !== "Enter" && ev.key !== " ") return;
@@ -1271,6 +1380,31 @@ function cikkThumb(kod, meret){
 })();
 const KATSZIN = {"Fogyóanyag":"#008C49","Szolgáltatás":"#008BD2","Eszköz":"#9C7F21","Központi raktár":"#5560A4","Egyéb (46)":"#C81E3C","Egyéb (47)":"#C81E3C","Ismeretlen":"#8B90A0"};
 const KATSORREND = ["Fogyóanyag","Szolgáltatás","Eszköz","Központi raktár","Egyéb (46)","Egyéb (47)"];
+// A keresett szavak kiemelése a találatban: ékezet-független, ezért a normalizált
+// és az eredeti szöveg között karakterről karakterre kell megfeleltetni.
+function kiemel(szoveg, q){
+  const sz = String(szoveg ?? "");
+  if (!q) return esc(sz);
+  const szavak = [...new Set(norm(q).split(/\s+/).filter(x => x.length >= 2))];
+  if (!szavak.length) return esc(sz);
+  const nSz = norm(sz);
+  const jelolt = new Array(sz.length).fill(false);
+  szavak.forEach(w => {
+    let i = nSz.indexOf(w);
+    while (i >= 0){
+      for (let j = i; j < Math.min(i + w.length, sz.length); j++) jelolt[j] = true;
+      i = nSz.indexOf(w, i + 1);
+    }
+  });
+  let ki = "", nyitva = false;
+  for (let i = 0; i < sz.length; i++){
+    if (jelolt[i] && !nyitva){ ki += "<mark>"; nyitva = true; }
+    if (!jelolt[i] && nyitva){ ki += "</mark>"; nyitva = false; }
+    ki += esc(sz[i]);
+  }
+  if (nyitva) ki += "</mark>";
+  return ki;
+}
 // univerzális, ékezet-független kereső: minden szónak illeszkednie kell valamelyik mezőre
 const norm = s => String(s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 // HTML escape a felhasználói tartalmakhoz (tárolt XSS ellen)
@@ -1344,6 +1478,37 @@ const helyiNap = d => {
 };
 const ma = () => helyiNap();
 
+// ---------- visszavonás sáv ----------
+// A gyakori, gyorsan végzett műveletek (adatlap mentése, tömeges inaktiválás) után
+// fél percig felajánljuk a visszavonást. Szándékosan a legkülső szinten van, hogy a
+// Cikktörzs és a rendelésleadás zárványa is elérje.
+// Nem blokkoló visszajelzés: a sikeres műveleteket nem ablakkal nyugtázzuk, mert az
+// megállítja a munkát. Hiba és megerősítés továbbra is ablak, mert azt látni KELL.
+let jelzesIdozito = null;
+function jelzes(szoveg, tipus){
+  const sav = document.getElementById("jelzesSav");
+  if (!sav){ console.log(szoveg); return; }
+  clearTimeout(jelzesIdozito);
+  sav.textContent = szoveg;
+  sav.className = tipus === "hiba" ? "hiba" : "";
+  sav.hidden = false;
+  jelzesIdozito = setTimeout(() => { sav.hidden = true; }, 4000);
+}
+let visszavonasIdozito = null;
+function visszavonasFelajanl(szoveg, vissza){
+  const sav = document.getElementById("visszavonSav");
+  if (!sav) return;
+  clearTimeout(visszavonasIdozito);
+  sav.querySelector(".szoveg").textContent = szoveg;
+  const gomb = sav.querySelector("button");
+  gomb.onclick = () => {
+    sav.hidden = true; clearTimeout(visszavonasIdozito);
+    try { vissza(); } catch(e){ console.error("Visszavonás hiba:", e); }
+  };
+  sav.hidden = false;
+  visszavonasIdozito = setTimeout(() => { sav.hidden = true; }, 30000);
+}
+
 // ---------- tooltip ----------
 const tip = document.getElementById("tooltip");
 function tippShow(html, ev){ tip.innerHTML = html; tip.style.opacity = 1; tippMove(ev); }
@@ -1365,6 +1530,147 @@ document.querySelectorAll("[data-nezet]").forEach(b => b.onclick = () => {
   document.getElementById("userMenu").classList.remove("nyitva");
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
+// ---------- gyorskereső paletta (Ctrl+K) ----------
+// A nagy felületeken megszokott gyorsindító: egy mezőből elérhető minden nézet,
+// a leggyakoribb műveletek és bármelyik cikk adatlapja, egérhez nyúlás nélkül.
+(function(){
+  const takaro = document.getElementById("gyorsPaletta");
+  const mezo = document.getElementById("gyorsMezo");
+  const lista = document.getElementById("gyorsLista");
+  if (!takaro || !mezo || !lista) return;
+  let talalatok = [], hol = 0;
+
+  const gyNev = c => c.nev || c.klinikai_nev || c.kod || "";
+  function nezetek(){
+    return [...document.querySelectorAll("[data-nezet]")].map(b => ({
+      fajta: "nezet", cimke: (b.textContent || "").replace(/\s+/g, " ").trim(),
+      ikon: "→", mell: "nézet", futtat: () => b.click()
+    })).filter(n => n.cimke);
+  }
+  function nezetre(nev){ const b = document.querySelector(`[data-nezet="${nev}"]`); if (b) b.click(); }
+  function kattint(id){ const e = document.getElementById(id); if (e) e.click(); }
+  function muveletek(){
+    const l = [
+      { cimke: "Új cikk felvitele a törzsbe", kulcs: "uj cikk torzs katalogus bovites",
+        futtat: () => { nezetre("cikkek"); setTimeout(() => kattint("ujTorzsCikk"), 80); } },
+      { cimke: "Új cikk felvitele az igénylistára", kulcs: "uj cikk igenylista szabad tetel",
+        futtat: () => { nezetre("rendeles"); setTimeout(() => kattint("szabadTetel"), 80); } },
+      { cimke: "Mentés most", kulcs: "mentes szinkron",
+        futtat: () => { if (window.mentesUjra) window.mentesUjra(); jelzes("Mentés elindítva."); } },
+      { cimke: "Munkalista: még nincs átnézve", kulcs: "munkalista atnezve hiany",
+        futtat: () => { nezetre("cikkek");
+          setTimeout(() => { const c = document.querySelector('.munka-csip[data-hiany="atnezetlen"]'); if (c) c.click(); }, 80); } },
+      { cimke: "Súgó megnyitása", kulcs: "sugo segitseg help", futtat: () => nezetre("sugo") },
+      { cimke: "Javaslat vagy hibajelzés írása", kulcs: "javaslat otlet hiba", futtat: () => nezetre("javaslatok") }
+    ];
+    return l.map(m => ({ fajta: "muvelet", cimke: m.cimke, kulcs: m.kulcs, ikon: "+", mell: "művelet", futtat: m.futtat }));
+  }
+  function epit(q){
+    const ki = [];
+    const sz = (mit, mibol) => !q || keresIllik(q, mibol);
+    nezetek().forEach(n => { if (sz(q, [n.cimke])) ki.push(n); });
+    muveletek().forEach(m => { if (sz(q, [m.cimke, m.kulcs])) ki.push(m); });
+    if (!q && (window.UTOLSO_CIKKEK || []).length){
+      const ind = {};
+      cikkLista().forEach(c => { ind[c.kod] = c; });
+      window.UTOLSO_CIKKEK.forEach(kod => {
+        const c = ind[kod];
+        if (!c) return;
+        ki.push({ fajta: "utolso", cimke: gyNev(c), ikon: "↺",
+          mell: String(kod).startsWith("SAJAT-") ? "kézi cikk" : kod,
+          futtat: () => { if (window.adatlapNyit) window.adatlapNyit(kod); } });
+      });
+    }
+    if (q && q.length >= 2){
+      let db = 0;
+      for (const c of cikkLista()){
+        if (db >= 8) break;
+        if (!keresIllik(q, [gyNev(c), c.kod, c.klinikai_nev, c.kategoria])) continue;
+        const m = modE(c.kod);
+        ki.push({ fajta: "cikk", cimke: gyNev(c), kod: c.kod, ikon: "≡",
+          mell: (m.inaktiv ? "inaktív · " : "") + (String(c.kod).startsWith("SAJAT-") ? "kézi cikk" : c.kod),
+          futtat: () => { if (window.adatlapNyit) window.adatlapNyit(c.kod); } });
+        db++;
+      }
+    }
+    const rend = { utolso: 0, cikk: 1, nezet: 2, muvelet: 3 };
+    ki.sort((a, b) => rend[a.fajta] - rend[b.fajta]);
+    return ki.slice(0, 24);
+  }
+  function rajzol(q){
+    if (!talalatok.length){
+      lista.innerHTML = `<div class="gy-ures">Nincs találat erre: <b>${esc(q)}</b></div>`;
+      return;
+    }
+    let elozo = "", html = "";
+    const cimek = { utolso: "Legutóbb megnyitott", nezet: "Nézetek", muvelet: "Műveletek", cikk: "Cikkek" };
+    talalatok.forEach((t, i) => {
+      if (t.fajta !== elozo){ html += `<div class="gy-cim">${cimek[t.fajta]}</div>`; elozo = t.fajta; }
+      html += `<div class="gy-elem ${i === hol ? "kivalasztott" : ""}" data-gy="${i}" role="option"
+        aria-selected="${i === hol}"><span class="ikon" aria-hidden="true">${t.ikon}</span>
+        <span class="fo">${q ? kiemel(t.cimke, q) : esc(t.cimke)}</span>
+        <span class="mell">${esc(t.mell || "")}</span></div>`;
+    });
+    lista.innerHTML = html;
+  }
+  function frissit(){
+    const q = mezo.value.trim();
+    talalatok = epit(q);
+    if (hol >= talalatok.length) hol = 0;
+    rajzol(q);
+  }
+  function lathatora(){
+    const e = lista.querySelector(".gy-elem.kivalasztott");
+    if (e) e.scrollIntoView({ block: "nearest" });
+  }
+  function futtat(i){
+    const t = talalatok[i];
+    if (!t) return;
+    zar();
+    try { t.futtat(); } catch (e) { console.error(e); }
+  }
+  function nyit(){
+    takaro.classList.add("nyitva");
+    mezo.value = ""; hol = 0; frissit();
+    setTimeout(() => mezo.focus(), 40);
+  }
+  function zar(){ takaro.classList.remove("nyitva"); }
+  window.gyorsPalettaNyit = nyit;
+  window.gyorsPalettaZar = zar;
+  window.gyorsPalettaNyitva = () => takaro.classList.contains("nyitva");
+
+  mezo.oninput = () => { hol = 0; frissit(); };
+  mezo.onkeydown = ev => {
+    if (ev.key === "ArrowDown" || ev.key === "ArrowUp"){
+      ev.preventDefault();
+      if (!talalatok.length) return;
+      hol = (hol + (ev.key === "ArrowDown" ? 1 : -1) + talalatok.length) % talalatok.length;
+      rajzol(mezo.value.trim()); lathatora();
+      return;
+    }
+    if (ev.key === "Enter"){ ev.preventDefault(); futtat(hol); return; }
+    if (ev.key === "Escape"){ ev.preventDefault(); zar(); }
+  };
+  lista.addEventListener("mousemove", ev => {
+    const e = ev.target.closest("[data-gy]");
+    if (!e) return;
+    const i = +e.dataset.gy;
+    if (i !== hol){ hol = i; rajzol(mezo.value.trim()); }
+  });
+  lista.addEventListener("click", ev => {
+    const e = ev.target.closest("[data-gy]");
+    if (e) futtat(+e.dataset.gy);
+  });
+  takaro.addEventListener("click", ev => { if (ev.target === takaro) zar(); });
+  const gyGomb = document.getElementById("gyorsGomb");
+  if (gyGomb) gyGomb.onclick = ev => { ev.stopPropagation(); nyit(); };
+  document.addEventListener("keydown", ev => {
+    if ((ev.ctrlKey || ev.metaKey) && (ev.key === "k" || ev.key === "K")){
+      ev.preventDefault();
+      if (takaro.classList.contains("nyitva")) zar(); else nyit();
+    }
+  });
+})();
 // jobb felső legördülő menü
 (function(){
   const gomb = document.getElementById("userMenu"), panel = document.getElementById("userMenuPanel");
@@ -1384,6 +1690,7 @@ document.querySelectorAll("[data-nezet]").forEach(b => b.onclick = () => {
 // Escape mindig a legfelső felugrót zárja be
 document.addEventListener("keydown", ev => {
   if (ev.key !== "Escape") return;
+  if (window.gyorsPalettaNyitva && window.gyorsPalettaNyitva()){ window.gyorsPalettaZar(); return; }
   if (window.userMenuZar) window.userMenuZar();
   if (window.ertesitesZar) window.ertesitesZar();
   const lb = document.getElementById("lightbox");
@@ -1483,6 +1790,13 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   let lathatoKodokCache = [];             // a jelenlegi szűrés teljes találati köre
                                           // (a motor előtt kell, mert az adat() használja)
   const tomegesSav = document.getElementById("cikkTomeges");   // szintén a motor előtt
+  // A tömeges kitöltés elemei is a motor ELŐTT kellenek: a kijelölésfrissítő már
+  // az első renderelésnél kiírja a segédfeliratot, és a const a soráig nem érhető el.
+  const TK_CIMKE = { gyarto: "Gyártó / forgalmazó", kiszereles: "Kiszerelés", megjegyzes: "Megjegyzés" };
+  const TK_HELYORZO = { gyarto: "pl. B.Braun Trading Kft", kiszereles: "pl. 200 db/karton", megjegyzes: "pl. csak a shockból rendeljük" };
+  const tkMezo = document.getElementById("cikkTomegesMezo");
+  const tkErtek = document.getElementById("cikkTomegesErtek");
+  const tkJel = document.getElementById("cikkTomegesJel");
   const nevKi = r => (CIKK_MOD[(r||{}).kod] || {}).klinikai_nev || (r||{}).klinikai_nev || (r||{}).nev || (r||{}).kod || "";
   const naploz = (tipus, targy, reszletek) => { if (window.esemenyIr) window.esemenyIr(tipus, targy, reszletek); };
   const piszkosJel = () => { if (window.jelolPiszkosH) window.jelolPiszkosH("cikk_mod"); };
@@ -1520,7 +1834,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       const m = (typeof CIKK_MOD !== "undefined" && CIKK_MOD[r.kod]) || {};
       const jelek = (r.kef_tetel ? ' <span class="cimke kef">KEF</span>' : "")
         + (r.kp ? ' <span class="cimke raktar">központi raktár</span>' : "")
-        + (CIKK_MOD[r.kod] ? ' <span class="szerk-jel" title="Kézzel kiegészített adatlap">kiegészítve</span>' : "")
+        + (modTartalom(r.kod) ? ' <span class="szerk-jel" title="Kézzel kiegészített adatlap">kiegészítve</span>' : "")
         + (m.inaktiv ? ` <span class="inaktiv-cimke" title="${esc(m.inaktiv_ok || "Nem kínálja fel a rendszer")}">inaktív</span>` : "")
         + (m.sajat ? ' <span class="sajat-cimke" title="Kézzel felvitt cikk, nem a SAP-törzsből">kézi cikk</span>' : "");
       const klinikaiNev = m.klinikai_nev || r.klinikai_nev;
@@ -1538,8 +1852,11 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
                       : `<span class="allapot-jel aktiv-e">aktív</span>`}</td>
       <td class="num">${r.utolso_ar != null ? ft(r.utolso_ar) + (r.egyseg ? " / " + esc(r.egyseg) : "") : "–"}</td>
       <td style="white-space:nowrap">${m.inaktiv ? "" : `<button class="gomb masodlagos" data-torzsigeny="${esc(r.kod)}" style="font-size:11.5px;padding:5px 9px">Igénylistára</button>`}
-        ${m.atnezve ? `<br><span class="atnezve-jel" title="${esc("Átnézte: " + (m.atnezve_ki||"?") + (m.atnezve_mikor ? " (" + dat(helyiNap(m.atnezve_mikor)) + ")" : ""))}">✓ átnézve</span>`
-                    : `<br><button class="atv-link" data-atnezve="${esc(r.kod)}" style="font-size:11.5px">rendben, átnézve</button>`}</td></tr>`;}
+        <br><button class="atnez-gomb ${m.atnezve ? "kesz" : ""}" data-atnezve="${esc(r.kod)}"
+          title="${m.atnezve
+            ? esc("Átnézte: " + (m.atnezve_ki||"?") + (m.atnezve_mikor ? " (" + dat(helyiNap(m.atnezve_mikor)) + ")" : "") + " – kattints a jelölés visszavonásához")
+            : "Jelöld be, ha ezt a cikket már átnézted (akkor is, ha nem volt mit javítani)"}"
+          aria-pressed="${m.atnezve ? "true" : "false"}"><span class="pipa">✓</span>átnézve</button></td></tr>`;}
   });
   [keres, sel, kef].forEach(e => e.oninput = () => { csipSzamok(); motor.frissit(); });
   kepFrissitok.push(() => motor.frissit());
@@ -1617,17 +1934,26 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     mind.title = lathatoKodokCache.length
       ? `A szűrésnek megfelelő mind a ${num(lathatoKodokCache.length)} cikk kijelölése`
       : "Nincs kijelölhető cikk";
+    if (typeof tkJelFrissit === "function") tkJelFrissit();
   }
   document.getElementById("cikkTabla").addEventListener("click", ev => {
     const a = ev.target.closest("[data-atnezve]");
     if (a){
-      // "átnézve" jelölés: akkor is haladás, ha nem volt mit javítani
+      // "átnézve" jelölés: akkor is haladás, ha nem volt mit javítani.
+      // Kapcsoló: mégegyszer rákattintva a jelölés visszavonható (véletlen kattintás).
       const kod = a.dataset.atnezve;
       const m = CIKK_MOD[kod] || (CIKK_MOD[kod] = {});
-      m.atnezve = true; m.atnezve_ki = PROFIL.nev; m.atnezve_mikor = new Date().toISOString();
+      const nev = nevKi(cikkIndex[kod] || {kod});
+      if (m.atnezve){
+        m.atnezve = null; m.atnezve_ki = null; m.atnezve_mikor = null;
+        naploz("átnézve jelölés visszavonva", nev, "");
+        jelzes("Az „átnézve” jelölés visszavonva.", "info");
+      } else {
+        m.atnezve = true; m.atnezve_ki = PROFIL.nev; m.atnezve_mikor = new Date().toISOString();
+        naploz("cikk átnézve", nev, "nem volt mit javítani");
+      }
       if (window.valtozasJelolH) window.valtozasJelolH("cikk_mod", kod, "atnezve");
       piszkosJel();
-      naploz("cikk átnézve", nevKi(cikkIndex[kod] || {kod}), "nem volt mit javítani");
       csipSzamok(); motor.frissit();
       return;
     }
@@ -1668,6 +1994,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         + (inaktivra ? "\n\nA rendelésleadásnál nem fognak megjelenni, de itt bármikor visszakapcsolhatók."
                      : "\n\nÚjra megjelennek a rendelésleadás keresőjében."))) return;
     const most = new Date().toISOString();
+    // a művelet előtti állapot a visszavonáshoz
+    const elozoek = {};
+    kodok.forEach(k => { elozoek[k] = CIKK_MOD[k] ? JSON.parse(JSON.stringify(CIKK_MOD[k])) : null; });
     kodok.forEach(kod => {
       const m = CIKK_MOD[kod] || (CIKK_MOD[kod] = {});
       if (inaktivra){
@@ -1687,11 +2016,120 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
            num(kodok.length) + " cikk", inaktivra ? ok : "újra használható");
     kijelolt.clear();
     document.getElementById("cikkTomegesOk").value = "";
-    kijelolesFrissit(); szamJelek(); motor.frissit(); kepFrissitok.forEach(f => f());
-    alert(num(kodok.length) + (inaktivra ? " cikk inaktív lett." : " cikk újra aktív."));
+    kijelolesFrissit(); szamJelek(); csipSzamok(); motor.frissit(); kepFrissitok.forEach(f => f());
+    // visszavonás: a művelet előtti állapotot fél percig megtartjuk
+    visszavonasFelajanl(
+      `${num(kodok.length)} cikk ${inaktivra ? "inaktív lett" : "újra aktív"}.`,
+      () => {
+        kodok.forEach(kod => {
+          if (elozoek[kod]) CIKK_MOD[kod] = elozoek[kod]; else delete CIKK_MOD[kod];
+        });
+        piszkosJel();
+        naploz("visszavonás", num(kodok.length) + " cikk",
+               inaktivra ? "az inaktiválás visszavonva" : "a visszakapcsolás visszavonva");
+        sajatUjra(); if (window.cikkIndexUjra) window.cikkIndexUjra();
+        szamJelek(); csipSzamok(); motor.frissit(); kepFrissitok.forEach(f => f());
+      });
   }
   document.getElementById("cikkInaktival").onclick = () => tomegesAllit(true);
   document.getElementById("cikkAktival").onclick = () => tomegesAllit(false);
+
+  // ---------- tömeges kitöltés: egy adat egyszerre sok cikkre ----------
+  // A kézi adatjavítás legnagyobb része ismétlés (ugyanaz a gyártó vagy kiszerelés
+  // sok cikknél), ezért a kijelölésre egy lépésben is ráírható.
+  function tkJelFrissit(){
+    const mezo = tkMezo.value;
+    tkErtek.placeholder = TK_HELYORZO[mezo] || "";
+    const kodok = [...kijelolt];
+    const ures = kodok.filter(k => !(modE(k)[mezo] || "").trim()).length;
+    tkJel.textContent = kodok.length
+      ? `${num(ures)} kijelöltnél üres, ${num(kodok.length - ures)} már ki van töltve`
+      : "";
+  }
+  tkMezo.onchange = tkJelFrissit;
+  document.getElementById("cikkTomegesKitolt").onclick = () => {
+    const mezo = tkMezo.value, ertek = tkErtek.value.trim();
+    const felul = document.getElementById("cikkTomegesFelul").checked;
+    const kodok = [...kijelolt];
+    if (!kodok.length) return;
+    if (!ertek){
+      alert("Írd be, mit írjunk be a kijelölt cikkekhez.");
+      tkErtek.focus(); return;
+    }
+    if (mezo === "kiszereles" && window.kiszerelesProbaH && !window.kiszerelesProbaH(ertek)){
+      if (!confirm("Ezt a kiszerelést nem tudom értelmezni: " + ertek
+        + "\n\nA rendszer így nem fogja tudni darabra átszámolni. Bevált formák: 200 db/karton, 40 db/csomag, 10 ml/ampulla."
+        + "\n\nAkkor is beírjam?")) return;
+    }
+    const erintett = felul ? kodok : kodok.filter(k => !(modE(k)[mezo] || "").trim());
+    if (!erintett.length){
+      alert("A kijelölt cikkeknél ez az adat már mindenhol ki van töltve. Ha felül szeretnéd írni, pipáld be a „meglévőt is írja át” jelölőt.");
+      return;
+    }
+    if (!confirm(`Beírjuk ${num(erintett.length)} cikkhez, hogy ${TK_CIMKE[mezo]}: ${ertek}`
+      + (felul && erintett.length !== kodok.length ? "" : "")
+      + `\n\nA többi adat változatlan marad, és a művelet visszavonható.`)) return;
+    const most = new Date().toISOString();
+    const elozoek = {};
+    erintett.forEach(k => { elozoek[k] = CIKK_MOD[k] ? JSON.parse(JSON.stringify(CIKK_MOD[k])) : null; });
+    erintett.forEach(kod => {
+      const m = CIKK_MOD[kod] || (CIKK_MOD[kod] = {});
+      m[mezo] = ertek;
+      m.ki = PROFIL.nev; m.mikor = most;
+      if (window.valtozasJelolH) window.valtozasJelolH("cikk_mod", kod, mezo);
+    });
+    piszkosJel();
+    naploz("tömeges kitöltés", num(erintett.length) + " cikk", TK_CIMKE[mezo] + ": " + ertek);
+    sajatUjra(); if (window.cikkIndexUjra) window.cikkIndexUjra();
+    tkErtek.value = "";
+    kijelolesFrissit(); csipSzamok(); motor.frissit(); kepFrissitok.forEach(f => f());
+    visszavonasFelajanl(`${TK_CIMKE[mezo]} beírva ${num(erintett.length)} cikkhez.`, () => {
+      erintett.forEach(kod => { if (elozoek[kod]) CIKK_MOD[kod] = elozoek[kod]; else delete CIKK_MOD[kod]; });
+      piszkosJel();
+      naploz("visszavonás", num(erintett.length) + " cikk", "a tömeges kitöltés visszavonva");
+      sajatUjra(); if (window.cikkIndexUjra) window.cikkIndexUjra();
+      csipSzamok(); motor.frissit(); kepFrissitok.forEach(f => f());
+    });
+  };
+
+  // ---------- Excel-export: a most látható (szűrt) cikktörzs ----------
+  document.getElementById("cikkExport").onclick = () => {
+    const sorok = [["SAP cikkszám","Megnevezés","Klinikai név","Kategória","Rendelési egység",
+      "Gyártó / forgalmazó","Gyártói cikkszám","Kiszerelés","Utolsó ismert ár (Ft)","Ár forrása",
+      "Rendelések száma","Utolsó rendelés","12 hónap mennyiség","Állapot","Inaktiválás oka",
+      "Átnézve","Átnézte","Megjegyzés"]];
+    // ugyanaz a kör, ami épp a táblázatban látszik (minden szűrő szerint)
+    const lista = motor.adat().slice().sort((a, b) =>
+      String(a.nev || a.klinikai_nev || "").localeCompare(String(b.nev || b.klinikai_nev || ""), "hu"));
+    lista.forEach(r => {
+      const m = modE(r.kod);
+      sorok.push([
+        r.sajat ? "kézi cikk" : r.kod,
+        r.nev || r.klinikai_nev || "",
+        m.klinikai_nev || r.klinikai_nev || "",
+        r.kategoria || "",
+        m.egyseg || r.egyseg || "",
+        m.gyarto || "",
+        m.gyartoi_cikkszam || "",
+        m.kiszereles || "",
+        (m.ar != null ? m.ar : (r.utolso_ar != null ? r.utolso_ar : "")),
+        m.ar != null ? "kézi" : (r.gazd_ar != null ? "gazdasági tábla" : (r.utolso_ar != null ? "SAP rendelés" : "")),
+        r.n_rendeles || 0,
+        r.utolso || "",
+        r.menny_12ho != null ? r.menny_12ho : "",
+        m.inaktiv ? "inaktív" : "aktív",
+        m.inaktiv_ok || "",
+        m.atnezve ? "igen" : "",
+        m.atnezve_ki || "",
+        m.megjegyzes || ""
+      ]);
+    });
+    if (sorok.length < 2){ alert("A jelenlegi szűréssel nincs exportálható cikk."); return; }
+    if (!window.xlsxLetoltH){ alert("Az exportáló még nem áll készen, próbáld újra pár másodperc múlva."); return; }
+    window.xlsxLetoltH("cikktorzs_" + ma(), [{ nev: "Cikktörzs", sorok }]);
+    naploz("cikktörzs export", num(sorok.length - 1) + " cikk", "Excel-export a jelenlegi szűréssel");
+    jelzes(`${num(sorok.length - 1)} cikk letöltve Excelbe.`);
+  };
   // a jelölők és a számok a fotó- és adatlapfrissítéskor is kövessék az állapotot
   kepFrissitok.push(() => { szamJelek(); kijelolesFrissit(); csipSzamok(); });
   szamJelek(); csipSzamok();
@@ -1756,9 +2194,17 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       window.hozzaadH(kod);
       document.querySelector('[data-nezet="rendeles"]').click();
     } else {
-      alert("Felvéve a törzsbe. Mostantól ugyanúgy megtalálod a keresőben, mint a többi cikket.");
+      jelzes("Felvéve a törzsbe. Mostantól a keresőben is megtalálod.");
     }
   }
+  // a Mentés és következő ehhez fordul: a jelenlegi szűrt és rendezett lista szerint
+  // adja meg a következő cikkszámot, tehát a munkalista sorrendjében lehet végigmenni
+  window.adatlapKovetkezo = kod => {
+    const sorrend = lathatoKodokCache;
+    const i = sorrend.indexOf(kod);
+    if (i < 0) return sorrend[0] || null;
+    return sorrend[i + 1] || null;
+  };
   document.getElementById("ujTorzsCikk").onclick = tcNyit;
   tcM("tcMent").onclick = () => tcMentes(false);
   tcM("tcListara").onclick = () => tcMentes(true);
@@ -1936,6 +2382,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     }
     return null;
   }
+  // A cikktörzs tömeges kitöltése is ellenőrzi a beírt kiszerelést, de az másik
+  // zárványban van, ezért áthídaljuk.
+  window.kiszerelesProbaH = szoveg => { try { return kiszerelesProba(szoveg); } catch(e){ console.error(e); return null; } };
   function kiszerelesE(kod){
     const m = modE(kod);
     const jeloltek = [m.kiszereles, ...(ADAT.termekek[kod] || []).map(t => t.kiszereles)]
@@ -2048,7 +2497,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     const kef = kefE(c.kod);
     return (kef ? ' <span class="cimke kef" title="Megerősített KEF-es tétel">KEF</span>' : "")
           + (c.kp ? ' <span class="cimke raktar" title="Az egyetemi központi raktárból (KP11) rendelhető">központi raktár</span>' : "")
-          + (CIKK_MOD[c.kod] ? ' <span class="szerk-jel" title="Kézzel kiegészített adatlap">kiegészítve</span>' : "");
+          + (modTartalom(c.kod) ? ' <span class="szerk-jel" title="Kézzel kiegészített adatlap">kiegészítve</span>' : "");
   };
   // logikus szakmai csoportok a tallózáshoz: kulcsszavas besorolás a cikknevekből
   const CSOPORTOK = [
@@ -2194,10 +2643,10 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       <div class="talalat${listan ? " listan" : ""}">
         ${csillagGomb(c.kod)}
         ${cikkThumb(c.kod) || `<span class="pont" style="background:${KATSZIN[c.kategoria]||"#8B90A0"};flex:none" title="${esc(c.kategoria||"")}"></span>`}
-        <span class="nev"><span class="cikknev-link" role="button" tabindex="0" data-adatlap="${esc(c.kod)}" title="${esc(c.nev && nevE(c) !== c.nev ? "SAP: " + c.nev + " · " : "")}${esc(c.kategoria)} · adatlap megnyitása">${esc(nevE(c))}</span>${kefBadge(c)}<br>
+        <span class="nev"><span class="cikknev-link" role="button" tabindex="0" data-adatlap="${esc(c.kod)}" title="${esc(c.nev && nevE(c) !== c.nev ? "SAP: " + c.nev + " · " : "")}${esc(c.kategoria)} · adatlap megnyitása">${kiemel(nevE(c), q)}</span>${kefBadge(c)}<br>
           ${(forg || kisz || cksz) ? `<span class="minikat">${esc([forg, (kisz && String(kisz).trim() !== "1") ? "kiszerelés: " + kisz : "", cksz ? "cikkszám: " + cksz : ""].filter(Boolean).join(" · "))}${ts.length > 1 ? ` · +${ts.length-1} változat` : ""}</span><br>` : ""}
           ${c.kp && (c.kp_megjegyzes || c.kp_ref) ? `<span class="minikat">${esc([c.kp_ref ? "ref: " + c.kp_ref : "", c.kp_megjegyzes].filter(Boolean).join(" · "))}</span><br>` : ""}
-          <span class="ar">${esc(c.kod)}${arE(c.kod) != null ? ` · ${ft(arE(c.kod))}${c.egyseg ? "/" + esc(String(c.egyseg).toLowerCase()) : ""}${csomagAr(c)}${arJelzes(c.kod)}` : " · nincs ismert ár"}${c.utolso ? ` <span class="utolso-jel">· utóbb rendelve: ${dat(c.utolso).slice(0,8)}</span>` : ""}</span>
+          <span class="ar">${kiemel(c.kod, q)}${arE(c.kod) != null ? ` · ${ft(arE(c.kod))}${c.egyseg ? "/" + esc(String(c.egyseg).toLowerCase()) : ""}${csomagAr(c)}${arJelzes(c.kod)}` : " · nincs ismert ár"}${c.utolso ? ` <span class="utolso-jel">· utóbb rendelve: ${dat(c.utolso).slice(0,8)}</span>` : ""}</span>
           <button class="kepgomb" data-fotokod="${esc(c.kod)}" style="margin-left:8px">${(CIKK_KEPEK[c.kod]||[]).length ? "további fotó" : "+ fotó"}</button>
           ${listan ? `<br><span class="listan-jel">már a listán: ${num(listan.menny)} ${esc(listan.egyseg)}</span>` : ""}</span>
         <button data-kod="${esc(c.kod)}" class="${listan ? "megvan" : ""}">${listan ? "+ Még" : "+ Hozzáad"}</button>
@@ -2293,6 +2742,12 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   const adatlapDiv = document.getElementById("adatlap");
   const adatlapPanel = document.getElementById("adatlapPanel");
   window.adatlapNyit = kod => {
+    // a gyorskereső "legutóbb megnyitott" listájához (csak a munkamenet idejére)
+    try {
+      window.UTOLSO_CIKKEK = (window.UTOLSO_CIKKEK || []).filter(k => k !== kod);
+      window.UTOLSO_CIKKEK.unshift(kod);
+      window.UTOLSO_CIKKEK = window.UTOLSO_CIKKEK.slice(0, 8);
+    } catch(e){ /* a lista csak kényelmi funkció, ne akadályozza az adatlapot */ }
     const c = CIKK[kod]; if (!c) return;
     const m = modE(kod);
     const t0 = (ADAT.termekek[kod]||[])[0] || {};
@@ -2304,6 +2759,11 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       <h3>${esc(nevE(c))}${m.sajat ? ' <span class="sajat-cimke">kézi cikk</span>' : ""} <button type="button" class="sugo-jel" data-tip="Amit itt beírsz, az mindenkinél felülírja a megjelenített adatot. Az eredeti forrásadat megmarad alatta (eddig ismert sor), és a Kiegészítések törlése gombbal visszaállítható." aria-label="Súgó ehhez a nézethez">?</button></h3>
       <div class="alcim">SAP: ${esc(c.nev) || "nincs SAP név"} · kód: ${esc(kod)} · ${esc(c.kategoria)||""}
         ${m.mikor ? ` · utoljára kiegészítette: ${esc(m.ki)||"?"} (${dat(helyiNap(m.mikor))})` : ""}</div>
+      <div class="adatlap-suly">${c.n_rendeles > 0
+        ? `<b>${num(c.n_rendeles)} rendelésben</b> szerepelt${c.utolso ? `, utoljára ${esc(String(c.utolso).slice(0,7).replace("-", ". "))}` : ""}`
+          + `${c.ossz_ertek ? ` · összesen ${ft(c.ossz_ertek)}` : ""}`
+          + `${c.menny_12ho > 0 ? ` · az elmúlt évben ${num(c.menny_12ho)} ${esc(c.egyseg || "db")}` : " · az elmúlt évben nem rendeltétek"}`
+        : `<b>Soha nem rendeltétek</b> ebből a cikkből, tehát ez a javítás nem sürgős.`}</div>
       <div class="adatlap-mezo"><label>Fotók</label>
         ${(CIKK_KEPEK[kod]||[]).map((k,i) => `<img class="thumb" src="${esc(kepUrl(k))}" data-lbkod="${esc(kod)}" data-lbidx="${i}" style="width:56px;height:56px">`).join(" ")}
         <button class="gomb masodlagos" id="alFoto" style="font-size:12px">+ fotó</button></div>
@@ -2346,12 +2806,13 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         <div class="alap">Az inaktív cikk nem jelenik meg a rendelésleadás keresőjében és a készlethez sem vehető fel, de nem törlődik: a Cikktörzsben megtalálod, és itt bármikor visszakapcsolhatod. A már leadott rendeléseket nem érinti.${m.inaktiv ? `<br><b>Most inaktív.</b>${m.inaktiv_ki ? " Kikapcsolta: " + esc(m.inaktiv_ki) : ""}${m.inaktiv_mikor ? " (" + dat(helyiNap(m.inaktiv_mikor)) + ")" : ""}` : ""}</div>
       </div>
       ${mezo("Módosító neve", "alKi", m.ki || igenyloNev(), "", "ki írta be")}
-      <div class="exportsav">
+      <div class="exportsav adatlap-muveletek">
         ${!m.inaktiv ? `<button class="gomb masodlagos" id="alIgenylistara">Igénylistára</button>` : ""}
-        <button class="gomb" id="alMent">Mentés</button>
+        <button class="gomb" id="alMent" title="Ctrl+Enter">Mentés</button>
+        <button class="gomb arany" id="alMentKovetkezo" title="Mentés, és rögtön a következő cikk a listából">Mentés és következő</button>
         ${m.sajat ? `<button class="gomb masodlagos veszelyes mini" id="alSajatTorol">Kézi cikk törlése</button>` : ""}
         <button class="gomb masodlagos" id="alMegse">Bezárás mentés nélkül</button>
-        ${(CIKK_MOD[kod] && !m.sajat) ? '<button class="gomb masodlagos" id="alTorol">Kiegészítések törlése</button>' : ""}
+        ${(modTartalom(kod) && !m.sajat) ? '<button class="gomb masodlagos" id="alTorol">Kiegészítések törlése</button>' : ""}
       </div>
       <p class="megj" style="margin-bottom:0">Amit itt beírsz, az mindenkinél felülírja a megjelenített adatot (a forrásadat megmarad alatta). A módosítások automatikusan mentődnek és mindenkinél megjelennek.</p>`;
     adatlapDiv.classList.add("nyitva");
@@ -2419,7 +2880,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       sajatUjra(); cikkIndexEpit();
       adatlapDiv.classList.remove("nyitva");
       kepFrissitok.forEach(f => f());
-      alert("A kézi cikk törölve.");
+      jelzes("A kézi cikk törölve.");
     };
     const igenyGomb = document.getElementById("alIgenylistara");
     if (igenyGomb) igenyGomb.onclick = () => {
@@ -2427,7 +2888,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       adatlapDiv.classList.remove("nyitva");
       document.querySelector('[data-nezet="rendeles"]').click();
     };
-    document.getElementById("alMent").onclick = () => {
+    function adatlapMentes(kovetkezo){
       const uj = {
         klinikai_nev: document.getElementById("alKlinikai").value.trim(),
         gyarto: document.getElementById("alGyarto").value.trim(),
@@ -2459,14 +2920,46 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         ? { sajat: true, nev: m.nev, kategoria: m.kategoria,
             atnezve: m.atnezve, atnezve_ki: m.atnezve_ki, atnezve_mikor: m.atnezve_mikor }
         : { atnezve: m.atnezve, atnezve_ki: m.atnezve_ki, atnezve_mikor: m.atnezve_mikor };
+      // Ár-figyelmeztetés: a leggyakoribb tévedés, hogy a KARTON árát írják be
+      // egységárnak. Ugyanaz a szabály, mint az árajánlat-beolvasásnál.
+      const regiAr = arE(kod);
+      if (uj.ar != null && regiAr > 0 && uj.ar / regiAr >= 5){
+        const kk = kiszerelesE(kod);
+        const gyanu = kk ? Math.round(uj.ar / kk.elemszam * 100) / 100 : null;
+        if (!confirm(`Az eddig ismert ár ${ft(regiAr)}, amit beírtál, ${ft(uj.ar)}.\n\n`
+            + (gyanu ? `Ha ez a teljes csomag ára, akkor egy darab ${ft(gyanu)}.\n\n` : "")
+            + "Biztos, hogy ez az EGY EGYSÉGRE eső nettó ár?")) return;
+      }
+      const elozoAllapot = CIKK_MOD[kod] ? JSON.parse(JSON.stringify(CIKK_MOD[kod])) : null;
       const van = Object.values(uj).some(v => v && v !== uj.mikor);
       if (van || m.sajat) CIKK_MOD[kod] = { ...megorzendo, ...uj };
       else delete CIKK_MOD[kod];
       sajatUjra(); cikkIndexEpit();     // a kézi cikkek adatai is frissüljenek
       jelolPiszkos("cikk_mod");
       esemeny("cikk adatlap", nevE(c), "kiegészítve");
+      // visszavonás: a mentés előtti állapotot megtartjuk egy fél percre
+      visszavonasFelajanl(`${nevE(c)} adatlapja mentve.`, () => {
+        if (elozoAllapot) CIKK_MOD[kod] = elozoAllapot; else delete CIKK_MOD[kod];
+        sajatUjra(); cikkIndexEpit(); jelolPiszkos("cikk_mod");
+        esemeny("visszavonás", nevE(c), "az adatlap mentése visszavonva");
+        kepValtozott();
+      });
+      if (kovetkezo && window.adatlapKovetkezo){
+        kepValtozott();
+        const ujKod = window.adatlapKovetkezo(kod);
+        if (ujKod){ adatlapNyit(ujKod); return; }
+        adatlapDiv.classList.remove("nyitva");
+        jelzes("Ez volt az utolsó cikk a listában.");
+        return;
+      }
       adatlapDiv.classList.remove("nyitva");
       kepValtozott();
+    }
+    document.getElementById("alMent").onclick = () => adatlapMentes(false);
+    document.getElementById("alMentKovetkezo").onclick = () => adatlapMentes(true);
+    // Ctrl+Enter: mentés (ápolóként gépelve ez kézre esik)
+    adatlapPanel.onkeydown = ev => {
+      if ((ev.ctrlKey || ev.metaKey) && ev.key === "Enter"){ ev.preventDefault(); adatlapMentes(false); }
     };
   };
   adatlapDiv.onclick = ev => { if (ev.target === adatlapDiv) adatlapDiv.classList.remove("nyitva"); };
@@ -2687,7 +3180,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     jelolPiszkos("tetelek");
     esemeny("sablon", sz.nev, `betöltve (${uj} új tétel${osszevont ? `, ${osszevont} összevonva` : ""})`);
     kosarRender(); keresRender();
-    alert(`"${sz.nev}" betöltve: ${uj} új tétel${osszevont ? `, ${osszevont} meglévő tételhez adva` : ""}.`);
+    jelzes(`"${sz.nev}" betöltve: ${uj} új tétel${osszevont ? `, ${osszevont} meglévő tételhez adva` : ""}.`);
   }
   document.getElementById("sablonMentes").onclick = () => {
     if (!MUNKA.tetelek.length){ alert("Az igénylista üres, előbb tegyél rá tételeket."); return; }
@@ -2992,6 +3485,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       alert("Nem sikerült elkészíteni az xlsx fájlt, ezért CSV-t mentettem helyette. Ez Excelben ugyanúgy megnyitható.");
     }
   }
+  // A cikktörzs saját exportjához (másik zárványban van) áthídaljuk a letöltőt.
+  window.xlsxLetoltH = (nev, lapok) => xlsxLetolt(nev, lapok);
   const igenyloNev = () => document.getElementById("igenylo").value || "";
   function ellenoriz(){
     if (!MUNKA.tetelek.length){ alert("Az igénylista üres."); return false; }
@@ -3408,7 +3903,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         jelolPiszkos("tetelek");
         esemeny("hiánypótlás", t.nev, `${num(hiany)} ${t.egyseg} az igénylistára`);
         kosarRender(); keresRender();
-        alert(`${t.nev}: ${num(hiany)} ${t.egyseg} az igénylistára került.`);
+        jelzes(`${t.nev}: ${num(hiany)} ${t.egyseg} az igénylistára került.`);
       });
       // SAP bizonylatszám
       const biz = blokk.querySelector('[data-akcio="bizonylat"]');
@@ -4250,11 +4745,22 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     <p>A lista alján összesítve látszik az összes darabszám és a becsült nettó összérték (ez akkor is a darabárral számol, ha rendelési egységben adtad meg a mennyiséget). Az exportokban külön "Összes darab" oszlop van, így a klinikai darabigény és a gazdasági rendelési egység nem csúszhat el egymástól. A kiszerelést a cikk adatlapján bárki pontosíthatja, az átváltás onnantól aszerint számol.</p>
   </div>
   <div class="kartya">
+    <h3>Gyorskereső (Ctrl+K)</h3>
+    <p>A fejlécben lévő <b>nagyító</b> ikonra kattintva vagy a <b>Ctrl+K</b> (Macen Cmd+K) megnyomásával egy kereső ugrik fel. Ide bármit be lehet írni: egy cikk nevét vagy cikkszámát (Enterrel rögtön megnyílik az adatlapja), egy nézet nevét (pl. <i>készlet</i>), vagy egy műveletet (pl. <i>új cikk</i>, <i>mentés</i>). A nyilakkal lehet mozogni, Enterrel megnyitni, Esc-cel bezárni. Ha még nem írtál be semmit, felül a <b>legutóbb megnyitott cikkek</b> vannak, hogy egy hosszabb javítási körben oda-vissza lehessen lépkedni.</p>
+  </div>
+  <div class="kartya">
+    <h3>Tömeges kitöltés és Excel-export a Cikktörzsben</h3>
+    <p>Ha sok cikknél <b>ugyanaz</b> az adat (például ugyanaz a gyártó vagy ugyanaz a kiszerelés), nem kell egyenként beírni. Jelöld ki a sorok elején lévő pipával azokat a cikkeket, amikre igaz, és a megjelenő sávban a <b>Tömeges kitöltés</b> résznél válaszd ki, melyik adatot töltjük (gyártó, kiszerelés vagy megjegyzés), írd be az értéket, majd <b>Kitöltés a kijelölteknél</b>. A rendszer alapból csak az <b>üres</b> mezőket írja be, tehát a már meglévő adatot nem bántja: ha felül szeretnéd írni, ahhoz külön be kell pipálni a "meglévőt is írja át" jelölőt. A művelet után megjelenik egy <b>Visszavonás</b> sáv, tehát a téves kitöltés fél percen belül egy kattintással semmissé tehető. A kijelölés melletti felirat mindig kiírja, a kijelöltek közül hánynál üres még ez az adat.</p>
+    <p>Az <b>Excel-export</b> gombbal a most látható (szűrt) cikkkör letölthető táblázatba, minden fontos oszloppal: cikkszám, megnevezés, klinikai név, gyártó, kiszerelés, ár és ár forrása, rendelésszám, állapot, átnézve jelölés. Ez akkor jó, ha valaki papíron vagy offline szeretné átnézni a listát, vagy meg akarja beszélni valakivel. A <b>Még nincs átnézve</b> szűrővel együtt használva pontosan a tennivaló-listát adja.</p>
+    <p>Az <b>átnézve</b> jelölés (a sor jobb szélén lévő pipa) <b>kapcsoló</b>: ha véletlenül kattintottál rá, még egyszer megnyomva visszavonható.</p>
+  </div>
+  <div class="kartya">
     <h3>Javaslatok</h3>
     <p>A Javaslatok fülre írjatok mindent, ami kérés: új funkció, javítás, kényelmetlenség, ötlet, hibajelzés. Mindenki látja, és a fejlesztés innen dolgozik.</p>
   </div>
   <div class="kartya">
     <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v3.6</b> · gyorskereső (Ctrl+K) minden nézethez, művelethez és cikkhez, tömeges kitöltés a Cikktörzsben (gyártó, kiszerelés, megjegyzés egyszerre sok cikknek), Excel-export a szűrt cikktörzsből, az átnézve jelölés visszavonható, és a mentések visszavonhatók egy sávból</p>
     <p style="margin-bottom:6px"><b>v3.5</b> · munkalista a Cikktörzsben (hiányszűrők darabszámmal, rendelésszám szerinti sorrend, átnézve jelölés és haladás), a kiszerelés mező azonnal visszajelez, és a "darab" szót is érti</p>
     <p style="margin-bottom:6px"><b>v3.4</b> · a kézzel felvitt cikk törölhető, ha még semmihez nincs hozzárendelve, és az exportban nem a SAP cikkszám oszlopban jelenik meg</p>
     <p style="margin-bottom:6px"><b>v3.3</b> · új cikk felvehető a törzsbe is (kézi katalógus-bővítés, mindenhol kézi cikk jelöléssel), a Cikktörzs minden sorából és a cikk adatlapjáról egy kattintással igénylistára tehető, és az állapotfülek térköze rendben</p>
@@ -4888,7 +5394,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     window.SABLONOK = [...(window.SABLONOK || []), data].sort((a,b) => a.nev.localeCompare(b.nev, "hu"));
     if (window.sablonokFrissultek) window.sablonokFrissultek();
     if (window.esemenyIr) window.esemenyIr("sablon", nev, `elmentve (${tetelek.length} tétel)`);
-    alert(`"${nev}" sablon elmentve, mindenki látja és használhatja.`);
+    jelzes(`"${nev}" sablon elmentve, mindenki látja és használhatja.`);
   };
   window.sablonTorol = async id => {
     const sz = (window.SABLONOK || []).find(x => x.id === id);
@@ -5221,7 +5727,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         window.szinkron.alkalmaz(p.kulcs, tiszta);
       }
       if (window.esemenyIr) window.esemenyIr("visszaállítás", mit, `visszaállítva erre: ${pIdo(p.mikor)}`);
-      alert(`A(z) ${mit} visszaállítva. A többiek felületén is megjelenik.`);
+      jelzes(`A(z) ${mit} visszaállítva. A többiek felületén is megjelenik.`);
       pontokBetolt();
     });
   }
