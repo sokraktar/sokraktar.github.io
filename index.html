@@ -154,6 +154,23 @@ footer{max-width:1200px;margin:0 auto;padding:10px 24px 30px;font-size:12px;colo
   border-color:var(--kritikus);background:#FDF6F7}
 .ujTetelSor{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .ujTetelHiba{font-size:12px;color:var(--kritikus);font-weight:600;margin-top:4px;min-height:0}
+.allapot-fulek{display:flex;gap:6px;margin:10px 0 0}
+.allapot-ful{font:inherit;font-size:12.5px;font-weight:700;color:var(--tinta3);background:#fff;
+  border:1px solid var(--keret-eros);border-radius:999px;padding:7px 14px;cursor:pointer;min-height:36px}
+.allapot-ful:hover{color:var(--se-kek)}
+.allapot-ful.aktiv{background:var(--se-kek);border-color:var(--se-kek);color:#fff}
+.allapot-ful .db{font-weight:600;opacity:.75;margin-left:3px}
+#cikkTomeges{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;
+  background:#F1EFE7;border:1px solid var(--se-arany);border-radius:var(--r-m)}
+#cikkTomeges[hidden]{display:none}
+#cikkKijeloltDb{font-size:13px;font-weight:700;color:var(--tinta)}
+#cikkTomegesOk{flex:1;min-width:220px;font:inherit;font-size:13px;padding:8px 10px;
+  border:1px solid var(--keret-eros);border-radius:var(--r-s)}
+tr.inaktiv-sor{background:#FBF9F3}
+tr.inaktiv-sor td:nth-child(3){opacity:.72}
+.allapot-jel{font-size:11.5px;font-weight:700}
+.allapot-jel.aktiv-e{color:var(--jo)}
+.allapot-jel.inaktiv-e{color:#8A5A00}
 .ujtetel-cimke{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
   color:#0F5C86;background:#E8F3FA;border:1px solid #BEDCEC;border-radius:5px;padding:1px 6px;margin-left:6px}
 .inaktiv-jel{padding:8px 10px;font-size:12px;color:var(--tinta3);background:#F6F5EF;
@@ -998,13 +1015,26 @@ tbody tr:hover{background:#EFF2F8}
     <input type="search" id="cikkKeres" placeholder="Keresés cikknévre vagy cikkszámra...">
     <select id="cikkKat"><option value="">Minden kategória</option></select>
     <label class="cb"><input type="checkbox" id="cikkKef"> csak KEF-es</label>
-    <label class="cb"><input type="checkbox" id="cikkInaktiv"> csak az inaktívak</label>
+  </div>
+  <div class="allapot-fulek" role="group" aria-label="Állapot szerinti szűrés">
+    <button type="button" class="allapot-ful aktiv" data-allapot="aktiv" aria-pressed="true">Aktív <span class="db" id="cikkAktivDb"></span></button>
+    <button type="button" class="allapot-ful" data-allapot="inaktiv" aria-pressed="false">Inaktív <span class="db" id="cikkInaktivDb"></span></button>
+    <button type="button" class="allapot-ful" data-allapot="mind" aria-pressed="false">Mind</button>
+  </div>
+  <div id="cikkTomeges" hidden>
+    <span id="cikkKijeloltDb"></span>
+    <input type="text" id="cikkTomegesOk" maxlength="120" placeholder="Miért? pl. máshonnan rendeljük, duplikált cikkszám">
+    <button class="gomb masodlagos mini" id="cikkInaktival">Kijelöltek inaktiválása</button>
+    <button class="gomb masodlagos mini" id="cikkAktival" hidden>Kijelöltek visszakapcsolása</button>
+    <button class="kepgomb" id="cikkKijelolesTorles">kijelölés törlése</button>
   </div>
   <div class="kartya tablas">
     <table id="cikkTabla">
       <thead><tr>
+        <th style="width:34px"><input type="checkbox" id="cikkMindKijelol" aria-label="A látható cikkek kijelölése"></th>
         <th data-k="kod">SAP cikkszám</th><th data-k="nev">Megnevezés</th>
-        <th data-k="kategoria">Kategória</th><th class="num" data-k="utolso_ar">Utolsó ismert ár</th>
+        <th data-k="kategoria">Kategória</th><th data-k="allapotSzoveg">Állapot</th>
+        <th class="num" data-k="utolso_ar">Utolsó ismert ár</th>
       </tr></thead><tbody></tbody>
     </table>
     <button class="tobb" id="cikkTobb">További 100 megjelenítése</button>
@@ -1040,7 +1070,7 @@ tbody tr:hover{background:#EFF2F8}
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.1</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.2</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -1285,12 +1315,23 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   const sel = document.getElementById("cikkKat");
   kats.forEach(kt => sel.insertAdjacentHTML("beforeend", `<option>${kt}</option>`));
   const keres = document.getElementById("cikkKeres"), kef = document.getElementById("cikkKef");
-  const inaktivSzuro = document.getElementById("cikkInaktiv");
+  let allapotSzuro = "aktiv";                    // aktiv | inaktiv | mind
+  const kijelolt = new Set();                    // kijelölt cikkszámok (tömeges művelethez)
+  const inaktivE = kod => !!(CIKK_MOD[kod] || {}).inaktiv;
+  // Ez a nézet külön zárványban van, ezért saját segédek kellenek: az app belső
+  // függvényei (nevE, CIKK, esemeny, jelolPiszkos) itt nem látszanak.
+  const cikkIndex = {}; ADAT.cikkek.forEach(c => cikkIndex[c.kod] = c);
+  const nevKi = r => (CIKK_MOD[(r||{}).kod] || {}).klinikai_nev || (r||{}).klinikai_nev || (r||{}).nev || (r||{}).kod || "";
+  const naploz = (tipus, targy, reszletek) => { if (window.esemenyIr) window.esemenyIr(tipus, targy, reszletek); };
+  const piszkosJel = () => { if (window.jelolPiszkosH) window.jelolPiszkosH("cikk_mod"); };
+  const mezoJel = kod => { if (window.valtozasJelolH) window.valtozasJelolH("cikk_mod", kod, "inaktiv"); };
   const motor = tablaMotor({
     tabla: document.getElementById("cikkTabla"), tobb: document.getElementById("cikkTobb"),
     alapK: "nev", alapIr: 1,
     adat: () => {
       const q = keres.value.trim();
+      // a rendezéshez az állapot is legyen összehasonlítható érték
+      ADAT.cikkek.forEach(c => { c.allapotSzoveg = inaktivE(c.kod) ? "inaktív" : "aktív"; });
       const tm = kod => {
         const m = (typeof CIKK_MOD !== "undefined" && CIKK_MOD[kod]) || {};
         return [...(ADAT.termekek[kod]||[]).flatMap(t => [t.nev, t.cikkszam, t.forgalmazo, t.kiszereles]),
@@ -1299,7 +1340,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       return ADAT.cikkek.filter(r =>
         (!sel.value || r.kategoria === sel.value) &&
         (!kef.checked || r.kef_tetel) &&
-        (!inaktivSzuro.checked || ((CIKK_MOD[r.kod]||{}).inaktiv ? true : false)) &&
+        (allapotSzuro === "mind" || (allapotSzuro === "inaktiv" ? inaktivE(r.kod) : !inaktivE(r.kod))) &&
         (!q || keresIllik(q, [r.nev, r.klinikai_nev, r.kod, r.kategoria, r.egyseg,
           r.kp ? "központi raktár kp11" : "", r.kp_ref, ...tm(r.kod)])));
     },
@@ -1316,12 +1357,107 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         t0 ? [m.gyarto || t0.forgalmazo, (m.kiszereles || t0.kiszereles) ? "kisz.: " + (m.kiszereles || t0.kiszereles) : "", m.gyartoi_cikkszam || (t0.cikkszam && t0.cikkszam !== "-" ? t0.cikkszam : "")].filter(Boolean).join(", ") : "",
         m.megjegyzes || r.kp_megjegyzes || ""
       ].filter(Boolean).join(" · ");
-      return `<tr><td>${esc(r.kod)}</td><td>${cikkThumb(r.kod, 28)} <span class="cikknev-link" role="button" tabindex="0" data-adatlap="${esc(r.kod)}" title="Adatlap megnyitása">${esc(r.nev||r.klinikai_nev)||"–"}</span>${jelek}${alsor ? `<br><span class="minikat">${esc(alsor)}</span>` : ""}</td>
+      return `<tr class="${m.inaktiv ? "inaktiv-sor" : ""}"><td><input type="checkbox" data-kijelol="${esc(r.kod)}" ${kijelolt.has(r.kod) ? "checked" : ""} aria-label="${esc(nevKi(r))} kijelölése"></td><td>${esc(r.kod)}</td><td>${cikkThumb(r.kod, 28)} <span class="cikknev-link" role="button" tabindex="0" data-adatlap="${esc(r.kod)}" title="Adatlap megnyitása">${esc(r.nev||r.klinikai_nev)||"–"}</span>${jelek}${alsor ? `<br><span class="minikat">${esc(alsor)}</span>` : ""}</td>
       <td>${katJel(r.kategoria)}</td>
+      <td>${m.inaktiv ? `<span class="allapot-jel inaktiv-e">inaktív</span>${m.inaktiv_ok ? `<br><span class="mini" style="color:var(--tinta3)">${esc(m.inaktiv_ok)}</span>` : ""}`
+                      : `<span class="allapot-jel aktiv-e">aktív</span>`}</td>
       <td class="num">${r.utolso_ar != null ? ft(r.utolso_ar) + (r.egyseg ? " / " + esc(r.egyseg) : "") : "–"}</td></tr>`;}
   });
-  [keres, sel, kef, inaktivSzuro].forEach(e => e.oninput = () => motor.frissit());
+  [keres, sel, kef].forEach(e => e.oninput = () => motor.frissit());
   kepFrissitok.push(() => motor.frissit());
+
+  // ---------- állapotfülek: aktív / inaktív / mind ----------
+  const szamJelek = () => {
+    const inaktiv = ADAT.cikkek.filter(c => inaktivE(c.kod)).length;
+    document.getElementById("cikkAktivDb").textContent = "(" + num(ADAT.cikkek.length - inaktiv) + ")";
+    document.getElementById("cikkInaktivDb").textContent = "(" + num(inaktiv) + ")";
+  };
+  document.querySelectorAll(".allapot-ful").forEach(f => f.onclick = () => {
+    allapotSzuro = f.dataset.allapot;
+    document.querySelectorAll(".allapot-ful").forEach(x => {
+      const akt = x === f;
+      x.classList.toggle("aktiv", akt);
+      x.setAttribute("aria-pressed", akt ? "true" : "false");
+    });
+    kijelolesFrissit();
+    motor.frissit();
+  });
+
+  // ---------- kijelölés és tömeges inaktiválás ----------
+  const tomegesSav = document.getElementById("cikkTomeges");
+  function kijelolesFrissit(){
+    const db = kijelolt.size;
+    tomegesSav.hidden = db === 0;
+    document.getElementById("cikkKijeloltDb").textContent =
+      db ? `${num(db)} cikk kijelölve` : "";
+    // ha csupa inaktív van kijelölve, a visszakapcsolást ajánljuk fel
+    const csupaInaktiv = db > 0 && [...kijelolt].every(inaktivE);
+    document.getElementById("cikkInaktival").hidden = csupaInaktiv;
+    document.getElementById("cikkAktival").hidden = !csupaInaktiv;
+    document.getElementById("cikkTomegesOk").hidden = csupaInaktiv;
+    const mind = document.getElementById("cikkMindKijelol");
+    const lathatoKodok = [...document.querySelectorAll("#cikkTabla [data-kijelol]")].map(x => x.dataset.kijelol);
+    mind.checked = lathatoKodok.length > 0 && lathatoKodok.every(k => kijelolt.has(k));
+  }
+  document.getElementById("cikkTabla").addEventListener("change", ev => {
+    const cb = ev.target.closest("[data-kijelol]");
+    if (!cb) return;
+    if (cb.checked) kijelolt.add(cb.dataset.kijelol); else kijelolt.delete(cb.dataset.kijelol);
+    kijelolesFrissit();
+  });
+  document.getElementById("cikkMindKijelol").onchange = ev => {
+    document.querySelectorAll("#cikkTabla [data-kijelol]").forEach(cb => {
+      cb.checked = ev.target.checked;
+      if (ev.target.checked) kijelolt.add(cb.dataset.kijelol); else kijelolt.delete(cb.dataset.kijelol);
+    });
+    kijelolesFrissit();
+  };
+  document.getElementById("cikkKijelolesTorles").onclick = () => {
+    kijelolt.clear(); kijelolesFrissit(); motor.frissit();
+  };
+  function tomegesAllit(inaktivra){
+    const kodok = [...kijelolt];
+    if (!kodok.length) return;
+    const ok = document.getElementById("cikkTomegesOk").value.trim();
+    if (inaktivra && !ok){
+      alert("Írd be, miért nem kell ez a " + num(kodok.length) + " cikk. Ezt később mindenki látja a Cikktörzsben.");
+      document.getElementById("cikkTomegesOk").focus();
+      return;
+    }
+    const nevek = kodok.slice(0, 8).map(k => nevKi(cikkIndex[k] || {kod: k}));
+    if (!confirm((inaktivra ? "Inaktiválod ezt a " : "Visszakapcsolod ezt a ") + num(kodok.length)
+        + " cikket?\n\n" + nevek.map(n => "· " + n).join("\n")
+        + (kodok.length > 8 ? `\n· ...és további ${num(kodok.length - 8)}` : "")
+        + (inaktivra ? "\n\nA rendelésleadásnál nem fognak megjelenni, de itt bármikor visszakapcsolhatók."
+                     : "\n\nÚjra megjelennek a rendelésleadás keresőjében."))) return;
+    const most = new Date().toISOString();
+    kodok.forEach(kod => {
+      const m = CIKK_MOD[kod] || (CIKK_MOD[kod] = {});
+      if (inaktivra){
+        m.inaktiv = true; m.inaktiv_ok = ok;
+        m.inaktiv_ki = PROFIL.nev; m.inaktiv_mikor = m.inaktiv_mikor || most;
+      } else {
+        m.inaktiv = null; m.inaktiv_ok = null; m.inaktiv_ki = null; m.inaktiv_mikor = null;
+      }
+      m.ki = PROFIL.nev; m.mikor = most;
+      // ha a kiegészítésben más nincs, ne maradjon üres bejegyzés
+      if (!inaktivra && !Object.keys(m).some(x => !["ki","mikor","inaktiv","inaktiv_ok","inaktiv_ki","inaktiv_mikor"].includes(x) && m[x]))
+        delete CIKK_MOD[kod];
+      mezoJel(kod);
+    });
+    piszkosJel();
+    naploz(inaktivra ? "cikkek inaktiválása" : "cikkek visszakapcsolása",
+           num(kodok.length) + " cikk", inaktivra ? ok : "újra használható");
+    kijelolt.clear();
+    document.getElementById("cikkTomegesOk").value = "";
+    kijelolesFrissit(); szamJelek(); motor.frissit(); kepFrissitok.forEach(f => f());
+    alert(num(kodok.length) + (inaktivra ? " cikk inaktív lett." : " cikk újra aktív."));
+  }
+  document.getElementById("cikkInaktival").onclick = () => tomegesAllit(true);
+  document.getElementById("cikkAktival").onclick = () => tomegesAllit(false);
+  // a jelölők és a számok a fotó- és adatlapfrissítéskor is kövessék az állapotot
+  kepFrissitok.push(() => { szamJelek(); kijelolesFrissit(); });
+  szamJelek();
 })();
 
 // Az Árfigyelő nézetet a közös munkaállapot tölti (arfigyeloRender, lásd lent):
@@ -1402,6 +1538,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     if (piszkos){ ev.preventDefault(); ev.returnValue = ""; }
   });
   window.jelolPiszkosH = jelolPiszkos;
+  window.valtozasJelolH = valtozasJelol;
   // aktuális érvényes ár: beolvasott árajánlat felülírja az utolsó ismert árat
   // Árprioritás: beolvasott árajánlat > gazdasági iroda táblája > SAP rendelési ár.
   // A SAP árnál a TIPIKUS (medián) árat használjuk, ha az utolsó ismert ár kiugró:
@@ -3634,6 +3771,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     <h3>Ha egy cikk nem kell, vagy duplán van</h3>
     <p>A cikk nevére kattintva az adatlap alján van egy jelölő: <b>"Ezt a cikket ne kínálja fel a rendszer (inaktív)"</b>. Ha bepipálod és megírod, miért (pl. máshonnan rendeljük, duplikált cikkszám), a cikk eltűnik a rendelésleadás keresőjéből és a készlethez sem vehető fel. <b>Nem törlődik:</b> a Cikktörzsben a "csak az inaktívak" szűrővel megtalálod, és ugyanott, az adatlapon bármikor visszakapcsolhatod. A már leadott rendeléseket nem érinti.</p>
     <p>Ha keresés közben olyat írsz be, ami csak inaktív cikkre illik, a lista alján szólunk róla, és megmutatjuk, melyek azok.</p>
+    <p><b>Egyszerre több cikk is kivehető.</b> A Cikktörzs fülön három állapot között válthatsz (<b>Aktív</b>, <b>Inaktív</b>, <b>Mind</b>), a fülön ott a darabszám is, és minden sor végén látszik az állapot meg az indok. A sorok elején lévő jelölővel több cikket kiválaszthatsz (a fejlécben lévő jelölő az összes láthatót kijelöli), és a megjelenő sávban egyszerre inaktiválhatod vagy kapcsolhatod vissza őket. Inaktiválásnál kötelező megírni, hogy miért, mert ezt később mindenki látja. Így egy kereséssel (pl. "oxigén") és két kattintással egy egész kör kivehető.</p>
   </div>
   <div class="kartya">
     <h3>Ha a mennyiség vagy a kiszerelés nem stimmel</h3>
@@ -3666,6 +3804,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v3.2</b> · a Cikktörzsben aktív, inaktív és mind fül a darabszámmal, állapot oszlop az indokkal, és egyszerre több cikk is inaktiválható vagy visszakapcsolható</p>
     <p style="margin-bottom:6px"><b>v3.1</b> · új cikk felvitele kötelező mezőkkel (megnevezés, mennyiség, egység, gyártó, indok), hiányos tétellel nem adható le a lista, és az új cikk adatai bekerülnek az exportba</p>
     <p style="margin-bottom:6px"><b>v3.0</b> · Évi javaslatai alapján: cikk inaktiválása (nem kínálja fel a rendszer, de visszakapcsolható), rendelési egység és legkisebb rendelhető mennyiség az adatlapon, oxigénpalackok kivéve, elgépelt terméknév javítva, a keresésben a névtalálat előre kerül</p>
     <p style="margin-bottom:6px"><b>v2.9</b> · pontos ár megadható az adatlapon, a fotók külön tárhelyre kerülnek (nincs több méretkorlát), a leadott rendelés törzse utólag nem írható át, mezőnkénti összefésülés egyidejű szerkesztésnél</p>
