@@ -138,6 +138,24 @@ footer{max-width:1200px;margin:0 auto;padding:10px 24px 30px;font-size:12px;colo
 .export-racs > div{display:flex;flex-direction:column;gap:3px}
 .export-racs .gomb{width:100%}
 .export-magy{font-size:11.5px;color:var(--tinta3);line-height:1.35}
+#ujTetelModal{position:fixed;inset:0;background:rgba(35,47,97,.5);display:none;align-items:flex-start;
+  justify-content:center;padding:4vh 12px;z-index:80;overflow-y:auto}
+#ujTetelModal.nyitva{display:flex}
+#ujTetelModal .panel{background:#fff;border-radius:var(--r-l);padding:22px;max-width:560px;width:100%;
+  box-shadow:var(--e3)}
+#ujTetelModal label{display:block;font-size:12px;font-weight:700;color:var(--tinta2);
+  text-transform:uppercase;letter-spacing:.3px;margin:12px 0 4px}
+#ujTetelModal label.cb{text-transform:none;letter-spacing:0;font-size:13.5px;display:flex;
+  align-items:center;gap:8px}
+#ujTetelModal input[type=text],#ujTetelModal input[type=number],#ujTetelModal select,
+#ujTetelModal textarea{width:100%;font:inherit;font-size:14px;padding:9px 11px;
+  border:1px solid var(--keret-eros);border-radius:var(--r-s);background:#fff}
+#ujTetelModal input.hibas,#ujTetelModal select.hibas,#ujTetelModal textarea.hibas{
+  border-color:var(--kritikus);background:#FDF6F7}
+.ujTetelSor{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ujTetelHiba{font-size:12px;color:var(--kritikus);font-weight:600;margin-top:4px;min-height:0}
+.ujtetel-cimke{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+  color:#0F5C86;background:#E8F3FA;border:1px solid #BEDCEC;border-radius:5px;padding:1px 6px;margin-left:6px}
 .inaktiv-jel{padding:8px 10px;font-size:12px;color:var(--tinta3);background:#F6F5EF;
   border-top:1px solid var(--keret)}
 .inaktiv-cimke{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
@@ -707,6 +725,54 @@ tbody tr:hover{background:#EFF2F8}
     </div>
   </div>
 </div>
+<div id="ujTetelModal">
+  <div class="panel">
+    <h3>Új cikk felvitele az igénylistára</h3>
+    <p class="megj" style="margin-top:0">Olyan cikk, ami nincs a törzsben. A gazdasági iroda csak akkor tudja megrendelni, ha pontosan tudja, mi kell, ezért itt minden mezőt ki kell tölteni. A csillagozott mezők kötelezők.</p>
+    <label for="ujNev">Megnevezés, pontosan (típus, méret, ami azonosítja) *</label>
+    <input type="text" id="ujNev" maxlength="160" placeholder="pl. Braun Vasofix Certo biztonsági branül 20G rózsaszín">
+    <div class="ujTetelHiba" id="ujNevHiba"></div>
+
+    <div class="ujTetelSor">
+      <div><label for="ujMenny">Mennyiség *</label>
+        <input type="number" id="ujMenny" min="1" step="1" value="1"></div>
+      <div><label for="ujEgyseg">Rendelési egység *</label>
+        <select id="ujEgyseg">
+          <option value="">válassz...</option>
+          <option>db</option><option>doboz</option><option>karton</option><option>csomag</option>
+          <option>tekercs</option><option>pár</option><option>ív</option><option>üveg</option>
+          <option>flakon</option><option>ampulla</option><option>méter</option><option>liter</option>
+          <option>készlet</option>
+        </select></div>
+    </div>
+    <div class="ujTetelHiba" id="ujMennyHiba"></div>
+
+    <label for="ujKiszereles">Kiszerelés, ha nem darabra rendelitek (pl. 200 db/karton)</label>
+    <input type="text" id="ujKiszereles" maxlength="60" placeholder="pl. 100 db/doboz">
+
+    <label for="ujForgalmazo">Gyártó vagy forgalmazó *</label>
+    <input type="text" id="ujForgalmazo" maxlength="80" placeholder="pl. B.Braun Trading Kft.">
+    <label for="ujCikkszam">Gyártói vagy katalógusszám (ha megvan, nagyon segít)</label>
+    <input type="text" id="ujCikkszam" maxlength="60" placeholder="pl. 4269110">
+    <div class="ujTetelHiba" id="ujForgHiba"></div>
+
+    <label for="ujIndok">Mire kell, hol használjátok? *</label>
+    <textarea id="ujIndok" maxlength="300" rows="2" placeholder="pl. sokkszobába, a mostani branülök helyett, mert a biztonsági záras kell"></textarea>
+    <div class="ujTetelHiba" id="ujIndokHiba"></div>
+
+    <label class="cb" style="margin-top:10px"><input type="checkbox" id="ujSurgos"> Sürgős</label>
+    <div id="ujSurgosSor" hidden>
+      <label for="ujSurgosOk">Miért sürgős? *</label>
+      <input type="text" id="ujSurgosOk" maxlength="120" placeholder="pl. elfogyott, holnap kell a beavatkozáshoz">
+      <div class="ujTetelHiba" id="ujSurgosHiba"></div>
+    </div>
+
+    <div class="exportsav" style="margin-top:16px">
+      <button class="gomb" id="ujTetelMent">Felvétel az igénylistára</button>
+      <button class="gomb masodlagos" id="ujTetelMegse">Mégse</button>
+    </div>
+  </div>
+</div>
 <div id="jelszoModal">
   <div class="panel">
     <h3>Jelszóváltás</h3>
@@ -810,7 +876,7 @@ tbody tr:hover{background:#EFF2F8}
         <button class="kepgomb" id="tallozasValto" hidden></button>
       </div>
       <div class="talalatok" id="rendTalalatok"></div>
-      <div style="margin-top:10px"><button class="gomb masodlagos" id="szabadTetel">+ Nincs a listában? Szabad szöveges tétel</button></div>
+      <div style="margin-top:10px"><button class="gomb masodlagos" id="szabadTetel">+ Nincs a listában? Új cikk felvitele</button></div>
     </div>
     <div class="jobb-oszlop">
       <div class="kartya" style="margin-bottom:0">
@@ -974,7 +1040,7 @@ tbody tr:hover{background:#EFF2F8}
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.0</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.1</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -1894,14 +1960,109 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     const inp = kosar.querySelector(`tr.kosar-tetel[data-id="${id}"] input[data-mezo="menny"]`);
     if (inp && window.innerWidth > 700){ inp.focus(); inp.select(); }
   }
-  function szabadTetelFelvesz(nev){
-    MUNKA.tetelek.push({ id: ++sorszam, kod: null, nev: nev || "", menny: 1, egyseg: "DB", megj: "", surgos: false, kepek: [] });
-    jelolPiszkos("tetelek");
-    kosarRender();
-    const utolso = kosar.querySelector(`[data-id="${sorszam}"] input[data-mezo="nev"]`);
-    if (utolso){ utolso.focus(); if (nev) utolso.setSelectionRange(nev.length, nev.length); }
+  // ---------- új cikk felvitele: kötelező mezőkkel, hogy ne kerüljön hiányos
+  //            tétel a gazdasági iroda elé ----------
+  const ujModal = document.getElementById("ujTetelModal");
+  let ujSzerkesztettId = null;          // ha meglévő tételt szerkesztünk
+  const ujMezo = id => document.getElementById(id);
+  const UJ_MEZOK = ["ujNev","ujMenny","ujEgyseg","ujKiszereles","ujForgalmazo","ujCikkszam","ujIndok","ujSurgosOk"];
+
+  function ujTetelNyit(kezdoNev, tetel){
+    ujSzerkesztettId = tetel ? tetel.id : null;
+    UJ_MEZOK.forEach(id => { const e = ujMezo(id); if (e){ e.value = ""; e.classList.remove("hibas"); } });
+    ["ujNevHiba","ujMennyHiba","ujForgHiba","ujIndokHiba","ujSurgosHiba"].forEach(id => ujMezo(id).textContent = "");
+    ujMezo("ujMenny").value = tetel ? (tetel.menny || 1) : 1;
+    ujMezo("ujSurgos").checked = tetel ? !!tetel.surgos : false;
+    ujMezo("ujSurgosSor").hidden = !ujMezo("ujSurgos").checked;
+    if (tetel){
+      ujMezo("ujNev").value = tetel.nev || "";
+      ujMezo("ujEgyseg").value = tetel.egyseg || "";
+      ujMezo("ujKiszereles").value = tetel.uj_kiszereles || "";
+      ujMezo("ujForgalmazo").value = tetel.uj_forgalmazo || "";
+      ujMezo("ujCikkszam").value = tetel.uj_cikkszam || "";
+      ujMezo("ujIndok").value = tetel.uj_indok || "";
+      ujMezo("ujSurgosOk").value = tetel.uj_surgos_ok || "";
+      ujModal.querySelector("h3").textContent = "Új cikk adatainak javítása";
+      ujMezo("ujTetelMent").textContent = "Módosítás mentése";
+    } else {
+      ujMezo("ujNev").value = kezdoNev || "";
+      ujModal.querySelector("h3").textContent = "Új cikk felvitele az igénylistára";
+      ujMezo("ujTetelMent").textContent = "Felvétel az igénylistára";
+    }
+    ujModal.classList.add("nyitva");
+    setTimeout(() => ujMezo("ujNev").focus(), 60);
   }
-  document.getElementById("szabadTetel").onclick = () => szabadTetelFelvesz("");
+  function ujTetelZar(){ ujModal.classList.remove("nyitva"); ujSzerkesztettId = null; }
+
+  // ellenőrzés: mindegyik szabályt magyarul mondjuk meg, és a hibás mezőt jelöljük
+  function ujTetelEllenoriz(){
+    const hibak = [];
+    const jel = (mezo, hibaHely, szoveg) => {
+      ujMezo(mezo).classList.add("hibas"); ujMezo(hibaHely).textContent = szoveg; hibak.push(szoveg);
+    };
+    UJ_MEZOK.forEach(id => { const e = ujMezo(id); if (e) e.classList.remove("hibas"); });
+    ["ujNevHiba","ujMennyHiba","ujForgHiba","ujIndokHiba","ujSurgosHiba"].forEach(id => ujMezo(id).textContent = "");
+
+    const nev = ujMezo("ujNev").value.trim();
+    if (nev.length < 6 || nev.split(/\s+/).filter(x => x.length > 1).length < 2)
+      jel("ujNev", "ujNevHiba", "A megnevezés túl rövid. Írd le pontosan, mi kell: gyártó vagy típus és méret is legyen benne (pl. \"Braun Vasofix 20G branül\").");
+    const menny = +ujMezo("ujMenny").value;
+    if (!(menny > 0) || !Number.isFinite(menny))
+      jel("ujMenny", "ujMennyHiba", "Add meg, mennyi kell (nullánál több).");
+    if (!ujMezo("ujEgyseg").value)
+      jel("ujEgyseg", "ujMennyHiba", "Válaszd ki a rendelési egységet (db, doboz, karton...).");
+    const forg = ujMezo("ujForgalmazo").value.trim();
+    if (forg.length < 3)
+      jel("ujForgalmazo", "ujForgHiba", "Írd be a gyártót vagy a forgalmazót, enélkül nem tudják megrendelni.");
+    const indok = ujMezo("ujIndok").value.trim();
+    if (indok.length < 10)
+      jel("ujIndok", "ujIndokHiba", "Írd le egy mondatban, mire kell és hol használjátok.");
+    if (ujMezo("ujSurgos").checked && ujMezo("ujSurgosOk").value.trim().length < 5)
+      jel("ujSurgosOk", "ujSurgosHiba", "Ha sürgős, írd meg, miért.");
+    return hibak.length === 0;
+  }
+
+  function ujTetelMentes(){
+    if (!ujTetelEllenoriz()) return;
+    const adat = {
+      nev: ujMezo("ujNev").value.trim(),
+      menny: +ujMezo("ujMenny").value,
+      egyseg: ujMezo("ujEgyseg").value,
+      uj_kiszereles: ujMezo("ujKiszereles").value.trim(),
+      uj_forgalmazo: ujMezo("ujForgalmazo").value.trim(),
+      uj_cikkszam: ujMezo("ujCikkszam").value.trim(),
+      uj_indok: ujMezo("ujIndok").value.trim(),
+      surgos: ujMezo("ujSurgos").checked,
+      uj_surgos_ok: ujMezo("ujSurgos").checked ? ujMezo("ujSurgosOk").value.trim() : "",
+      megj: [ujMezo("ujIndok").value.trim(),
+             ujMezo("ujSurgos").checked ? "sürgős: " + ujMezo("ujSurgosOk").value.trim() : ""]
+            .filter(Boolean).join(" · "),
+      uj_tetel: true
+    };
+    const meglevo = ujSzerkesztettId ? MUNKA.tetelek.find(t => t.id === ujSzerkesztettId) : null;
+    if (meglevo){
+      Object.assign(meglevo, adat);
+      meglevo.mod = new Date().toISOString();
+      Object.keys(adat).forEach(m => valtozasJelol("tetelek", meglevo.id, m));
+      esemeny("új cikk javítása", adat.nev, adat.menny + " " + adat.egyseg);
+    } else {
+      MUNKA.tetelek.push({ id: ++sorszam, kod: null, kepek: [], felvette: PROFIL.nev,
+                           mod: new Date().toISOString(), ...adat });
+      esemeny("új cikk felvitele", adat.nev, adat.menny + " " + adat.egyseg + " · " + adat.uj_forgalmazo);
+    }
+    jelolPiszkos("tetelek");
+    kosarRender(); keresRender();
+    ujTetelZar();
+  }
+  ujMezo("ujSurgos").onchange = () => { ujMezo("ujSurgosSor").hidden = !ujMezo("ujSurgos").checked; };
+  ujMezo("ujTetelMent").onclick = ujTetelMentes;
+  ujMezo("ujTetelMegse").onclick = ujTetelZar;
+  ujModal.onclick = ev => { if (ev.target === ujModal) ujTetelZar(); };
+  ujModal.addEventListener("keydown", ev => {
+    if (ev.key === "Enter" && ev.target.tagName !== "TEXTAREA"){ ev.preventDefault(); ujTetelMentes(); }
+  });
+  function szabadTetelFelvesz(nev){ ujTetelNyit(nev, null); }
+  document.getElementById("szabadTetel").onclick = () => ujTetelNyit("", null);
   // ---------- közös kedvencek (csillagozás) ----------
   function csillagGomb(kod){
     const tele = KEDVENCEK.has(kod);
@@ -2087,7 +2248,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     kosar.innerHTML = `<table><thead><tr><th style="min-width:140px">Cikk</th><th class="num">Menny.</th><th>Egys.</th><th style="min-width:92px">Megjegyzés</th><th>Sürgős</th><th>Fotó</th><th><span class="csak-olvasoknak">Törlés</span></th></tr></thead><tbody>` +
       MUNKA.tetelek.map(t => `<tr class="kosar-tetel${t.surgos ? " surgos-sor" : ""}" data-id="${esc(t.id)}">
         <td>${t.kod ? `<span class="cikknev-link" role="button" tabindex="0" data-adatlap="${esc(t.kod)}">${esc(t.nev)}</span><br><span class="mini" style="font-size:11px;color:var(--tinta3)">${esc(t.kod)}</span>`
-                    : `<input type="text" data-mezo="nev" maxlength="160" value="${esc(t.nev)}" placeholder="Írd le pontosan, mi kell (gyártó, méret...)" aria-label="Szabad szöveges tétel megnevezése">`}</td>
+                    : (t.uj_tetel ? `<b>${esc(t.nev)}</b><span class="ujtetel-cimke">új cikk</span><br><span class="mini" style="font-size:11px;color:var(--tinta3)">${esc([t.uj_forgalmazo, t.uj_cikkszam, t.uj_kiszereles].filter(Boolean).join(" · "))}</span>
+                        <button class="atv-link" data-ujjavit="${esc(t.id)}" style="font-size:11.5px">adatok javítása</button>`
+                    : `<input type="text" data-mezo="nev" maxlength="160" value="${esc(t.nev)}" placeholder="Írd le pontosan, mi kell (gyártó, méret...)" aria-label="Szabad szöveges tétel megnevezése">`)}</td>
         <td class="num"><input type="number" min="0" step="1" data-mezo="menny" value="${esc(t.menny)}" aria-label="${esc(t.nev)}: mennyiség"></td>
         <td>${egysegValaszto(t)}</td>
         <td><input type="text" data-mezo="megj" maxlength="200" value="${esc(t.megj)}" placeholder="pl. kiszerelés, sürgősség oka" aria-label="${esc(t.nev)}: megjegyzés"></td>
@@ -2130,6 +2293,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     kosar.querySelectorAll("tr.kosar-tetel").forEach(tr => {
       const t = MUNKA.tetelek.find(x => x.id == tr.dataset.id);
       sorFrissit(tr, t);
+      const javitGomb = tr.querySelector("[data-ujjavit]");
+      if (javitGomb) javitGomb.onclick = () => ujTetelNyit("", t);
       tr.querySelectorAll("[data-mezo]").forEach(inp => {
         // gépelés közben azonnal frissül az átváltás és az összérték, fókuszvesztés nélkül
         // negatív vagy képtelenül nagy mennyiség nem kerülhet a listára: a
@@ -2264,8 +2429,20 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   const igenyloNev = () => document.getElementById("igenylo").value || "";
   function ellenoriz(){
     if (!MUNKA.tetelek.length){ alert("Az igénylista üres."); return false; }
-    const hianyos = MUNKA.tetelek.filter(t => !t.kod && !t.nev.trim());
-    if (hianyos.length){ alert("Van kitöltetlen szabad szöveges tétel, írd be a megnevezést."); return false; }
+    // új (törzsön kívüli) cikk csak teljes adatokkal adható le
+    const hianyos = MUNKA.tetelek.filter(t => !t.kod && (
+      (t.nev || "").trim().length < 6
+      || (t.nev || "").trim().split(/\s+/).filter(x => x.length > 1).length < 2
+      || !(t.uj_forgalmazo || "").trim()
+      || (t.uj_indok || "").trim().length < 10
+      || !(t.egyseg || "").trim()));
+    if (hianyos.length){
+      alert("Ezeknél az új cikkeknél hiányos az adat, ezért nem adható le:\n\n"
+        + hianyos.map(t => "· " + (t.nev || "(névtelen tétel)")).join("\n")
+        + "\n\nNyisd meg az \"adatok javítása\" gombbal, és töltsd ki a csillagozott mezőket. "
+        + "A gazdasági iroda ezek nélkül nem tudja megrendelni.");
+      return false;
+    }
     const nullas = MUNKA.tetelek.filter(t => !(t.menny > 0));
     if (nullas.length){
       alert("Van tétel nulla vagy hiányzó mennyiséggel: " + nullas.map(t => t.nev).join(", "));
@@ -2340,10 +2517,10 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       const p = t.kod ? (ADAT.termekek[t.kod]||[])[0] : null;
       const m = t.kod ? modE(t.kod) : {};
       const ar = t.kod ? arE(t.kod) : null;
-      return [t.kod || "", t.nev,
-        m.gyartoi_cikkszam || (p?.cikkszam && p.cikkszam !== "-" ? p.cikkszam : ""),
-        m.gyarto || p?.forgalmazo || c?.szallito || (c?.kp ? "Központi raktár" : ""),
-        m.kiszereles || p?.kiszereles || "",
+      return [t.kod || (t.uj_tetel ? "ÚJ CIKK" : ""), t.nev,
+        m.gyartoi_cikkszam || (p?.cikkszam && p.cikkszam !== "-" ? p.cikkszam : "") || t.uj_cikkszam || "",
+        m.gyarto || p?.forgalmazo || c?.szallito || (c?.kp ? "Központi raktár" : "") || t.uj_forgalmazo || "",
+        m.kiszereles || p?.kiszereles || t.uj_kiszereles || "",
         t.menny, t.egyseg || "", osszDarab(t.kod, t.menny, t.egyseg),
         ar ?? "", arErtek(t) != null ? Math.round(arErtek(t) * 1.27 * 100) / 100 : "",
         t.surgos ? "SÜRGŐS" : "", t.megj || ""];
@@ -3449,6 +3626,11 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     <p>Minden, amit beírsz (igénylista, napló, készletadatok, fotók, beolvasott árak, cikk-kiegészítések) pár másodpercen belül automatikusan mentődik, és mindenki ugyanazt látja, aki belép. A fejléc jelzője mutatja, hol tart a mentés: "mentés folyamatban", majd "elmentve" az időponttal. Ha nincs internet vagy a szerver nem válaszol, ezt is kiírja. Amit beírtál, megvan a böngészőben, és a kapcsolat visszatérésekor magától felkerül, de addig ne zárd be a lapot. Ha valaki más módosítja ugyanazt a listát, miközben te épp írsz, azt is jelzi, és a változás akkor jelenik meg, amikor kilépsz a mezőből. Ha ugyanezen a gépen és böngészőben más lép be a te lapod mellett, a felület újratölti magát, hogy semmi ne kerüljön véletlenül a te nevedre. A jobb felső menüben a <b>Munkafájl mentése</b> biztonsági mentést készít egy fájlba, a <b>Munkafájl visszaállítása</b> pedig ebből tölti vissza az adatokat. Erre figyelj: a visszaállítás a mostani igénylistát, rendelésnaplót, készletet és árakat mindenkinél a fájlban lévőre cseréli, ezért csak megbeszélés után használd.</p>
   </div>
   <div class="kartya">
+    <h3>Ha nincs a listában: új cikk felvitele</h3>
+    <p>A kereső alatti <b>+ Nincs a listában? Új cikk felvitele</b> gombbal olyan cikket is felvehetsz, ami nem szerepel a törzsben. Itt viszont <b>minden csillagozott mezőt ki kell tölteni</b>: pontos megnevezés (gyártó vagy típus és méret is legyen benne), mennyiség, rendelési egység, gyártó vagy forgalmazó, és egy mondat arról, mire kell. Ha sürgős, azt is meg kell írni, miért.</p>
+    <p>Ez nem szigorúságból van: a gazdasági iroda csak ezekkel az adatokkal tudja megrendelni, és egy hiányos sorral ott áll meg a rendelés. A felvitt tétel az igénylistán <b>új cikk</b> jelöléssel látszik, az adatai alatta olvashatók, és az <b>adatok javítása</b> gombbal bármikor módosíthatók. Az exportban is szerepel a gyártó, a cikkszám és a kiszerelés, tehát a gazdasági iroda mindent egy helyen kap meg. Hiányos új cikkel a lista nem adható le, a rendszer megmutatja, melyiket kell pótolni.</p>
+  </div>
+  <div class="kartya">
     <h3>Ha egy cikk nem kell, vagy duplán van</h3>
     <p>A cikk nevére kattintva az adatlap alján van egy jelölő: <b>"Ezt a cikket ne kínálja fel a rendszer (inaktív)"</b>. Ha bepipálod és megírod, miért (pl. máshonnan rendeljük, duplikált cikkszám), a cikk eltűnik a rendelésleadás keresőjéből és a készlethez sem vehető fel. <b>Nem törlődik:</b> a Cikktörzsben a "csak az inaktívak" szűrővel megtalálod, és ugyanott, az adatlapon bármikor visszakapcsolhatod. A már leadott rendeléseket nem érinti.</p>
     <p>Ha keresés közben olyat írsz be, ami csak inaktív cikkre illik, a lista alján szólunk róla, és megmutatjuk, melyek azok.</p>
@@ -3484,6 +3666,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v3.1</b> · új cikk felvitele kötelező mezőkkel (megnevezés, mennyiség, egység, gyártó, indok), hiányos tétellel nem adható le a lista, és az új cikk adatai bekerülnek az exportba</p>
     <p style="margin-bottom:6px"><b>v3.0</b> · Évi javaslatai alapján: cikk inaktiválása (nem kínálja fel a rendszer, de visszakapcsolható), rendelési egység és legkisebb rendelhető mennyiség az adatlapon, oxigénpalackok kivéve, elgépelt terméknév javítva, a keresésben a névtalálat előre kerül</p>
     <p style="margin-bottom:6px"><b>v2.9</b> · pontos ár megadható az adatlapon, a fotók külön tárhelyre kerülnek (nincs több méretkorlát), a leadott rendelés törzse utólag nem írható át, mezőnkénti összefésülés egyidejű szerkesztésnél</p>
     <p style="margin-bottom:6px"><b>v2.8</b> · két gépen egyszerre is biztonságos: az igénylista tételenként fésül össze, ha ugyanabban a böngészőben más lép be, a felület újratölt, a kolléga módosítása a mező elhagyásakor azonnal megjelenik</p>
@@ -3775,7 +3958,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         latott.add(id);
         x.id = id;
         if ("menny" in x) x.menny = szam(x.menny) ?? 0;
-        ["nev","egyseg","megj","kovetes","igenylo","statusz","allapot"].forEach(mezo => {
+        ["nev","egyseg","megj","kovetes","igenylo","statusz","allapot",
+         "uj_kiszereles","uj_forgalmazo","uj_cikkszam","uj_indok","uj_surgos_ok"].forEach(mezo => {
           if (mezo in x) x[mezo] = szoveg(x[mezo]);
         });
         if (kulcs === "leadott"){
