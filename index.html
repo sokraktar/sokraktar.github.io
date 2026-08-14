@@ -143,8 +143,17 @@ footer{max-width:1200px;margin:0 auto;padding:10px 24px 30px;font-size:12px;colo
 .export-racs > div{display:flex;flex-direction:column;gap:3px}
 .export-racs .gomb{width:100%}
 .export-magy{font-size:11.5px;color:var(--tinta3);line-height:1.35}
-#gyorsGomb .gyors-jel{margin-left:6px;font-size:10px;font-weight:700;letter-spacing:.3px;opacity:.75}
-@media(max-width:820px){#gyorsGomb .gyors-jel{display:none}}
+/* Gyorskereső a fejlécben: ugyanaz a nyelv, mint a harangnál és a névmenünél,
+   a billentyűparancs jelölése pedig valódi klaviatúra-címke. */
+#gyorsGomb{font:inherit;font-size:11.5px;color:#C9CEE4;background:rgba(255,255,255,.05);
+  border:1px solid rgba(201,206,228,.4);border-radius:7px;padding:0 9px;height:29px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;line-height:1;
+  transition:color .15s,border-color .15s,background .15s}
+#gyorsGomb:hover{color:#fff;border-color:#fff;background:rgba(255,255,255,.12)}
+#gyorsGomb .gyors-jel{font-size:9.5px;font-weight:700;letter-spacing:.4px;
+  border:1px solid rgba(201,206,228,.35);border-radius:4px;padding:2px 5px;color:inherit;opacity:.85}
+#gyorsGomb:hover .gyors-jel{border-color:rgba(255,255,255,.6);opacity:1}
+@media(max-width:900px){#gyorsGomb .gyors-jel{display:none}#gyorsGomb{padding:4px 9px}}
 #gyorsPaletta{position:fixed;inset:0;background:rgba(35,47,97,.45);display:none;align-items:flex-start;
   justify-content:center;padding:9vh 16px 16px;z-index:220}
 #gyorsPaletta.nyitva{display:flex}
@@ -972,7 +981,7 @@ mark{background:#FDF3DF;color:inherit;padding:0 1px;border-radius:3px;font-weigh
     <div class="huser" id="huser">
       <span id="szinkronJelzo" role="status" aria-live="off"></span>
       <span id="onlineJelzo" data-tip=""></span>
-      <button id="gyorsGomb" title="Gyorskereső és ugrás (Ctrl+K)" aria-label="Gyorskereső"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg><span class="gyors-jel" aria-hidden="true">Ctrl K</span></button>
+      <button id="gyorsGomb" title="Gyorskereső és ugrás (Ctrl+K)" aria-label="Gyorskereső"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg><span class="gyors-jel" aria-hidden="true">Ctrl&nbsp;K</span></button>
       <button id="harang" title="Értesítések" aria-label="Értesítések"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="szam" id="harangSzam" aria-hidden="true"></span></button>
       <button id="userMenu" title="Menü"><b id="huserNev"></b> <span class="hszerep" id="huserSzerep"></span> <span class="caret" aria-hidden="true">▾</span></button>
     </div>
@@ -1718,7 +1727,11 @@ document.addEventListener("keydown", ev => {
   const lb = document.getElementById("lightbox");
   if (lb.classList.contains("nyitva")) { lb.classList.remove("nyitva"); return; }
   const al = document.getElementById("adatlap");
-  if (al.classList.contains("nyitva")) { al.classList.remove("nyitva"); return; }
+  if (al.classList.contains("nyitva")){
+    // mentetlen módosításnál rákérdez (window.adatlapZarKerdes), egyébként zár
+    if (window.adatlapZarKerdes) window.adatlapZarKerdes(); else al.classList.remove("nyitva");
+    return;
+  }
   const jm = document.getElementById("jelszoModal");
   if (jm.classList.contains("nyitva")) { jm.classList.remove("nyitva"); return; }
   const fm = document.getElementById("fiokModal");
@@ -1974,7 +1987,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         m.atnezve = true; m.atnezve_ki = PROFIL.nev; m.atnezve_mikor = new Date().toISOString();
         naploz("cikk átnézve", nev, "nem volt mit javítani");
       }
-      if (window.valtozasJelolH) window.valtozasJelolH("cikk_mod", kod, "atnezve");
+      if (window.valtozasJelolH)
+        ["atnezve", "atnezve_ki", "atnezve_mikor"].forEach(f => window.valtozasJelolH("cikk_mod", kod, f));
       piszkosJel();
       csipSzamok(); motor.frissit();
       return;
@@ -2100,7 +2114,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       const m = CIKK_MOD[kod] || (CIKK_MOD[kod] = {});
       m[mezo] = ertek;
       m.ki = PROFIL.nev; m.mikor = most;
-      if (window.valtozasJelolH) window.valtozasJelolH("cikk_mod", kod, mezo);
+      if (window.valtozasJelolH)
+        [mezo, "ki", "mikor"].forEach(f => window.valtozasJelolH("cikk_mod", kod, f));
     });
     piszkosJel();
     naploz("tömeges kitöltés", num(erintett.length) + " cikk", TK_CIMKE[mezo] + ": " + ertek);
@@ -2765,7 +2780,40 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   // ---------- szerkeszthető cikk-adatlap (klinikai és gazdasági oldal is javíthat) ----------
   const adatlapDiv = document.getElementById("adatlap");
   const adatlapPanel = document.getElementById("adatlapPanel");
+  // Mentetlen adatlap-szerkesztés védelme. Eddig a panel bezárása vagy egy másik
+  // cikkre ugrás (pl. a gyorskeresőből) szó nélkül eldobta a beírt szöveget.
+  const ADATLAP_MEZOK = ["alKlinikai","alGyarto","alCikkszam","alKiszereles","alKef","alMegj",
+                         "alEgyseg","alMinRend","alInaktiv","alInaktivOk","alAr","alKi"];
+  let adatlapPillanat = null;
+  function adatlapAllapot(){
+    return ADATLAP_MEZOK.map(id => {
+      const e = document.getElementById(id);
+      if (!e) return "";
+      return e.type === "checkbox" ? (e.checked ? "1" : "0") : String(e.value);
+    }).join("\u0001");
+  }
+  function adatlapPiszkosE(){
+    if (!adatlapDiv.classList.contains("nyitva") || adatlapPillanat === null) return false;
+    return adatlapAllapot() !== adatlapPillanat;
+  }
+  // true, ha szabad bezárni vagy továbblépni
+  function adatlapElhagyhato(){
+    if (!adatlapPiszkosE()) return true;
+    return confirm("Az adatlapon van mentetlen módosítás.\n\nHa most kilépsz, az elveszik. Mégis kilépsz?");
+  }
+  window.adatlapElhagyhato = adatlapElhagyhato;
+  function adatlapZar(){
+    if (!adatlapElhagyhato()) return false;
+    adatlapPillanat = null;
+    adatlapDiv.classList.remove("nyitva");
+    return true;
+  }
+  window.adatlapZarKerdes = adatlapZar;
+
   window.adatlapNyit = kod => {
+    // másik cikkre ugrás közben se veszítsük el a beírt szöveget
+    if (adatlapDiv.classList.contains("nyitva") && adatlapPiszkosE() && !adatlapElhagyhato()) return;
+    adatlapPillanat = null;
     // a gyorskereső "legutóbb megnyitott" listájához (csak a munkamenet idejére)
     try {
       window.UTOLSO_CIKKEK = (window.UTOLSO_CIKKEK || []).filter(k => k !== kod);
@@ -2841,7 +2889,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       <p class="megj" style="margin-bottom:0">Amit itt beírsz, az mindenkinél felülírja a megjelenített adatot (a forrásadat megmarad alatta). A módosítások automatikusan mentődnek és mindenkinél megjelennek.</p>`;
     adatlapDiv.classList.add("nyitva");
     document.getElementById("alFoto").onclick = () => cikkFotoFeltolt(kod);
-    document.getElementById("alMegse").onclick = () => adatlapDiv.classList.remove("nyitva");
+    document.getElementById("alMegse").onclick = () => adatlapZar();
     const tor = document.getElementById("alTorol");
     if (tor) tor.onclick = () => {
       if (confirm("Törlöd az összes kézi kiegészítést erről a cikkről?\n\n"
@@ -2852,6 +2900,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
         if (window.valtozasJelolH) window.valtozasJelolH("cikk_mod", kod, "torles");
         esemeny("cikk adatlap", nevE(c), "kiegészítések törölve");
         sajatUjra(); cikkIndexEpit();
+        adatlapPillanat = null;
         adatlapDiv.classList.remove("nyitva"); kepFrissitok.forEach(f => f());
       }
     };
@@ -2902,13 +2951,16 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       jelolPiszkos("cikk_mod");
       esemeny("kézi cikk törlése", nevE(c), "véglegesen törölve a törzsből");
       sajatUjra(); cikkIndexEpit();
+      adatlapPillanat = null;
       adatlapDiv.classList.remove("nyitva");
       kepFrissitok.forEach(f => f());
       jelzes("A kézi cikk törölve.");
     };
     const igenyGomb = document.getElementById("alIgenylistara");
     if (igenyGomb) igenyGomb.onclick = () => {
+      if (!adatlapElhagyhato()) return;
       hozzaad(kod);
+      adatlapPillanat = null;
       adatlapDiv.classList.remove("nyitva");
       document.querySelector('[data-nezet="rendeles"]').click();
     };
@@ -2960,6 +3012,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       else delete CIKK_MOD[kod];
       sajatUjra(); cikkIndexEpit();     // a kézi cikkek adatai is frissüljenek
       jelolPiszkos("cikk_mod");
+      adatlapPillanat = null;           // elmentve, tehát nincs mentetlen módosítás
       esemeny("cikk adatlap", nevE(c), "kiegészítve");
       // visszavonás: a mentés előtti állapotot megtartjuk egy fél percre
       visszavonasFelajanl(`${nevE(c)} adatlapja mentve.`, () => {
@@ -2985,8 +3038,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     adatlapPanel.onkeydown = ev => {
       if ((ev.ctrlKey || ev.metaKey) && ev.key === "Enter"){ ev.preventDefault(); adatlapMentes(false); }
     };
+    adatlapPillanat = adatlapAllapot();
   };
-  adatlapDiv.onclick = ev => { if (ev.target === adatlapDiv) adatlapDiv.classList.remove("nyitva"); };
+  adatlapDiv.onclick = ev => { if (ev.target === adatlapDiv) adatlapZar(); };
 
   // ---------- igénylista ----------
   const kosar = document.getElementById("kosar");
@@ -3995,11 +4049,15 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   function chatRender(rendelesId, gyoker, igenyles){
     const cel = (gyoker || document).querySelector(`[data-chatlista="${rendelesId}"]`);
     if (!cel) return;
-    const uzik = (window.UZENETEK || []).filter(u => u.rendeles_id == rendelesId && u.tipus !== "ertesites");
+    const mind = (window.UZENETEK || []).filter(u => u.rendeles_id == rendelesId);
+    const uzik = mind.filter(u => u.tipus !== "ertesites");
     cel.innerHTML = uzik.length ? uzik.map(uzenetHtml).join("")
       : `<div class="minikat" style="padding:4px 0">Még nincs üzenet ehhez a rendeléshez.</div>`;
-    // ha a napló nézetben nyitva van a blokk, a nekem címzettek olvasottá válnak
-    if (document.getElementById("naplo").classList.contains("aktiv") && naploNyitva.has(rendelesId)) olvasottra(uzik);
+    // Ha a napló nézetben nyitva van a blokk, a nekem címzettek olvasottá válnak.
+    // Az "új igénylés" értesítés a beszélgetésben nem látszik, de a harangban igen,
+    // ezért az olvasottra jelölésnél azt is figyelembe kell venni, különben örökre
+    // ott marad a jelzés a harangon.
+    if (document.getElementById("naplo").classList.contains("aktiv") && naploNyitva.has(rendelesId)) olvasottra(mind);
   }
   function olvasottra(uzik){
     const ids = uzik.filter(u => u.cimzett_id === window.PROFIL_ID && !u.olvasva).map(u => u.id);
@@ -4073,10 +4131,12 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   const harang = document.getElementById("harang");
   const ertesitesPanel = document.getElementById("ertesitesPanel");
   const lattamIdo = () => +localStorage.getItem("raktar_lattam") || 0;
+  let ertesitesLatott = [];         // amit a panelben tényleg megmutattunk
   function ertesitesRender(){
     const me = window.PROFIL_ID;
     const uzik = window.UZENETEK || [];
     const nekem = uzik.filter(u => u.cimzett_id === me && !u.olvasva).slice().reverse();
+    ertesitesLatott = nekem.map(u => u.id);
     const ujak = uzik.filter(u => u.szerzo_id !== me && u.cimzett_id !== me
       && new Date(u.letrehozva).getTime() > lattamIdo()).slice(-15).reverse();
     const db = nekem.length + ujak.length;
@@ -4112,7 +4172,13 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     if (!ertesitesPanel.classList.contains("nyitva")) return;
     ertesitesPanel.classList.remove("nyitva");
     localStorage.setItem("raktar_lattam", Date.now());
-    ertesitesRender();
+    // Amit a panelben elolvasott, az ne maradjon a harangon. Eddig csak akkor
+    // tűnt el, ha a rendelés naplóblokkját is kinyitotta, az "új igénylés"
+    // értesítés viszont így soha nem tudott olvasottá válni.
+    const ids = ertesitesLatott.slice();
+    ertesitesLatott = [];
+    if (ids.length && window.uzenetOlvasva) window.uzenetOlvasva(ids);
+    else ertesitesRender();
   }
   window.ertesitesZar = panelZar;
   harang.onclick = ev => {
@@ -4907,9 +4973,15 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       }
       if (kulcs === "cikk_mod" && tavoli && typeof tavoli === "object"){
         const ossz = { ...tavoli };
+        const jelolt = helyiValtozasok.get("cikk_mod");
         Object.entries(CIKK_MOD || {}).forEach(([kod, m]) => {
           const t = tavoli[kod];
           if (!t) { ossz[kod] = m; return; }
+          // Ha csak EGY-EGY mezőt írtunk át helyben (tömeges kitöltés, átnézve
+          // jelölés), akkor a távoli bejegyzésre csak azokat tesszük rá, különben a
+          // kolléga ugyanezen a cikken végzett adatlap-mentése elveszne.
+          const mezok = jelolt && jelolt.get(String(kod));
+          if (mezok && mezok.size){ ossz[kod] = mezoketRatesz("cikk_mod", kod, t, m); return; }
           if (m && m.mikor && (!t.mikor || String(m.mikor) > String(t.mikor))) ossz[kod] = m;
         });
         // amit itt töröltünk, azt a távoli állapot ne hozza vissza
