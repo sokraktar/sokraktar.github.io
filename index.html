@@ -3172,7 +3172,11 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
             + "Biztos, hogy ez az EGY EGYSÉGRE eső nettó ár?")) return;
       }
       const elozoAllapot = CIKK_MOD[kod] ? JSON.parse(JSON.stringify(CIKK_MOD[kod])) : null;
-      const van = Object.values(uj).some(v => v && v !== uj.mikor);
+      // A módosító neve és az időbélyeg önmagában nem tartalom: enélkül egy üres
+      // mentés is bejegyzést hozott létre a közös adatbázisban (a "ki" mező előre
+      // ki van töltve), és a cikk feleslegesen kiegészítettnek látszott.
+      const van = Object.entries(uj)
+        .some(([k, v]) => v && k !== "ki" && k !== "mikor");
       // A megőrzendő rész (kézi cikk törzsadata, átnézve jelölés) önmagában is ok
       // a bejegyzés megtartására: eddig egy üres mentés letörölte az átnézve
       // jelölést, tehát a cikk visszakerült a munkalistára.
