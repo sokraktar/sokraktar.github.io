@@ -1104,7 +1104,7 @@ mark{background:#FDF3DF;color:inherit;padding:0 1px;border-radius:3px;font-weigh
           <span style="flex:1"></span>
           <button class="gomb masodlagos veszelyes mini" id="kosarUrit">Lista törlése (mindent levesz)</button>
         </div>
-        <div class="export-cim">Exportok <button type="button" class="sugo-jel" data-tip="<b>Rendelési xlsx:</b> a gazdasági iroda táblájának oszlopaival, KEF külön lapon, továbbküldhető.<br><b>Gazdasági (3 lap):</b> Beszerzés, KEF és központi raktár szétválogatva.<br><b>Egyszerű lista / CSV:</b> letisztult lista bármilyen célra." aria-label="Súgó ehhez a nézethez">?</button></div>
+        <div class="export-cim">Exportok <button type="button" class="sugo-jel" data-tip="<b>Rendelési xlsx:</b> a gazdasági iroda táblájának oszlopaival, KEF külön lapon, továbbküldhető.<br><b>Gazdasági (3 lap):</b> Beszerzés, KEF és központi raktár szétválogatva, a gazdasági iroda oszlopaival (cég, cég cikkszáma, darabszám, nettó ár).<br><b>Egyszerű lista / CSV:</b> letisztult lista bármilyen célra." aria-label="Súgó ehhez a nézethez">?</button></div>
         <div class="export-racs">
           <div><button class="gomb arany" id="expTimcsi">Rendelési xlsx</button>
             <span class="export-magy">ezt küldd a gazdasági irodának</span></div>
@@ -1301,7 +1301,7 @@ mark{background:#FDF3DF;color:inherit;padding:0 1px;border-radius:3px;font-weigh
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.7</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.8</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -3795,7 +3795,10 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   }
   function gazdasagiExport(tetelek, datum, igenylo, naploId){
     // a gazdasági folyamatot követve három lap: normál beszerzés, KEF, központi raktár
-    const FEJ = ["Sorszám","SAP cikkszám","Megnevezés","Mennyiség","Egység","Összes darab (kiszerelés szerint)","Utolsó ismert fajlagos ár (Ft)","Becsült nettó érték (Ft)","Sürgős","Megjegyzés","Fotó csatolva"];
+    // Az oszlopok a gazdasági iroda 2026-09-01-i kérése szerint: cég megnevezése és a
+    // cég általi cikkszám külön oszlop, a mennyiség MINDIG darabban (a SAP-ban darabra
+    // rögzítenek), nincs egység, összes darab és megjegyzés oszlop, az ár neve nettó ár.
+    const FEJ = ["Sorszám","SAP cikkszám","Megnevezés","Cég megnevezése","Cég általi cikkszám","Rendelt mennyiség (darab)","Nettó ár (Ft)","Becsült nettó érték (Ft)","Sürgős","Fotó csatolva"];
     const csoportok = { beszerzes: [], kef: [], raktar: [] };
     tetelek.forEach(t => {
       const c = t.kod ? CIKK[t.kod] : null;
@@ -3805,11 +3808,25 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     const lapSorok = par => {
       const sorok = [FEJ.slice()];
       const kodKi = t => (t.kod && String(t.kod).startsWith("SAJAT-")) ? "kézi cikk" : (t.kod || "NINCS SAP KÓD");
-      par.forEach(([t,c], i) => sorok.push([i+1, kodKi(t), t.nev, t.menny, t.egyseg,
-        osszDarab(t.kod, t.menny, t.egyseg),
-        (t.kod ? arE(t.kod) : null) ?? "", arErtek(t) != null ? Math.round(arErtek(t)) : "",
-        t.surgos ? "SÜRGŐS" : "", [c?.kp_megjegyzes || "", t.megj].filter(Boolean).join(" · "),
-        (t.kod ? (CIKK_KEPEK[t.kod]||[]).length : (t.kepek||[]).length) ? "van (a rendszerben)" : ""]));
+      // darabszám: ismert kiszerelésnél átszámolva, különben a beírt mennyiség, és ha
+      // az egység nem darab, azt szövegesen jelezzük, hogy Timcsi lássa, mit kell tisztázni
+      const darab = t => {
+        const d = osszDarab(t.kod, t.menny, t.egyseg);
+        if (d !== "") return d;
+        const e = norm(t.egyseg || "");
+        return (!e || /^(db|darab)/.test(e)) ? t.menny : `${t.menny} ${t.egyseg} (kiszerelés ismeretlen, darabra nem átszámolható)`;
+      };
+      par.forEach(([t,c], i) => {
+        const p = t.kod ? (ADAT.termekek[t.kod]||[])[0] : null;
+        const m = t.kod ? modE(t.kod) : {};
+        sorok.push([i+1, kodKi(t), t.nev,
+          m.gyarto || p?.forgalmazo || c?.szallito || (c?.kp ? "Központi raktár" : "") || t.uj_forgalmazo || "",
+          m.gyartoi_cikkszam || (p?.cikkszam && p.cikkszam !== "-" ? p.cikkszam : "") || t.uj_cikkszam || "",
+          darab(t),
+          (t.kod ? arE(t.kod) : null) ?? "", arErtek(t) != null ? Math.round(arErtek(t)) : "",
+          t.surgos ? "SÜRGŐS" : "",
+          (t.kod ? (CIKK_KEPEK[t.kod]||[]).length : (t.kepek||[]).length) ? "van (a rendszerben)" : ""]);
+      });
       sorok.push([]);
       sorok.push(["Igénylő:", igenylo ?? igenyloNev(), "", "Dátum:", datum ?? ma(), "",
         "Sürgősségi Orvostani Klinika" + (naploId ? " · napló azonosító: " + naploId : "")]);
@@ -4009,6 +4026,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
             <button class="gomb masodlagos mini" data-akcio="exptimcsi">Rendelési xlsx</button>
             <button class="gomb masodlagos mini" data-akcio="expgazd">Gazdasági xlsx</button>
             <button class="gomb masodlagos mini" data-akcio="expkovetes">Követés xlsx</button>
+            <button class="gomb masodlagos mini" data-akcio="email" title="Előre megírt levél a rendelés összefoglalójával, a saját levelezőprogramodban">E-mail Timcsinek</button>
             ${PROFIL.szerep === "admin" ? `<button class="torol" data-akcio="torol" title="Rendelés törlése a naplóból" aria-label="Rendelés törlése a naplóból">✕</button>` : ""}
           </span>
         </div>
@@ -4090,6 +4108,15 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       blokk.querySelector('[data-akcio="exptimcsi"]').onclick = () =>
         xlsxLetolt(`igenyles_rendelesi_${helyiNap(r.mikor)}`, timcsiLapok(r.tetelek, r.igenylo, helyiNap(r.mikor)));
       blokk.querySelector('[data-akcio="expgazd"]').onclick = () => gazdasagiExport(r.tetelek, helyiNap(r.mikor), r.igenylo, r.id);
+      blokk.querySelector('[data-akcio="email"]').onclick = () => {
+        // A rendszer nem tud levelet küldeni (nincs levelezőszerver), ezért a saját
+        // levelezőben nyitunk egy előre megírt levelet, amit a felhasználó küld el.
+        const sorok = r.tetelek.map(t => `- ${t.nev}: ${t.menny} ${t.egyseg || "db"}${t.surgos ? " (SÜRGŐS)" : ""}${t.kod && !String(t.kod).startsWith("SAJAT-") ? ` · SAP ${t.kod}` : ""}`);
+        const targy = `Igénylés ${helyiNap(r.mikor)} · ${r.ut || "Beszerzés"} · ${r.tetelek.length} tétel (Sürgősségi Klinika)`;
+        const szoveg = `Kedves Timcsi!\n\nA raktárkészlet-felületen leadtunk egy igénylést, a részletek és a Gazdasági xlsx ott elérhető (https://sokraktar.github.io, Rendelésnapló).\n\nIgénylő: ${r.igenylo || igenyloNev()}\nDátum: ${helyiNap(r.mikor)}\nÚt: ${r.ut || "Beszerzés"}\n\nTételek:\n${sorok.join("\n")}\n\nKöszönöm,\n${PROFIL.nev}`;
+        location.href = `mailto:zsambokine.timea@semmelweis.hu?subject=${encodeURIComponent(targy)}&body=${encodeURIComponent(szoveg)}`;
+        esemeny("e-mail a gazdasági irodának", `${helyiNap(r.mikor)} (${r.igenylo || "névtelen"})`, "levél megnyitva a levelezőben");
+      };
       blokk.querySelector('[data-akcio="expkovetes"]').onclick = () => {
         const sorok = [["Megnevezés","SAP cikkszám","Rendelt","Egység","Érkezett","Hiány","Érkezés dátuma","Átvette","Tétel állapota","Sürgős","Követési megjegyzés"]];
         r.tetelek.forEach(t => sorok.push([t.nev,
@@ -4901,7 +4928,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   <div class="kartya">
     <h3>Exportok – melyik mire való?</h3>
     <p><b>Rendelési xlsx:</b> a gazdasági iroda megrendelő táblájának oszlopaival készül (SAP cikkszám, Megnevezés, Gyártói cikkszám, Forgalmazó, Kiszerelés, Igényelt mennyiség, Egység, Összes darab, Nettó egységár, Bruttó összesen, Sürgős, Klinikai megjegyzés), a KEF-es tételek külön lapon. Közvetlenül továbbküldhető.</p>
-    <p><b>Gazdasági xlsx (3 lap):</b> a tételeket automatikusan három lapra válogatja aszerint, hogy milyen úton mennek: Beszerzés (normál szállítói rendelés), KEF (közbeszerzési körbe tartozó), Központi raktár (az egyetemi központi raktárból rendelhető). Tartalmazza az utolsó ismert árat és a becsült értéket is.</p>
+    <p><b>Gazdasági xlsx (3 lap):</b> a tételeket automatikusan három lapra válogatja aszerint, hogy milyen úton mennek: Beszerzés (normál szállítói rendelés), KEF (közbeszerzési körbe tartozó), Központi raktár (az egyetemi központi raktárból rendelhető). Oszlopai a gazdasági iroda kérése szerint: SAP cikkszám, Megnevezés, Cég megnevezése, Cég általi cikkszám, Rendelt mennyiség (mindig darabban, mert a SAP-ban darabra rögzítenek), Nettó ár, Becsült nettó érték, Sürgős, Fotó. Ha egy cikknél nincs megadva a kiszerelés, a darabszám helyett a beírt mennyiség és egység áll, szöveges jelzéssel, hogy tisztázni kell.</p>
+    <p><b>E-mail a gazdasági irodának:</b> a Rendelésnapló minden blokkján van egy <b>E-mail Timcsinek</b> gomb, ami a saját levelezőprogramodban megnyit egy előre megírt levelet a rendelés összefoglalójával. Elküldeni neked kell, a rendszer magától nem küld levelet (ahhoz az egyetemi levelezőszerver kell, ez a .semmelweis.hu-ra költözéssel jön).</p>
     <p><b>Egyszerű lista xlsx / CSV:</b> letisztult lista klinikai egyeztetéshez vagy bármilyen más célra.</p>
     <p>A Rendelésnapló minden blokkjából is kérhető export: Rendelési xlsx, Gazdasági xlsx és <b>Követés xlsx</b>. Ez utóbbi tételenként a rendelt és az érkezett mennyiséget, a hiányt, az érkezés dátumát, az átvevőt és a követési megjegyzéseket tartalmazza. Az Egyszerű lista és a CSV az összeállítás alatt lévő igénylistából készül.</p>
   </div>
@@ -5046,6 +5074,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v3.8</b> · a Gazdasági xlsx a gazdasági iroda kérése szerint (cég megnevezése, cég általi cikkszám, mennyiség mindig darabban, nettó ár, nincs egység, összes darab és megjegyzés oszlop), és a rendelésnapló blokkjából egy kattintással előre megírt e-mail nyílik Timcsinek</p>
     <p style="margin-bottom:6px"><b>v3.7</b> · azonos nevű (duplikált) cikkek kiszűrése egy kattintással, a mentetlen adatlap-módosítás nem veszik el, az elolvasott értesítés eltűnik a harangról, egyidejű szerkesztésnél mezőnként fésülünk össze a cikktörzsben, és a felület billentyűzetről, illetve képernyőolvasóval is végigjárható</p>
     <p style="margin-bottom:6px"><b>v3.6</b> · gyorskereső (Ctrl+K) minden nézethez, művelethez és cikkhez, tömeges kitöltés a Cikktörzsben (gyártó, kiszerelés, megjegyzés egyszerre sok cikknek), Excel-export a szűrt cikktörzsből, az átnézve jelölés visszavonható, a cikk adatlapjának mentése és a cikktörzsi tömeges műveletek fél percen belül visszavonhatók egy sávból</p>
     <p style="margin-bottom:6px"><b>v3.5</b> · munkalista a Cikktörzsben (hiányszűrők darabszámmal, rendelésszám szerinti sorrend, átnézve jelölés és haladás), a kiszerelés mező azonnal visszajelez, és a "darab" szót is érti</p>
