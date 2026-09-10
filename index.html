@@ -1301,7 +1301,7 @@ mark{background:#FDF3DF;color:inherit;padding:0 1px;border-radius:3px;font-weigh
     <button class="gomb" id="lbBezar">Bezárás</button>
   </div>
 </div>
-<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.8</footer>
+<footer>Sürgősségi Orvostani Klinika · Semmelweis Egyetem · belső használatra · v3.9</footer>
 <script>
 // Az app belépés után indul: az adatokat és a közös munkaállapotot a szerverről kapja.
 window.appStart = function(ADAT, MENTETT, PROFIL){
@@ -3236,6 +3236,9 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       // ismételt hozzáadás: egy egységgel emelünk, nem a nagy átlaggal
       megvan.menny = (+megvan.menny || 0) + 1;
       megvan.mod = new Date().toISOString();
+      // a most megmozgatott tétel is a lista tetejére kerül, hogy hosszú listán se
+      // kelljen utána görgetni (Joli kérése)
+      MUNKA.tetelek = [megvan, ...MUNKA.tetelek.filter(t => t !== megvan)];
       jelolPiszkos("tetelek");
       kosarRender(); keresRender(); mennyisegreFokusz(megvan.id); return;
     }
@@ -3266,7 +3269,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       indMenny = (nyers && !/^(db|darab)/.test(norm(indEgyseg)))
         ? Math.max(1, Math.ceil(minDb / nyers.elemszam)) : minDb;
     }
-    MUNKA.tetelek.push({ id: ++sorszam, kod, nev: c.klinikai_nev||c.nev||kod, menny: indMenny,
+    // a legfrissebben hozzáadott tétel a lista TETEJÉN van, nem az alján
+    MUNKA.tetelek.unshift({ id: ++sorszam, kod, nev: c.klinikai_nev||c.nev||kod, menny: indMenny,
       egyseg: indEgyseg, megj: "", surgos: false, kepek: [], felvette: PROFIL.nev,
       mod: new Date().toISOString() });
     jelolPiszkos("tetelek");
@@ -3366,8 +3370,8 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       Object.keys(adat).forEach(m => valtozasJelol("tetelek", meglevo.id, m));
       esemeny("új cikk javítása", adat.nev, adat.menny + " " + adat.egyseg);
     } else {
-      MUNKA.tetelek.push({ id: ++sorszam, kod: null, kepek: [], felvette: PROFIL.nev,
-                           mod: new Date().toISOString(), ...adat });
+      MUNKA.tetelek.unshift({ id: ++sorszam, kod: null, kepek: [], felvette: PROFIL.nev,
+                              mod: new Date().toISOString(), ...adat });
       esemeny("új cikk felvitele", adat.nev, adat.menny + " " + adat.egyseg + " · " + adat.uj_forgalmazo);
     }
     jelolPiszkos("tetelek");
@@ -4921,6 +4925,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
     <p>2. Keresd meg a cikket a bal oldali keresőben. A kereső mindenre keres: klinikai és SAP név, SAP cikkszám, gyártói cikkszám, forgalmazó és szállító, kiszerelés, szakmai csoport. Több szót is írhatsz (pl. „kesztyu nitril m”), ékezetek nélkül is működik, és érti a köznapi neveket is (pl. branül, lázmérő, vérvétel, tűgyűjtő). Ha nem keresel, a leggyakrabban rendelt tételeitek látszanak (ez a lista abból épül, amit ti tesztek listára, az idővel egyre okosabb lesz), a Kedvencek fülön a csillagozott cikkek, az Összes cikk fülön pedig a teljes választék nyílik meg szakmai csoportokban.</p>
     <p>A kereső alatti sávval tovább szűkíthető a lista: választható <b>szakmai csoport</b> (pl. Kesztyűk, Tűk és fecskendők), és bekapcsolható a <b>Központi raktár</b>, a <b>KEF</b>, az <b>Elmúlt évben rendelt</b> vagy a <b>Már a listán</b> szűrő. A sorrend is állítható: ajánlott (a ti szokásaitok szerint), név, ár vagy legutóbb rendelt. Ha egy cikk már az igénylistán van, a sorában látszik a mennyiség, és a gomb "+ Még" lesz, tehát nem kerül rá kétszer véletlenül. Ha nincs találat, egy kattintással felveheted a beírt szöveget szabad szöveges tételként.</p>
     <p>Leadás előtt a rendszer ellenőriz: szól, ha kitöltetlen szabad szöveges tétel vagy nulla mennyiség van a listán, és rákérdez, ha valamiből a szokásos háromszorosánál is többet kértél. Ilyenkor a felugró ablakban látod, melyik tételről van szó, és eldöntheted, hogy így adod-e le.</p>
+    <p>A legutóbb hozzáadott tétel mindig az igénylista <b>tetején</b> van, tehát hosszú listán sem kell utána görgetni. Ha egy már listán lévő cikkre nyomsz rá újra, az is felkerül a tetejére.</p>
     <p>3. A + Hozzáad gombbal kerül a tétel az igénylistára, a <b>legkisebb rendelhető egységgel</b> (ahol ismert a kiszerelés, ott 1 rendelési egységgel, ahol a központi raktár minimumot ír elő, ott a minimummal). A szokásos rendelési mennyiség a sor alatt jelenik meg kattintható javaslatként, tehát egy mozdulattal beírható, de véletlenül nem adhatod le a több ezres átlagot. A mennyiség, az egység és a megjegyzés szabadon átírható, a Sürgős pipával jelezheted, ha nem várhat. Ha valami nincs a listában, a <b>+ Nincs a listában? Új cikk felvitele</b> gombbal veheted fel, ilyenkor írd le minél pontosabban (gyártó, méret, kiszerelés) és tegyél fel fotót.</p>
     <p>4. A fotó a cikkhez tartozik, nem a rendeléshez (a még törzsben nem lévő, kézzel felvitt tételnél viszont csak ahhoz az egy tételhez): ha egyszer felteszed (+ fotó gomb), onnantól mindig látszik a keresőben, a cikktörzsben és a készletnézetben is, kattintásra nagyban megnyílik. Így mindenki ránézésre tudja, pontosan melyik termékről van szó.</p>
     <p>5. Ha kész a lista, az „Igénylista leadása” gombbal zárod le: időbélyeggel bekerül a Rendelésnaplóba és a lista kiürül. Előtte vagy helyette exportálhatod is (lásd lent).</p>
@@ -5074,6 +5079,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
   </div>
   <div class="kartya">
     <h3>Verziónapló – mi változott?</h3>
+    <p style="margin-bottom:6px"><b>v3.9</b> · a frissen hozzáadott tétel az igénylista tetejére kerül, nem az aljára, tehát hosszú listán sem kell utána görgetni (Joli kérése)</p>
     <p style="margin-bottom:6px"><b>v3.8</b> · a Gazdasági xlsx a gazdasági iroda kérése szerint (cég megnevezése, cég általi cikkszám, mennyiség mindig darabban, nettó ár, nincs egység, összes darab és megjegyzés oszlop), és a rendelésnapló blokkjából egy kattintással előre megírt e-mail nyílik Timcsinek</p>
     <p style="margin-bottom:6px"><b>v3.7</b> · azonos nevű (duplikált) cikkek kiszűrése egy kattintással, a mentetlen adatlap-módosítás nem veszik el, az elolvasott értesítés eltűnik a harangról, egyidejű szerkesztésnél mezőnként fésülünk össze a cikktörzsben, és a felület billentyűzetről, illetve képernyőolvasóval is végigjárható</p>
     <p style="margin-bottom:6px"><b>v3.6</b> · gyorskereső (Ctrl+K) minden nézethez, művelethez és cikkhez, tömeges kitöltés a Cikktörzsben (gyártó, kiszerelés, megjegyzés egyszerre sok cikknek), Excel-export a szűrt cikktörzsből, az átnézve jelölés visszavonható, a cikk adatlapjának mentése és a cikktörzsi tömeges műveletek fél percen belül visszavonhatók egy sávból</p>
@@ -5168,9 +5174,13 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
       }
       if (kulcs === "tetelek" && Array.isArray(tavoli)){
         const map = new Map(tavoli.map(t => [String(t.id), t]));
+        // A nálunk most felvett tételek a lista ELEJÉRE kerülnek (a saját sorrendjükben),
+        // különben egy beérkező távoli frissítés a lista aljára dobta volna őket, és a
+        // frissen hozzáadott tétel véletlenszerűen eltűnt volna a szem elől.
+        const helyiUjak = [];
         MUNKA.tetelek.forEach(t => {
           const tav = map.get(String(t.id));
-          if (!tav){ map.set(String(t.id), t); return; }   // nálunk most felvett tétel
+          if (!tav){ helyiUjak.push(t); return; }          // nálunk most felvett tétel
           // mezőszinten: a beérkező tételre visszatesszük, amit MI írtunk át
           map.set(String(t.id), mezoketRatesz("tetelek", t.id, tav, t));
         });
@@ -5180,7 +5190,7 @@ const katJel = kt => `<span class="kat"><span class="pont" style="background:${K
           if (!tav) { tetelLevettek.delete(id); return; }
           if (mikor > String(tav.mod || "")) map.delete(String(id));
         });
-        return [...map.values()];
+        return [...helyiUjak, ...map.values()];
       }
       if (kulcs === "cikk_kepek" && tavoli && typeof tavoli === "object"){
         // fotóknál sosem dobunk el képet: a két oldal uniója marad
